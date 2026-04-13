@@ -1,11 +1,91 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f7f7f2;
-  --foreground: #111827;
-  --muted: #ece8da;
-  --border: #d8d3c4;
-  --ring: #111827;
+  --font-sf-pro:
+    "SF Pro Text",
+    "SF Pro Display",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  --base-white: #ffffff;
+  --base-black: #000000;
+
+  --text-strong: #0d1420;
+  --text-weak: #4b5563;
+  --text-weaker: #9ca3af;
+  --text-disable: #e5e7eb;
+  --text-brand-strong: #0c3173;
+  --text-brand-weak: #09a3dc;
+  --text-inverse-strong: #ffffff;
+  --text-inverse-weak: #f1f5f9;
+
+  --icon-strong: #0d1420;
+  --icon-weak: #4b5563;
+  --icon-weaker: #9ca3af;
+  --icon-disable: #e5e7eb;
+  --icon-brand-strong: #0c3173;
+  --icon-brand-weak: #09a3dc;
+  --icon-inverse-strong: #ffffff;
+  --icon-inverse-weak: #e2e8f0;
+
+  --fill-strong: #e5e5e5;
+  --fill-weak: #f5f5f5;
+  --fill-disable: #fafafa;
+  --fill-hover: #eff6ff;
+  --fill-brand-strong: #0c3173;
+  --fill-brand-weak: #09a3dc;
+  --fill-inverse-strong: #ffffff;
+  --fill-inverse-weak: #f1f5f9;
+
+  --line-strong: #111827;
+  --line-weak: #d1d5db;
+  --line-weaker: #e5e7eb;
+  --line-brand-strong: #0c3173;
+  --line-brand-weak: #09a3dc;
+  --line-inverse-strong: #ffffff;
+  --line-inverse-weak: #e2e8f0;
+
+  --surface-muted-100: #ffffff;
+  --surface-muted-50: #f5f5f4;
+  --surface-muted-40: #e7e5e4;
+  --surface-muted-30: #dad8d7;
+  --surface-muted-20: #d6d3d1;
+
+  --brand-default: #0c3173;
+  --brand-hover: #1d5fa8;
+  --brand-selected: #2563eb;
+  --brand-clicked: #3b82f6;
+  --brand-disabled: #dbeafe;
+  --brand-ghost: #ffffff;
+  --brand-ghost-inverse: #000000;
+
+  --logo-primary: #0c3173;
+  --logo-secondary: #09a3dc;
+
+  --danger-strong: #dc2626;
+  --danger-weak: #fecaca;
+  --danger-weaker: #fee2e2;
+  --danger-disable: #fff8f8;
+
+  --success-strong: #22c55e;
+  --success-weak: #bbf7d0;
+  --success-disable: #f0fdf4;
+
+  --alert-strong: #d97706;
+  --alert-weak: #fef3c7;
+  --alert-disable: #fffbeb;
+
+  --info-strong: #3b82f6;
+  --info-weak: #e0f2fe;
+  --info-disable: #eff8ff;
+
+  --background: var(--surface-muted-100);
+  --foreground: var(--text-strong);
+  --muted: var(--surface-muted-50);
+  --border: var(--line-weaker);
+  --ring: var(--brand-default);
 }
 
 @theme inline {
@@ -14,16 +94,89 @@
   --color-muted: var(--muted);
   --color-border: var(--border);
   --color-ring: var(--ring);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
-.dark {
-  --background: #101111;
-  --foreground: #f7f8f8;
-  --muted: #1a1c1c;
-  --border: #2b2e2e;
-  --ring: #f7f8f8;
+  --color-base-white: var(--base-white);
+  --color-base-black: var(--base-black);
+
+  --color-text-strong: var(--text-strong);
+  --color-text-weak: var(--text-weak);
+  --color-text-weaker: var(--text-weaker);
+  --color-text-disable: var(--text-disable);
+  --color-text-brand-strong: var(--text-brand-strong);
+  --color-text-brand-weak: var(--text-brand-weak);
+  --color-text-inverse-strong: var(--text-inverse-strong);
+  --color-text-inverse-weak: var(--text-inverse-weak);
+
+  --color-icon-strong: var(--icon-strong);
+  --color-icon-weak: var(--icon-weak);
+  --color-icon-weaker: var(--icon-weaker);
+  --color-icon-disable: var(--icon-disable);
+  --color-icon-brand-strong: var(--icon-brand-strong);
+  --color-icon-brand-weak: var(--icon-brand-weak);
+  --color-icon-inverse-strong: var(--icon-inverse-strong);
+  --color-icon-inverse-weak: var(--icon-inverse-weak);
+
+  --color-fill-strong: var(--fill-strong);
+  --color-fill-weak: var(--fill-weak);
+  --color-fill-disable: var(--fill-disable);
+  --color-fill-hover: var(--fill-hover);
+  --color-fill-brand-strong: var(--fill-brand-strong);
+  --color-fill-brand-weak: var(--fill-brand-weak);
+  --color-fill-inverse-strong: var(--fill-inverse-strong);
+  --color-fill-inverse-weak: var(--fill-inverse-weak);
+
+  --color-line-strong: var(--line-strong);
+  --color-line-weak: var(--line-weak);
+  --color-line-weaker: var(--line-weaker);
+  --color-line-brand-strong: var(--line-brand-strong);
+  --color-line-brand-weak: var(--line-brand-weak);
+  --color-line-inverse-strong: var(--line-inverse-strong);
+  --color-line-inverse-weak: var(--line-inverse-weak);
+
+  --color-surface-muted-100: var(--surface-muted-100);
+  --color-surface-muted-50: var(--surface-muted-50);
+  --color-surface-muted-40: var(--surface-muted-40);
+  --color-surface-muted-30: var(--surface-muted-30);
+  --color-surface-muted-20: var(--surface-muted-20);
+
+  --color-brand-default: var(--brand-default);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-selected: var(--brand-selected);
+  --color-brand-clicked: var(--brand-clicked);
+  --color-brand-disabled: var(--brand-disabled);
+  --color-brand-ghost: var(--brand-ghost);
+  --color-brand-ghost-inverse: var(--brand-ghost-inverse);
+
+  --color-logo-primary: var(--logo-primary);
+  --color-logo-secondary: var(--logo-secondary);
+
+  --color-danger-strong: var(--danger-strong);
+  --color-danger-weak: var(--danger-weak);
+  --color-danger-weaker: var(--danger-weaker);
+  --color-danger-disable: var(--danger-disable);
+
+  --color-success-strong: var(--success-strong);
+  --color-success-weak: var(--success-weak);
+  --color-success-disable: var(--success-disable);
+
+  --color-alert-strong: var(--alert-strong);
+  --color-alert-weak: var(--alert-weak);
+  --color-alert-disable: var(--alert-disable);
+
+  --color-info-strong: var(--info-strong);
+  --color-info-weak: var(--info-weak);
+  --color-info-disable: var(--info-disable);
+
+  --font-sans: var(--font-dm-sans), var(--font-sf-pro);
+  --font-mono:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    "Liberation Mono",
+    "Courier New",
+    monospace;
 }
 
 *,
@@ -40,12 +193,12 @@ body {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), sans-serif;
+  font-family: var(--font-dm-sans), var(--font-sf-pro);
   text-rendering: optimizeLegibility;
 }
 
 ::selection {
-  background: rgba(17, 24, 39, 0.2);
+  background: rgba(59, 130, 246, 0.25);
 }
 
 @keyframes fade-up {
