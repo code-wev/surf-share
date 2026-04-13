@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 
-import { SiteHeader } from "@/components/layout/site-header";
 import { siteConfig } from "@/config/site";
 
 import "./globals.css";
@@ -55,10 +54,9 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${dmSans.variable} h-full scroll-smooth antialiased`}
     >
-      <body className="min-h-full bg-background text-foreground">
+      <body className="bg-background text-foreground min-h-full">
         <Providers>
           <div className="relative flex min-h-full flex-col">
-            <SiteHeader />
             <div className="flex-1">{children}</div>
           </div>
         </Providers>
