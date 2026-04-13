@@ -1,30 +1,28 @@
 import { AuthLogo } from "@/components/auth/auth-logo";
 import { AuthShell } from "@/components/auth/auth-shell";
-import { LoginForm } from "@/components/auth/login-form";
+import { SignUpForm } from "@/components/auth/signup-form";
 import { SocialLogin } from "@/components/auth/social-login";
 
-export default function LoginPage() {
+export default function SignupPage() {
   return (
     <main className="bg-surface-muted-50">
-      <AuthShell>
-        <div className="w-full">
+      <AuthShell rightScrollable contentAlign="start">
+        <div className="w-full py-4 sm:py-6 lg:py-8">
           <AuthLogo />
 
           <div className="mt-10 sm:mt-12 md:mt-14 lg:mt-16">
             <h1 className="text-4xl font-bold leading-[1.05] tracking-tight text-text-strong sm:text-5xl md:text-6xl 2xl:text-[64px]">
-              Welcome Back
+              Create Your Profile
             </h1>
           </div>
 
           <p className="mt-3 text-lg leading-tight font-medium text-text-weak sm:mt-4 sm:text-2xl md:text-[28px]">
-            Enter your email and password to log in:
+            Fill in the information below to get started:
           </p>
 
-          <div className="mt-6 sm:mt-7 md:mt-8">
-            <LoginForm />
-          </div>
+          <SignUpForm />
 
-          <div className="mt-10 sm:mt-11 md:mt-12">
+          <div className="mt-10 pb-8 sm:mt-11 sm:pb-9 md:mt-12 md:pb-10">
             <div className="relative">
               <div className="absolute inset-0 flex items-center" aria-hidden>
                 <span className="w-full border-t border-line-weaker" />

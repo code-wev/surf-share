@@ -10,7 +10,7 @@ export function AuthLogo() {
         width={416}
         height={92}
         priority
-        className="h-auto w-52"
+        className="h-auto w-40 sm:w-44 md:w-48 lg:w-52"
       />
     </Link>
   );
