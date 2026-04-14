@@ -34,7 +34,7 @@ export function LoginForm() {
         </div>
         <div className="flex items-center justify-between text-xs">
           <p className="text-text-weaker">Atleast 8 characters</p>
-          <Link href="#" className="text-danger-strong hover:underline">
+          <Link href="/forgot-password" className="text-danger-strong hover:underline">
             Forget Password ?
           </Link>
         </div>
