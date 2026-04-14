@@ -46,14 +46,14 @@ export default function Navbar() {
 
         <div className="hidden items-center gap-3 sm:gap-4 lg:flex">
           <Link
-            href="#"
+            href="/login"
             className="text-sm font-medium text-(--color-text-strong) transition-colors hover:text-[#0c3173]"
           >
             Log in
           </Link>
 
           <Link
-            href="#"
+            href="/signup"
             className="inline-flex h-8 items-center rounded-sm bg-(--color-fill-brand-strong) px-4 text-sm font-medium text-white transition-colors hover:bg-[#12418f]"
           >
             Sign up

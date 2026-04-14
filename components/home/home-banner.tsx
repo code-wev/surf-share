@@ -28,9 +28,9 @@ const HomeBanner = () => {
         <div className="relative z-10 flex min-h-[calc(100svh-68px)] items-end justify-start px-6 pb-10 text-start sm:min-h-[calc(100vh-68px)] md:mx-12.5 lg:px-6 lg:pb-39">
           <div className="max-w-5xl">
             <PageTitle
+              as="h1"
               title="Find Your Waves, Captured Forever."
               titleClassName="text-(--color-text-inverse-strong)! text-[62px]! lg:text-[96px] xl:text-[122px]! max-w-[1300px]!"
-              className=""
             />
             {/* Buttons */}
             <div className="mt-12 flex flex-col items-start justify-start gap-3 sm:flex-row sm:gap-6">
