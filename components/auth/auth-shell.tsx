@@ -37,7 +37,8 @@ export function AuthShell({
         className={cn(
           "mx-auto flex w-full max-w-170 lg:max-w-none",
           contentAlign === "center" ? "items-center" : "items-start",
-          rightScrollable && "no-scrollbar lg:h-full lg:overflow-y-auto lg:pr-1 xl:pr-2",
+          rightScrollable &&
+            "no-scrollbar lg:h-full lg:overflow-y-auto lg:pr-1 xl:pr-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
         )}
       >
         {children}

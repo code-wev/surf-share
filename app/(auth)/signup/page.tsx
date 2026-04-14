@@ -5,7 +5,7 @@ import { SocialLogin } from "@/components/auth/social-login";
 
 export default function SignupPage() {
   return (
-    <main className="bg-surface-muted-50">
+    <main className="bg-surface-muted-50 lg:h-screen lg:overflow-hidden">
       <AuthShell rightScrollable contentAlign="start">
         <div className="w-full py-4 sm:py-6 lg:py-8">
           <AuthLogo />
