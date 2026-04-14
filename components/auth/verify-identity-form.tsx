@@ -5,11 +5,15 @@ const codeSlots = [1, 2, 3, 4, 5, 6];
 
 export function VerifyIdentityForm() {
   return (
-    <form className="mt-8 space-y-5 sm:mt-10 md:mt-12 [font-family:var(--font-sf-pro)]" noValidate>
+    <form
+      action="/set-new-password"
+      className="mt-8 space-y-5 sm:mt-10 md:mt-12 [font-family:var(--font-sf-pro)]"
+      noValidate
+    >
       <div className="space-y-2">
         <label className="text-sm font-medium text-text-strong">Enter verification code</label>
         <div className="flex w-full items-center justify-between">
-          <div className="flex items-center gap-[36px]">
+          <div className="flex items-center gap-9">
             {codeSlots.slice(0, 3).map((slot) => (
               <input
                 key={slot}
@@ -17,12 +21,12 @@ export function VerifyIdentityForm() {
                 autoComplete="one-time-code"
                 maxLength={1}
                 aria-label={`Verification digit ${slot}`}
-                className="h-16 w-16 rounded-md border border-line-weaker bg-surface-muted-100 p-[28px] text-center text-[24px] leading-none font-semibold text-text-strong outline-none transition-colors focus:border-brand-default focus:ring-2 focus:ring-brand-default/20"
+                className="h-16 w-16 rounded-md border border-line-weaker bg-surface-muted-100 px-5 py-7 text-center text-[24px] leading-none font-semibold text-text-strong outline-none transition-colors focus:border-brand-default focus:ring-2 focus:ring-brand-default/20"
               />
             ))}
           </div>
 
-          <div className="flex items-center gap-[36px]">
+          <div className="flex items-center gap-9">
             {codeSlots.slice(3).map((slot) => (
               <input
                 key={slot}
@@ -30,7 +34,7 @@ export function VerifyIdentityForm() {
                 autoComplete="one-time-code"
                 maxLength={1}
                 aria-label={`Verification digit ${slot}`}
-                className="h-16 w-16 rounded-md border border-line-weaker bg-surface-muted-100 p-[28px] text-center text-[24px] leading-none font-semibold text-text-strong outline-none transition-colors focus:border-brand-default focus:ring-2 focus:ring-brand-default/20"
+                className="h-16 w-16 rounded-md border border-line-weaker bg-surface-muted-100 px-5 py-7 text-center text-[24px] leading-none font-semibold text-text-strong outline-none transition-colors focus:border-brand-default focus:ring-2 focus:ring-brand-default/20"
               />
             ))}
           </div>
