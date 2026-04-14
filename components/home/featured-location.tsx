@@ -113,7 +113,7 @@ export default function FeaturedLocation() {
           subtitle="Destinations"
           subtitlePosition="top"
           title="Featured Locations"
-          titleClassName="mt-2 text-5xl! text-(--color-text-strong) sm:text-6xl!"
+          titleClassName="mt-2 text-2xl! md:text-[64px]! text-(--color-text-strong)"
           subtitleClassName="text-xl! text-(--color-text-weak) sm:text-[34px]!"
         />
 

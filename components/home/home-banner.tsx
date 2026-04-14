@@ -36,7 +36,7 @@ const HomeBanner = () => {
             <div className="mt-12 flex flex-col items-start justify-start gap-3 sm:flex-row sm:gap-6">
               <Link
                 href="/properties"
-                className="s inline-flex min-w-10 items-center justify-center gap-x-2 rounded-lg border border-(--color-icon-weaker) bg-(--color-fill-brand-strong) px-5 py-2 text-base text-white shadow-md transition-colors duration-200 hover:bg-(--color-brand-hover) hover:shadow-lg"
+                className="inline-flex min-w-10 items-center justify-center gap-x-2 rounded-lg border border-(--color-icon-weaker) bg-(--color-fill-brand-strong) px-5 py-2 text-base text-white shadow-md transition-colors duration-200 hover:bg-(--color-brand-hover) hover:shadow-lg"
               >
                 Browse Gallery
                 <ArrowRight className="h-5 w-5" color="#FFFFFF" />
