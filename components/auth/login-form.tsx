@@ -45,7 +45,7 @@ export function LoginForm() {
       </div>
 
       <div className="flex flex-col gap-4 pt-8 sm:pt-10 md:flex-row md:items-center md:justify-between md:pt-12">
-        <p className="text-sm text-text-weak">
+        <p className="order-2 text-sm text-text-weak md:order-1">
           Don&apos;t have an account?{" "}
           <Link href="/signup" className="font-medium text-brand-default hover:underline">
             Sign Up
@@ -53,7 +53,7 @@ export function LoginForm() {
         </p>
         <button
           type="submit"
-          className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-brand-default px-4 py-2 text-sm font-medium text-text-inverse-strong transition-colors hover:bg-brand-hover md:w-auto"
+          className="order-1 inline-flex w-full items-center justify-center gap-2 rounded-md bg-brand-default px-4 py-2 text-sm font-medium text-text-inverse-strong transition-colors hover:bg-brand-hover md:order-2 md:w-auto"
         >
           Login
           <ArrowRight size={18} />

@@ -219,7 +219,7 @@ export function SignUpForm() {
 
       {step === 1 ? (
         <div className="flex flex-col gap-4 pt-8 sm:pt-10 md:flex-row md:items-center md:justify-between">
-          <p className="text-sm text-text-weak">
+          <p className="order-2 text-sm text-text-weak md:order-1">
             Already have an account?{" "}
             <Link href="/login" className="font-medium text-brand-default hover:underline">
               Log in
@@ -227,7 +227,7 @@ export function SignUpForm() {
           </p>
           <button
             type="submit"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-brand-default px-4 py-2 text-sm font-medium text-text-inverse-strong transition-colors hover:bg-brand-hover md:w-auto"
+            className="order-1 inline-flex w-full items-center justify-center gap-2 rounded-md bg-brand-default px-4 py-2 text-sm font-medium text-text-inverse-strong transition-colors hover:bg-brand-hover md:order-2 md:w-auto"
           >
             {ctaLabel}
             <ArrowRight size={18} />
