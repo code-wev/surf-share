@@ -5,7 +5,11 @@ import { Input } from "@/components/ui/input";
 
 export function SetNewPasswordForm() {
   return (
-    <form className="mt-8 space-y-5 sm:mt-10 md:mt-12 [font-family:var(--font-sf-pro)]" noValidate>
+    <form
+      action="/login"
+      className="mt-8 space-y-5 sm:mt-10 md:mt-12 [font-family:var(--font-sf-pro)]"
+      noValidate
+    >
       <div className="space-y-2">
         <label htmlFor="new-password" className="text-base font-medium text-text-strong">
           New Password

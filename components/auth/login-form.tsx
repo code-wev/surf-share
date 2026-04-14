@@ -5,7 +5,11 @@ import { Input } from "@/components/ui/input";
 
 export function LoginForm() {
   return (
-    <form className="mt-8 space-y-5 sm:mt-10 md:mt-12 [font-family:var(--font-sf-pro)]" noValidate>
+    <form
+      action="/"
+      className="mt-8 space-y-5 sm:mt-10 md:mt-12 [font-family:var(--font-sf-pro)]"
+      noValidate
+    >
       <div className="space-y-2">
         <label htmlFor="email" className="text-base font-medium text-text-strong">
           Email
