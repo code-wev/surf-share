@@ -104,10 +104,10 @@ function buildActions(item: CardViewItem) {
         type="button"
         aria-label="Add to favorites"
         className={cn(
-          "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/55 text-[#0C3173] transition-colors hover:text-white",
+          "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/55 bg-white text-(--color-fill-brand-strong) transition-colors hover:text-white",
           item.favoriteActive
-            ? "bg-(--color-fill-brand-strong)"
-            : "bg-white/20 hover:bg-(--color-fill-brand-strong)",
+            ? "bg-(--color-fill-brand-strong) text-white"
+            : "bg-[#E7E5E4] hover:bg-(--color-fill-brand-strong)",
         )}
       >
         <Heart className="h-4 w-4" />
@@ -117,10 +117,10 @@ function buildActions(item: CardViewItem) {
         type="button"
         aria-label="Add card"
         className={cn(
-          "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/55 text-[#0C3173] transition-colors hover:text-white",
+          "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/55 bg-white text-(--color-fill-brand-strong) transition-colors hover:text-white",
           item.plusActive
-            ? "bg-(--color-fill-brand-strong)"
-            : "bg-white/20 hover:bg-(--color-fill-brand-strong) hover:text-white",
+            ? "bg-white"
+            : "bg-[#E7E5E4] hover:bg-(--color-fill-brand-strong) hover:text-white",
         )}
       >
         <Plus className="h-4 w-4" />
