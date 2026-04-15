@@ -82,6 +82,7 @@ export const gallerySeedImages: GallerySeedImage[] = [
     timeKey: "afternoon",
     uploadedAt: "2026-04-15T09:00:00.000Z",
     priceValue: 13.0,
+    // favoriteActive: true,
   },
   {
     id: 2,
