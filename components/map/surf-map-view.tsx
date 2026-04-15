@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import L from "leaflet";
-import { MapContainer, Marker, TileLayer, useMap, ZoomControl } from "react-leaflet";
+import { MapContainer, Marker, Pane, TileLayer, useMap, ZoomControl } from "react-leaflet";
 
 import type { SurfSpot } from "@/components/map/map-demo-data";
 
@@ -50,6 +50,14 @@ function FitToSpots({ spots }: { spots: SurfSpot[] }) {
 export default function SurfMapView({ spots, activeSpotId, onActiveSpotChange }: SurfMapViewProps) {
   const inactivePinIcon = useMemo(() => createSpotMarkerIcon(false), []);
   const activePinIcon = useMemo(() => createSpotMarkerIcon(true), []);
+  const activeSpot = useMemo(
+    () => spots.find((spot) => spot.id === activeSpotId) ?? null,
+    [spots, activeSpotId],
+  );
+  const inactiveSpots = useMemo(
+    () => spots.filter((spot) => spot.id !== activeSpotId),
+    [spots, activeSpotId],
+  );
 
   return (
     <div className="surf-map h-full w-full">
@@ -70,20 +78,31 @@ export default function SurfMapView({ spots, activeSpotId, onActiveSpotChange }:
         <ZoomControl position="bottomright" />
         <FitToSpots spots={spots} />
 
-        {spots.map((spot) => {
-          const isActive = spot.id === activeSpotId;
-
-          return (
+        <Pane name="inactive-pins" style={{ zIndex: 560 }}>
+          {inactiveSpots.map((spot) => (
             <Marker
               key={spot.id}
               position={spot.coordinates}
-              icon={isActive ? activePinIcon : inactivePinIcon}
+              icon={inactivePinIcon}
               eventHandlers={{
                 click: () => onActiveSpotChange(spot.id),
               }}
             />
-          );
-        })}
+          ))}
+        </Pane>
+
+        {activeSpot ? (
+          <Pane name="active-pin" style={{ zIndex: 710 }}>
+            <Marker
+              position={activeSpot.coordinates}
+              icon={activePinIcon}
+              zIndexOffset={600}
+              eventHandlers={{
+                click: () => onActiveSpotChange(activeSpot.id),
+              }}
+            />
+          </Pane>
+        ) : null}
       </MapContainer>
     </div>
   );
