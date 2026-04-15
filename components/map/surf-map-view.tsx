@@ -33,10 +33,14 @@ function FitToSpots({ spots }: { spots: SurfSpot[] }) {
       return;
     }
 
+    const { x, y } = map.getSize();
+    const horizontalPadding = Math.min(140, Math.max(24, Math.round(x * 0.13)));
+    const verticalPadding = Math.min(130, Math.max(24, Math.round(y * 0.16)));
+
     const bounds = L.latLngBounds(spots.map((spot) => spot.coordinates));
     map.fitBounds(bounds, {
-      padding: [120, 110],
-      maxZoom: 9,
+      padding: [verticalPadding, horizontalPadding],
+      maxZoom: x < 640 ? 7 : 9,
     });
   }, [map, spots]);
 

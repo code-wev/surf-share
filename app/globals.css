@@ -274,3 +274,23 @@ body {
   background: #0c3173;
   transform: rotate(-45deg) scale(1.08);
 }
+
+@media (max-width: 640px) {
+  .surf-map .leaflet-control-zoom {
+    margin: 0 10px 10px 0 !important;
+  }
+
+  .surf-map .leaflet-control-zoom a {
+    width: 34px !important;
+    height: 34px !important;
+    line-height: 34px !important;
+    font-size: 20px;
+    margin-bottom: 6px;
+  }
+
+  .surf-map .surf-map-pin {
+    width: 24px;
+    height: 24px;
+    border-width: 2.5px;
+  }
+}

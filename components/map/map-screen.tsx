@@ -126,18 +126,18 @@ export default function MapScreen() {
         </div>
       </header>
 
-      <section className="p-12.5">
-        <h1 className="text-3xl font-semibold tracking-tight text-brand-default sm:text-4xl">
+      <section className="mx-auto w-full max-w-470 px-4 py-8 sm:px-6 sm:py-10 lg:px-10 xl:px-12.5 xl:py-12.5">
+        <h1 className="text-2xl font-semibold tracking-tight text-brand-default sm:text-3xl lg:text-4xl">
           Find Your Wave
         </h1>
         <p className="mt-2 text-sm text-text-weak sm:text-base">
           Discover high-quality surf photography from world-class breaks.
         </p>
 
-        <div className="mt-12 grid grid-cols-1 gap-5 xl:grid-cols-[1.5fr_0.95fr_0.75fr]">
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:mt-10 lg:grid-cols-2 lg:gap-5 xl:mt-12 xl:grid-cols-[1.5fr_0.95fr_0.75fr]">
           <div className="space-y-3">
-            <h2 className="text-2xl font-medium text-text-strong">Location</h2>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <h2 className="text-xl font-medium text-text-strong sm:text-2xl">Location</h2>
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
               <label className="space-y-1.5">
                 <span className="text-[10px] font-semibold tracking-[0.08em] text-text-weaker uppercase">
                   State
@@ -178,8 +178,8 @@ export default function MapScreen() {
           </div>
 
           <div className="space-y-3">
-            <h2 className="text-2xl font-medium text-text-strong">Date Range</h2>
-            <div className="grid grid-cols-2 gap-3">
+            <h2 className="text-xl font-medium text-text-strong sm:text-2xl">Date Range</h2>
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
               <label className="space-y-1.5">
                 <span className="text-[10px] font-semibold tracking-[0.08em] text-text-weaker uppercase">
                   From
@@ -207,8 +207,8 @@ export default function MapScreen() {
             </div>
           </div>
 
-          <div className="space-y-3">
-            <h2 className="text-2xl font-medium text-text-strong">Time</h2>
+          <div className="space-y-3 lg:col-span-2 xl:col-span-1">
+            <h2 className="text-xl font-medium text-text-strong sm:text-2xl">Time</h2>
             <label className="space-y-1.5">
               <span className="text-[10px] font-semibold tracking-[0.08em] text-text-weaker uppercase">
                 Window
@@ -228,7 +228,7 @@ export default function MapScreen() {
           </div>
         </div>
 
-        <div className="relative mt-6 h-[64vh] min-h-[540px] w-full overflow-hidden border border-line-weaker bg-[#cfd7dd] sm:h-[68vh] sm:min-h-[600px] xl:h-[90vh] xl:min-h-[680px]">
+        <div className="relative mt-6 h-[52vh] min-h-90 w-full overflow-hidden border border-line-weaker bg-[#cfd7dd] sm:h-[56vh] sm:min-h-105 md:h-[60vh] md:min-h-130 lg:h-[64vh] lg:min-h-145 xl:h-[72vh] xl:min-h-160 2xl:h-[78vh] 2xl:min-h-190">
           <SurfMapView
             spots={filteredSpots}
             activeSpotId={activeSpot?.id ?? null}
@@ -236,14 +236,14 @@ export default function MapScreen() {
           />
 
           {activeSpot ? (
-            <article className="absolute top-4 left-1/2 z-[600] w-[290px] -translate-x-1/2 overflow-hidden rounded-sm border border-line-weaker bg-surface-muted-100 shadow-[0_14px_30px_rgba(15,23,42,0.14)] sm:top-8 sm:w-[320px] md:left-[39%] md:translate-x-0">
-              <div className="relative h-44 w-full">
+            <article className="absolute top-3 left-1/2 z-600 w-[calc(100%-1.5rem)] max-w-[320px] -translate-x-1/2 overflow-hidden rounded-sm border border-line-weaker bg-surface-muted-100 shadow-[0_14px_30px_rgba(15,23,42,0.14)] sm:top-6 sm:w-[320px] md:left-4 md:w-75 md:max-w-none md:translate-x-0 lg:left-6 lg:top-7 lg:w-[320px] xl:left-[38%]">
+              <div className="relative h-36 w-full sm:h-44">
                 <Image src={activeSpot.image} alt={activeSpot.name} fill className="object-cover" />
               </div>
 
               <div className="space-y-3 p-4">
                 <div>
-                  <h3 className="text-[30px] leading-tight font-semibold text-text-strong">
+                  <h3 className="text-2xl leading-tight font-semibold text-text-strong sm:text-[30px]">
                     {activeSpot.name}
                   </h3>
                   <p className="mt-1 inline-flex items-center gap-1.5 text-xs text-text-weak">
@@ -264,7 +264,7 @@ export default function MapScreen() {
               </div>
             </article>
           ) : (
-            <div className="pointer-events-none absolute inset-0 z-[600] flex items-center justify-center">
+            <div className="pointer-events-none absolute inset-0 z-600 flex items-center justify-center">
               <p className="rounded-md bg-surface-muted-100/95 px-4 py-2 text-sm font-medium text-text-weak shadow-sm">
                 No map locations match the selected filters.
               </p>
@@ -272,7 +272,7 @@ export default function MapScreen() {
           )}
         </div>
 
-        <p className="mt-3 text-xs text-text-weaker">
+        <p className="mt-3 text-xs leading-relaxed text-text-weaker sm:text-sm">
           Showing {filteredSpots.length} locations | {toHumanDate(selectedFromDate)} to{" "}
           {toHumanDate(selectedToDate)} | {selectedTime === "all" ? "All Times" : selectedTime}
         </p>
