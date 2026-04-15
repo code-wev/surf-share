@@ -7,10 +7,10 @@ export default function Layout({
   children: React.ReactNode;
 }>) {
   return (
-    <>
+    <div className="flex min-h-screen flex-col">
       <Navbar />
-      <main className="relative z-10">{children}</main>
+      <main className="relative z-10 flex-1">{children}</main>
       <Footer />
-    </>
+    </div>
   );
 }

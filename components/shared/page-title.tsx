@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 type PageTitleProps = {
-  title: ReactNode;
+  title?: ReactNode;
   subtitle?: ReactNode;
   subtitlePosition?: "top" | "bottom";
   subtitleUppercase?: boolean;
