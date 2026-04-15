@@ -104,26 +104,26 @@ function buildActions(item: CardViewItem) {
         type="button"
         aria-label="Add to favorites"
         className={cn(
-          "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/55 text-white transition-colors",
+          "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/55 text-[#0C3173] transition-colors hover:text-white",
           item.favoriteActive
             ? "bg-(--color-fill-brand-strong)"
             : "bg-white/20 hover:bg-(--color-fill-brand-strong)",
         )}
       >
-        <Heart className="h-4 w-4" color="#0C3173" />
+        <Heart className="h-4 w-4" />
       </button>
 
       <button
         type="button"
         aria-label="Add card"
         className={cn(
-          "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/55 text-white transition-colors",
+          "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/55 text-[#0C3173] transition-colors hover:text-white",
           item.plusActive
             ? "bg-(--color-fill-brand-strong)"
             : "bg-white/20 hover:bg-(--color-fill-brand-strong) hover:text-white",
         )}
       >
-        <Plus className="h-4 w-4" color="#0C3173" />
+        <Plus className="h-4 w-4" />
       </button>
     </div>
   );
