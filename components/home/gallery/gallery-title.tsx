@@ -75,7 +75,7 @@ export default function GalleryTitle({
   };
 
   return (
-    <section className="border-b border-(--color-line-weaker) bg-(--color-surface-muted-100) px-4 pt-10 pb-6 sm:px-6 md:mx-12.5 md:px-6 md:pt-16">
+    <section className="bg-(--color-surface-muted-100) px-4 pt-10 pb-6 sm:px-6 md:mx-12.5 md:px-6 md:pt-16">
       <div className="flex flex-col items-center justify-between gap-6 lg:flex-row lg:items-start">
         <div>
           <PageTitle
