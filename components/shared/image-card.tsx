@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
@@ -6,6 +7,7 @@ import { cn } from "@/lib/utils";
 type ImageCardProps = {
   src: string;
   alt: string;
+  href?: string;
   width: number;
   height: number;
   info?: ReactNode;
@@ -21,6 +23,7 @@ type ImageCardProps = {
 export default function ImageCard({
   src,
   alt,
+  href,
   width,
   height,
   info,
@@ -41,6 +44,10 @@ export default function ImageCard({
       className={cn("group relative w-full overflow-hidden", className)}
       tabIndex={revealOnHover ? 0 : undefined}
     >
+      {href ? (
+        <Link href={href} aria-label={`View details for ${alt}`} className="absolute inset-0 z-1" />
+      ) : null}
+
       <Image
         src={src}
         alt={alt}

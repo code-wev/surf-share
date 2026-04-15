@@ -6,6 +6,7 @@ import ImageCard from "./image-card";
 
 export type CardViewItem = {
   id: string | number;
+  slug?: string;
   src: string;
   alt: string;
   title?: string;
@@ -45,6 +46,10 @@ function getHeightClass(size: "tall" | "short") {
 
 function getTabletHeightClass(size: "tall" | "short") {
   return size === "tall" ? "h-[420px] md:h-[500px]" : "h-[300px] md:h-[360px]";
+}
+
+function getDetailsHref(item: CardViewItem) {
+  return `/gallery/${item.slug ?? item.id}`;
 }
 
 function buildInfo(item: CardViewItem) {
@@ -147,6 +152,8 @@ export default function CardView({ items, className }: CardViewProps) {
                 alt={item.alt}
                 width={960}
                 height={1280}
+                href={getDetailsHref(item)}
+                revealOnHover={false}
                 className="h-full rounded-sm"
                 imageClassName="h-full w-full object-cover"
                 info={info}
@@ -182,6 +189,8 @@ export default function CardView({ items, className }: CardViewProps) {
                       alt={item.alt}
                       width={960}
                       height={1280}
+                      href={getDetailsHref(item)}
+                      revealOnHover={false}
                       className="h-full rounded-sm"
                       imageClassName="h-full w-full object-cover"
                       info={buildInfo(item)}
@@ -221,6 +230,7 @@ export default function CardView({ items, className }: CardViewProps) {
                       alt={topItem.alt}
                       width={960}
                       height={1280}
+                      href={getDetailsHref(topItem)}
                       className="h-full rounded-sm"
                       imageClassName="h-full w-full object-cover"
                       info={buildInfo(topItem)}
@@ -243,6 +253,7 @@ export default function CardView({ items, className }: CardViewProps) {
                       alt={bottomItem.alt}
                       width={960}
                       height={1280}
+                      href={getDetailsHref(bottomItem)}
                       className="h-full rounded-sm"
                       imageClassName="h-full w-full object-cover"
                       info={buildInfo(bottomItem)}
