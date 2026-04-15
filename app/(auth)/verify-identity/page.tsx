@@ -1,28 +1,32 @@
 import { AuthLogo } from "@/components/auth/auth-logo";
 import { AuthShell } from "@/components/auth/auth-shell";
-import { SignUpForm } from "@/components/auth/signup-form";
 import { SocialLogin } from "@/components/auth/social-login";
+import { VerifyIdentityForm } from "@/components/auth/verify-identity-form";
 
-export default function SignupPage() {
+export default function VerifyIdentityPage() {
   return (
-    <main className="bg-surface-muted-50 lg:h-screen lg:overflow-hidden">
-      <AuthShell rightScrollable contentAlign="start">
-        <div className="w-full py-4 sm:py-6 lg:py-8">
+    <main className="bg-surface-muted-50">
+      <AuthShell>
+        <div className="w-full">
           <AuthLogo />
 
           <div className="mt-10 sm:mt-12 md:mt-14 lg:mt-16">
             <h1 className="text-4xl font-bold leading-[1.05] tracking-tight text-text-strong sm:text-5xl md:text-6xl 2xl:text-[64px]">
-              Create Your Profile
+              Verify Identity
             </h1>
           </div>
 
-          <p className="mt-3 text-lg leading-tight font-medium text-text-weak sm:mt-4 sm:text-2xl md:text-[28px]">
-            Fill in the information below to get started:
+          <p className="mt-3 max-w-2xl text-lg leading-tight font-medium text-text-weak sm:mt-4 sm:text-2xl md:text-[28px]">
+            Please input the verification code sent to your email
+            <br />
+            ****oe@example.com
           </p>
 
-          <SignUpForm />
+          <div className="mt-6 sm:mt-7 md:mt-8">
+            <VerifyIdentityForm />
+          </div>
 
-          <div className="mt-10 pb-8 sm:mt-11 sm:pb-9 md:mt-12 md:pb-10">
+          <div className="mt-10 sm:mt-11 md:mt-12">
             <div className="relative">
               <div className="absolute inset-0 flex items-center" aria-hidden>
                 <span className="w-full border-t border-line-weaker" />
