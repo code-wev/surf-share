@@ -51,6 +51,7 @@ export default function GalleryPage() {
       return matchesTab && matchesLocation && matchesTime;
     });
 
+    // Keep backend/data order by default so cards render in the same sequence as input.
     const sorted = [...filtered];
 
     if (selectedSort === "priceLow") {
@@ -59,13 +60,6 @@ export default function GalleryPage() {
 
     if (selectedSort === "priceHigh") {
       sorted.sort((firstImage, secondImage) => secondImage.priceValue - firstImage.priceValue);
-    }
-
-    if (selectedSort === "latest") {
-      sorted.sort(
-        (firstImage, secondImage) =>
-          new Date(secondImage.uploadedAt).getTime() - new Date(firstImage.uploadedAt).getTime(),
-      );
     }
 
     return sorted;

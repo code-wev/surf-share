@@ -6,6 +6,7 @@ import ImageCard from "./image-card";
 
 export type CardViewItem = {
   id: string | number;
+  slug?: string;
   src: string;
   alt: string;
   title?: string;
@@ -45,6 +46,10 @@ function getHeightClass(size: "tall" | "short") {
 
 function getTabletHeightClass(size: "tall" | "short") {
   return size === "tall" ? "h-[420px] md:h-[500px]" : "h-[300px] md:h-[360px]";
+}
+
+function getDetailsHref(item: CardViewItem) {
+  return `/gallery/${item.slug ?? item.id}`;
 }
 
 function buildInfo(item: CardViewItem) {
@@ -104,10 +109,10 @@ function buildActions(item: CardViewItem) {
         type="button"
         aria-label="Add to favorites"
         className={cn(
-          "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/55 text-[#0C3173] transition-colors hover:text-white",
+          "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/55 bg-white text-(--color-fill-brand-strong) transition-colors hover:text-white",
           item.favoriteActive
-            ? "bg-(--color-fill-brand-strong)"
-            : "bg-white/20 hover:bg-(--color-fill-brand-strong)",
+            ? "bg-(--color-fill-brand-strong) text-white"
+            : "bg-[#E7E5E4] hover:bg-(--color-fill-brand-strong)",
         )}
       >
         <Heart className="h-4 w-4" />
@@ -117,10 +122,10 @@ function buildActions(item: CardViewItem) {
         type="button"
         aria-label="Add card"
         className={cn(
-          "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/55 text-[#0C3173] transition-colors hover:text-white",
+          "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/55 bg-white text-(--color-fill-brand-strong) transition-colors hover:text-white",
           item.plusActive
-            ? "bg-(--color-fill-brand-strong)"
-            : "bg-white/20 hover:bg-(--color-fill-brand-strong) hover:text-white",
+            ? "bg-white"
+            : "bg-[#E7E5E4] hover:bg-(--color-fill-brand-strong) hover:text-white",
         )}
       >
         <Plus className="h-4 w-4" />
@@ -147,6 +152,8 @@ export default function CardView({ items, className }: CardViewProps) {
                 alt={item.alt}
                 width={960}
                 height={1280}
+                href={getDetailsHref(item)}
+                revealOnHover={false}
                 className="h-full rounded-sm"
                 imageClassName="h-full w-full object-cover"
                 info={info}
@@ -182,6 +189,8 @@ export default function CardView({ items, className }: CardViewProps) {
                       alt={item.alt}
                       width={960}
                       height={1280}
+                      href={getDetailsHref(item)}
+                      revealOnHover={false}
                       className="h-full rounded-sm"
                       imageClassName="h-full w-full object-cover"
                       info={buildInfo(item)}
@@ -221,6 +230,7 @@ export default function CardView({ items, className }: CardViewProps) {
                       alt={topItem.alt}
                       width={960}
                       height={1280}
+                      href={getDetailsHref(topItem)}
                       className="h-full rounded-sm"
                       imageClassName="h-full w-full object-cover"
                       info={buildInfo(topItem)}
@@ -243,6 +253,7 @@ export default function CardView({ items, className }: CardViewProps) {
                       alt={bottomItem.alt}
                       width={960}
                       height={1280}
+                      href={getDetailsHref(bottomItem)}
                       className="h-full rounded-sm"
                       imageClassName="h-full w-full object-cover"
                       info={buildInfo(bottomItem)}
