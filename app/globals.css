@@ -186,6 +186,10 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+.font-sf-pro {
+  font-family: var(--font-sf-pro);
+}
+
 ::selection {
   background: rgba(59, 130, 246, 0.25);
 }

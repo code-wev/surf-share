@@ -6,11 +6,11 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 
 const navItems = [
-  { label: "Map", href: "#" },
-  { label: "Gallery", href: "#" },
-  { label: "Contribute", href: "#" },
-  { label: "About", href: "#" },
-  { label: "Contact us", href: "#" },
+  { label: "Map", href: "/map" },
+  { label: "Gallery", href: "/gallery" },
+  { label: "Contribute", href: "/contribute" },
+  { label: "About", href: "/about" },
+  { label: "Contact us", href: "/contact" },
 ];
 
 export default function Navbar() {
@@ -19,7 +19,7 @@ export default function Navbar() {
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   return (
-    <header className="relative z-30 mx-2 border-b border-(--color-line-weak) bg-(--color-surface-muted-100) md:mx-12.5">
+    <header className="font-sf-pro relative z-30 mx-2 border-b border-(--color-line-weak) bg-(--color-surface-muted-100) md:mx-12.5">
       <div className="flex h-17 w-full items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="shrink-0" onClick={closeMobileMenu}>
           <Image
