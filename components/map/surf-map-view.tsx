@@ -47,6 +47,55 @@ function FitToSpots({ spots }: { spots: SurfSpot[] }) {
   return null;
 }
 
+function getActiveSpotOffset(width: number) {
+  if (width < 768) {
+    return L.point(0, 180);
+  }
+
+  if (width < 1280) {
+    return L.point(165, 40);
+  }
+
+  if (width < 1500) {
+    return L.point(240, 30);
+  }
+
+  return L.point(0, 0);
+}
+
+function KeepActiveSpotVisible({ activeSpot }: { activeSpot: SurfSpot | null }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!activeSpot) return;
+
+    const alignActiveSpot = () => {
+      const { x } = map.getSize();
+      const offset = getActiveSpotOffset(x);
+
+      if (offset.x === 0 && offset.y === 0) return;
+
+      const projectedSpotPoint = map.project(activeSpot.coordinates, map.getZoom());
+      const adjustedCenterPoint = projectedSpotPoint.subtract(offset);
+      const adjustedCenter = map.unproject(adjustedCenterPoint, map.getZoom());
+
+      map.panTo(adjustedCenter, {
+        animate: true,
+        duration: 0.35,
+      });
+    };
+
+    alignActiveSpot();
+    map.on("resize", alignActiveSpot);
+
+    return () => {
+      map.off("resize", alignActiveSpot);
+    };
+  }, [map, activeSpot]);
+
+  return null;
+}
+
 export default function SurfMapView({ spots, activeSpotId, onActiveSpotChange }: SurfMapViewProps) {
   const inactivePinIcon = useMemo(() => createSpotMarkerIcon(false), []);
   const activePinIcon = useMemo(() => createSpotMarkerIcon(true), []);
@@ -77,6 +126,7 @@ export default function SurfMapView({ spots, activeSpotId, onActiveSpotChange }:
 
         <ZoomControl position="bottomright" />
         <FitToSpots spots={spots} />
+        <KeepActiveSpotVisible activeSpot={activeSpot} />
 
         <Pane name="inactive-pins" style={{ zIndex: 560 }}>
           {inactiveSpots.map((spot) => (
