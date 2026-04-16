@@ -16,9 +16,9 @@ type ContributorPlanCardProps = {
 };
 
 const toneStyles = {
-  bronze: "text-[#A16207]",
-  silver: "text-[#94A3B8]",
-  gold: "text-[#EAB308]",
+  bronze: "text-contribute-tier-bronze",
+  silver: "text-contribute-tier-silver",
+  gold: "text-contribute-tier-gold",
 } as const;
 
 export default function ContributorPlanCard({
@@ -30,8 +30,8 @@ export default function ContributorPlanCard({
 }: ContributorPlanCardProps) {
   return (
     <article
-      className={`mx-auto h-full w-full max-w-100 rounded-lg border border-[#D1D5DB] p-5 sm:p-6 md:p-4 lg:px-5 lg:py-12 ${
-        highlighted ? "bg-[#EFF6FF] shadow-[0_8px_16px_rgba(15,23,42,0.08)]" : "bg-white"
+      className={`mx-auto h-full w-full max-w-100 rounded-lg border border-line-weak p-5 sm:p-6 md:p-4 lg:px-5 lg:py-12 ${
+        highlighted ? "bg-fill-hover contribute-plan-highlight-shadow" : "bg-white"
       }`}
     >
       <span className={`flex h-10 w-10 items-center justify-center sm:h-12 sm:w-12 ${toneStyles[tone]}`}>
@@ -45,7 +45,7 @@ export default function ContributorPlanCard({
         {description}
       </p>
 
-      <div className="border-t border-[#E5E7EB] pt-4 sm:pt-5 lg:pt-6">
+      <div className="border-t border-line-weaker pt-4 sm:pt-5 lg:pt-6">
         <ul className="space-y-4 lg:space-y-6">
           {features.map((feature) => (
             <ContributorPlanFeatureItem

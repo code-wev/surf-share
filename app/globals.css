@@ -77,6 +77,11 @@
   --info-weak: #e0f2fe;
   --info-disable: #eff8ff;
 
+  --contribute-tier-bronze: #a16207;
+  --contribute-tier-silver: #94a3b8;
+  --contribute-tier-gold: #eab308;
+  --contribute-highlight-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
+
   --background: var(--surface-muted-100);
   --foreground: var(--text-strong);
   --muted: var(--surface-muted-50);
@@ -163,6 +168,10 @@
   --color-info-weak: var(--info-weak);
   --color-info-disable: var(--info-disable);
 
+  --color-contribute-tier-bronze: var(--contribute-tier-bronze);
+  --color-contribute-tier-silver: var(--contribute-tier-silver);
+  --color-contribute-tier-gold: var(--contribute-tier-gold);
+
   --font-sans: var(--font-dm-sans), var(--font-sf-pro);
   --font-mono:
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
@@ -189,6 +198,10 @@ body {
 
 .font-sf-pro {
   font-family: var(--font-sf-pro);
+}
+
+.contribute-plan-highlight-shadow {
+  box-shadow: var(--contribute-highlight-shadow);
 }
 
 ::selection {

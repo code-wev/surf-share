@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 
 export default function ContributeHeroSection() {
   return (
-    <section className="bg-[#DBEAFE]">
+    <section className="bg-brand-disabled">
       <div className="mx-auto max-w-470 px-4 py-14 text-center sm:px-6 sm:py-16 md:px-10 md:py-20 lg:px-12.5 lg:py-22 2xl:py-25">
         <h1 className="text-3xl font-bold leading-tight text-brand-default sm:text-4xl lg:text-[64px] lg:leading-[1.08]">
           Start Earning From Your Surf Photography
