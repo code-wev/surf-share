@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 
 const navItems = [
   { label: "Map", href: "/map" },
@@ -15,8 +16,10 @@ const navItems = [
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
+  const isNavItemActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <header className="font-sf-pro relative z-30 border-b border-(--color-line-weak) bg-(--color-surface-muted-100)">
@@ -38,7 +41,12 @@ export default function Navbar() {
               <Link
                 key={item.label}
                 href={item.href}
-                className="text-sm font-medium text-(--color-text-strong) transition-colors hover:text-[#0c3173]"
+                aria-current={isNavItemActive(item.href) ? "page" : undefined}
+                className={`text-sm transition-colors ${
+                  isNavItemActive(item.href)
+                    ? "font-bold text-text-brand-strong"
+                    : "font-normal text-gray-900 hover:text-text-brand-strong"
+                }`}
               >
                 {item.label}
               </Link>
@@ -82,7 +90,12 @@ export default function Navbar() {
                   key={`mobile-${item.label}`}
                   href={item.href}
                   onClick={closeMobileMenu}
-                  className="rounded-sm px-2 py-2 text-sm font-medium text-(--color-text-strong) transition-colors hover:bg-(--color-fill-hover)"
+                  aria-current={isNavItemActive(item.href) ? "page" : undefined}
+                  className={`rounded-sm px-2 py-2 text-sm transition-colors ${
+                    isNavItemActive(item.href)
+                      ? "font-bold text-text-brand-strong"
+                      : "font-normal text-gray-900 hover:bg-(--color-fill-hover) hover:text-text-brand-strong"
+                  }`}
                 >
                   {item.label}
                 </Link>
