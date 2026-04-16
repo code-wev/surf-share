@@ -9,7 +9,7 @@ export default function ContributeHeroSection() {
           Start Earning From Your Surf Photography
         </h1>
 
-        <p className="mx-auto mt-5 max-w-360 text-sm leading-6 text-text-weak sm:mt-6 sm:text-base sm:leading-7 lg:mt-9 lg:text-[28px] lg:leading-tight">
+        <p className="mx-auto mt-3 max-w-360 text-sm leading-6 text-text-weak sm:mt-4 sm:text-base sm:leading-7 lg:mt-6 lg:text-[28px] lg:leading-tight">
           Join our community of professional surf photographers.
           <br className="hidden sm:block" />
           Upload your shots, earn money, and help surfers find their perfect moments.
