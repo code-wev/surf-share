@@ -23,8 +23,8 @@ const contributorStats = [
 export default function ContributorStatsSection() {
   return (
     <section className="bg-brand-default">
-      <div className="px-4 py-14 sm:px-6 md:px-12.5 md:py-25">
-        <div className="mx-auto grid max-w-360 grid-cols-1 md:grid-cols-3 lg:gap-6">
+      <div className="mx-auto max-w-470 px-4 py-12 sm:px-6 sm:py-14 md:px-10 md:py-18 lg:px-12.5 lg:py-22 2xl:py-25">
+        <div className="mx-auto grid max-w-360 grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3 md:gap-4 lg:gap-6">
           {contributorStats.map((stat) => (
             <ContributorStatCard
               key={stat.label}

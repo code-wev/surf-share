@@ -42,16 +42,16 @@ const contributorPlans = [
 
 export default function BecomeContributorSection() {
   return (
-    <section className="bg-white">
-      <div className="px-4 py-14 sm:px-6 md:px-12.5 md:py-25">
+    <section className="border-t border-brand-default bg-white">
+      <div className="mx-auto max-w-470 px-4 py-14 sm:px-6 sm:py-16 md:px-8 md:py-20 lg:px-12.5 lg:py-22 2xl:py-25">
         <h2 className="text-center text-4xl font-bold text-text-strong sm:text-5xl lg:text-[64px]">
           Become A Contributor
         </h2>
-        <p className="mt-9 text-center text-base text-text-weak lg:text-[28px]">
+        <p className="mt-6 text-center text-sm text-text-weak sm:mt-7 sm:text-base lg:mt-9 lg:text-[28px]">
           Start with Bronze and get upgraded as you grow
         </p>
 
-        <div className="mx-auto mt-16 grid max-w-325 grid-cols-1 gap-12 md:grid-cols-3">
+        <div className="mx-auto mt-10 grid max-w-325 grid-cols-1 gap-6 sm:mt-12 md:mt-10 md:grid-cols-3 md:gap-4 lg:mt-12 lg:gap-7 xl:mt-16 xl:gap-12">
           {contributorPlans.map((plan) => (
             <ContributorPlanCard
               key={plan.title}

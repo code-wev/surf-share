@@ -30,19 +30,23 @@ export default function ContributorPlanCard({
 }: ContributorPlanCardProps) {
   return (
     <article
-      className={`mx-auto h-full max-w-100 rounded-lg border border-[#D1D5DB] px-5 py-12 ${
+      className={`mx-auto h-full w-full max-w-100 rounded-lg border border-[#D1D5DB] p-5 sm:p-6 md:p-4 lg:px-5 lg:py-12 ${
         highlighted ? "bg-[#EFF6FF] shadow-[0_8px_16px_rgba(15,23,42,0.08)]" : "bg-white"
       }`}
     >
-      <span className={`flex items-center justify-center h-12 w-12 ${toneStyles[tone]}`}>
+      <span className={`flex h-10 w-10 items-center justify-center sm:h-12 sm:w-12 ${toneStyles[tone]}`}>
         <Crown size={36} strokeWidth={2} />
       </span>
 
-      <h3 className="mt-12 text-[28px] font-medium leading-tight text-brand-default">{title}</h3>
-      <p className="my-6 text-sm leading-5 text-text-weak lg:text-base">{description}</p>
+      <h3 className="mt-6 text-2xl font-medium leading-tight text-brand-default sm:mt-8 sm:text-[26px] lg:mt-12 lg:text-[28px]">
+        {title}
+      </h3>
+      <p className="my-4 text-sm leading-5 text-text-weak sm:my-5 lg:my-6 lg:text-base">
+        {description}
+      </p>
 
-      <div className="border-t border-[#E5E7EB] pt-6">
-        <ul className="space-y-6">
+      <div className="border-t border-[#E5E7EB] pt-4 sm:pt-5 lg:pt-6">
+        <ul className="space-y-4 lg:space-y-6">
           {features.map((feature) => (
             <ContributorPlanFeatureItem
               key={feature.label}
