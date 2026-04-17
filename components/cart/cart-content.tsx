@@ -1,0 +1,198 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { Trash2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+
+import CartOrderSummary from "@/components/cart/cart-order-summary";
+import {
+  defaultCartItems,
+  formatPrice,
+  normalizeCartItems,
+  type CartLineItem,
+} from "@/components/cart/cart-model";
+import { Button } from "@/components/ui/button";
+import { Container } from "@/components/ui/container";
+import { PageTitle } from "../shared/page-title";
+
+type CartContentProps = {
+  items?: CartLineItem[];
+  onCheckout?: (selectedItems: CartLineItem[]) => void;
+  onDeleteSelected?: (deletedIds: string[]) => void;
+};
+
+export default function CartContent({
+  items = defaultCartItems,
+  onCheckout,
+  onDeleteSelected,
+}: CartContentProps) {
+  const router = useRouter();
+
+  const initialItems = useMemo(() => normalizeCartItems(items), [items]);
+
+  const [cartItems, setCartItems] = useState(initialItems);
+  const [selectedIds, setSelectedIds] = useState<string[]>(() =>
+    initialItems[0] ? [String(initialItems[0].id)] : [],
+  );
+
+  const selectedCartItems = useMemo(
+    () => cartItems.filter((item) => selectedIds.includes(String(item.id))),
+    [cartItems, selectedIds],
+  );
+
+  const isAllSelected = cartItems.length > 0 && selectedIds.length === cartItems.length;
+  const selectedIdsQuery = selectedCartItems
+    .map((item) => encodeURIComponent(String(item.id)))
+    .join(",");
+  const checkoutHref = selectedIdsQuery ? `/checkout?items=${selectedIdsQuery}` : "/checkout";
+
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedIds([]);
+      return;
+    }
+
+    setSelectedIds(cartItems.map((item) => item.id));
+  };
+
+  const toggleItem = (itemId: string) => {
+    setSelectedIds((previousIds) => {
+      if (previousIds.includes(itemId)) {
+        return previousIds.filter((selectedId) => selectedId !== itemId);
+      }
+
+      return [...previousIds, itemId];
+    });
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedIds.length === 0) {
+      return;
+    }
+
+    const deletedIds = [...selectedIds];
+
+    setCartItems((previousItems) =>
+      previousItems.filter((item) => !selectedIds.includes(String(item.id))),
+    );
+    setSelectedIds([]);
+
+    if (onDeleteSelected) {
+      onDeleteSelected(deletedIds);
+    }
+  };
+
+  const handleProceed = () => {
+    if (selectedCartItems.length === 0) {
+      return;
+    }
+
+    if (onCheckout) {
+      onCheckout(selectedCartItems);
+      return;
+    }
+
+    router.push(checkoutHref);
+  };
+
+  return (
+    <section className="py-8 sm:py-10 lg:py-25">
+      <Container className="max-w-480 lg:px-15">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.6fr)]">
+          {/* Left Side */}
+          <div>
+            {/* Upper Section */}
+            <div className="mb-3 flex items-center justify-between border-b border-(--color-line-weaker) pb-2">
+              <label className="inline-flex cursor-pointer items-center gap-2 text-xs text-(--color-text-weak) sm:text-sm">
+                <input
+                  type="checkbox"
+                  checked={isAllSelected}
+                  onChange={toggleSelectAll}
+                  className="h-4 w-4 rounded border border-(--color-line-weak)"
+                />
+                <span>Select All ({cartItems.length} Items)</span>
+              </label>
+
+              <button
+                type="button"
+                onClick={handleDeleteSelected}
+                className="inline-flex items-center gap-1 text-xs text-(--color-danger-strong) hover:opacity-80 sm:text-sm"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Delete
+              </button>
+            </div>
+            {/* Cart Items */}
+            <div className="space-y-3">
+              {cartItems.length === 0 ? (
+                <div className="rounded-md border border-(--color-line-weaker) bg-(--color-surface-base) p-6 text-center text-(--color-text-weak)">
+                  Your cart is empty.
+                </div>
+              ) : (
+                cartItems.map((item) => (
+                  <article
+                    key={item.id}
+                    className="rounded-md border border-(--color-line-weaker) bg-(--color-surface-base) p-3 sm:p-4"
+                  >
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(String(item.id))}
+                          onChange={() => toggleItem(String(item.id))}
+                          className="h-4 w-4 rounded border border-(--color-line-weak)"
+                        />
+
+                        <Image
+                          src={item.imageSrc}
+                          alt={item.title}
+                          width={120}
+                          height={120}
+                          className="h-20 w-24 rounded-sm object-cover sm:h-24 sm:w-24"
+                        />
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <div className="mt-2">
+                            <PageTitle
+                              title={item.title}
+                              subtitle={item.location}
+                              titleClassName="text-lg! md:text-[32px]! text-(--color-text-strong)"
+                              subtitleClassName="text-sm! text-(--color-text-weak) -mt-4"
+                            />
+                          </div>
+
+                          <p className="text-4xl leading-none font-semibold text-(--color-text-brand-strong)">
+                            {formatPrice(item.price)}
+                          </p>
+                        </div>
+
+                        <div className="mt-3 flex justify-end">
+                          <Link href={item.detailsHref} className="block">
+                            <Button className="h-8 bg-(--color-fill-brand-strong) px-5 text-xs text-(--color-text-inverse-strong) hover:opacity-95">
+                              View Details
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                ))
+              )}
+            </div>
+          </div>
+          {/* Right Side Order Summary */}
+          <CartOrderSummary
+            mode="cart"
+            items={selectedCartItems}
+            proceedDisabled={selectedCartItems.length === 0}
+            onProceed={handleProceed}
+          />
+        </div>
+      </Container>
+    </section>
+  );
+}
