@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 const protectedMediaSelector = "img, video, canvas";
-const screenshotBlockDurationMs = 1200;
-const focusRestoreDelayMs = 180;
+const screenshotBlockDurationMs = 900;
 
 function isMediaTarget(target: EventTarget | null) {
   return target instanceof Element && Boolean(target.closest(protectedMediaSelector));
@@ -22,9 +21,7 @@ function isScreenshotShortcut(event: KeyboardEvent) {
 }
 
 export default function ContentProtectionGuard() {
-  const [isCaptureBlocked, setIsCaptureBlocked] = useState(false);
   const unblockTimerRef = useRef<number | null>(null);
-  const blockedUntilFocusRef = useRef(false);
 
   useEffect(() => {
     const clearUnblockTimer = () => {
@@ -34,39 +31,17 @@ export default function ContentProtectionGuard() {
       }
     };
 
-    const triggerBlackout = (persistent = false) => {
-      setIsCaptureBlocked(true);
-      blockedUntilFocusRef.current = persistent;
+    const rootElement = document.documentElement;
+
+    const triggerMediaBlackout = () => {
+      rootElement.classList.add("capture-media-blackout");
 
       clearUnblockTimer();
 
-      if (persistent) {
-        return;
-      }
-
       unblockTimerRef.current = window.setTimeout(() => {
-        if (blockedUntilFocusRef.current) {
-          return;
-        }
-
-        setIsCaptureBlocked(false);
+        rootElement.classList.remove("capture-media-blackout");
         unblockTimerRef.current = null;
       }, screenshotBlockDurationMs);
-    };
-
-    const releasePersistentBlackout = () => {
-      if (!blockedUntilFocusRef.current) {
-        return;
-      }
-
-      blockedUntilFocusRef.current = false;
-
-      clearUnblockTimer();
-
-      unblockTimerRef.current = window.setTimeout(() => {
-        setIsCaptureBlocked(false);
-        unblockTimerRef.current = null;
-      }, focusRestoreDelayMs);
     };
 
     const clearClipboard = () => {
@@ -99,7 +74,7 @@ export default function ContentProtectionGuard() {
 
       if (isScreenshotShortcut(event)) {
         event.preventDefault();
-        triggerBlackout();
+        triggerMediaBlackout();
         clearClipboard();
       }
     };
@@ -107,53 +82,26 @@ export default function ContentProtectionGuard() {
     const onKeyUp = (event: KeyboardEvent) => {
       if (isScreenshotShortcut(event)) {
         event.preventDefault();
-        triggerBlackout();
+        triggerMediaBlackout();
         clearClipboard();
       }
-    };
-
-    const onWindowBlur = () => {
-      // Best effort fallback: some OS snipping tools bypass keydown events.
-      triggerBlackout(true);
-    };
-
-    const onWindowFocus = () => {
-      releasePersistentBlackout();
-    };
-
-    const onVisibilityChange = () => {
-      if (document.visibilityState === "hidden") {
-        triggerBlackout(true);
-        return;
-      }
-
-      releasePersistentBlackout();
     };
 
     document.addEventListener("contextmenu", onContextMenu);
     document.addEventListener("dragstart", onDragStart);
     window.addEventListener("keydown", onKeyDown, true);
     window.addEventListener("keyup", onKeyUp, true);
-    window.addEventListener("blur", onWindowBlur);
-    window.addEventListener("focus", onWindowFocus);
-    document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
       document.removeEventListener("contextmenu", onContextMenu);
       document.removeEventListener("dragstart", onDragStart);
       window.removeEventListener("keydown", onKeyDown, true);
       window.removeEventListener("keyup", onKeyUp, true);
-      window.removeEventListener("blur", onWindowBlur);
-      window.removeEventListener("focus", onWindowFocus);
-      document.removeEventListener("visibilitychange", onVisibilityChange);
 
       clearUnblockTimer();
+      rootElement.classList.remove("capture-media-blackout");
     };
   }, []);
 
-  if (!isCaptureBlocked) {
-    return null;
-  }
-
-  return <div aria-hidden className="pointer-events-none fixed inset-0 z-9999 bg-black" />;
+  return null;
 }
