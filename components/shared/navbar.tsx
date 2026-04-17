@@ -20,6 +20,7 @@ export default function Navbar() {
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
   const isNavItemActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+  const isProfileActive = pathname === "/profile" || pathname.startsWith("/profile/");
 
   return (
     <header className="font-sf-pro relative z-30 border-b border-(--color-line-weak) bg-(--color-surface-muted-100)">
@@ -67,9 +68,45 @@ export default function Navbar() {
             >
               Sign up
             </Link>
+
+            <Link
+              href="/profile"
+              aria-label="Go to profile"
+              className={`inline-flex h-9 w-9 overflow-hidden rounded-full border transition-colors ${
+                isProfileActive
+                  ? "border-brand-default"
+                  : "border-line-weaker hover:border-brand-default/60"
+              }`}
+            >
+              <Image
+                src="/home/latest/latest1.jpg"
+                alt="Profile"
+                width={36}
+                height={36}
+                className="h-full w-full object-cover"
+              />
+            </Link>
           </div>
 
           <div className="flex items-center gap-2 lg:hidden">
+            <Link
+              href="/profile"
+              aria-label="Go to profile"
+              className={`inline-flex h-8 w-8 overflow-hidden rounded-full border transition-colors ${
+                isProfileActive
+                  ? "border-brand-default"
+                  : "border-line-weaker hover:border-brand-default/60"
+              }`}
+            >
+              <Image
+                src="/home/latest/latest1.jpg"
+                alt="Profile"
+                width={32}
+                height={32}
+                className="h-full w-full object-cover"
+              />
+            </Link>
+
             <button
               type="button"
               aria-expanded={isMobileMenuOpen}
