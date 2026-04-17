@@ -196,6 +196,14 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+img,
+video,
+canvas {
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
 .font-sf-pro {
   font-family: var(--font-sf-pro);
 }
