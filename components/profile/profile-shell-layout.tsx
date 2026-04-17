@@ -14,7 +14,7 @@ export default function ProfileShellLayout({ children }: ProfileShellLayoutProps
           <div className="grid h-full grid-cols-1 md:grid-cols-[300px_1fr]">
             <ProfileSidebar />
 
-            <main className="h-full p-4 sm:p-6 md:px-10 md:py-8">{children}</main>
+            <main className="h-full md:pl-10">{children}</main>
           </div>
         </div>
       </div>
