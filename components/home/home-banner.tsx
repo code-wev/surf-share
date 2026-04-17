@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { PageTitle } from "../shared/page-title";
@@ -8,13 +7,23 @@ import { ArrowRight } from "lucide-react";
 
 const HomeBanner = () => {
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
-  const [videoReady, setVideoReady] = useState(false);
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const isDesktopViewport = window.matchMedia("(min-width: 768px)").matches;
+    const connection = (
+      navigator as Navigator & {
+        connection?: {
+          saveData?: boolean;
+          effectiveType?: string;
+        };
+      }
+    ).connection;
+    const isSlowNetwork =
+      Boolean(connection?.saveData) ||
+      ["slow-2g", "2g", "3g"].includes(connection?.effectiveType ?? "");
 
-    if (prefersReducedMotion || !isDesktopViewport) {
+    if (prefersReducedMotion || !isDesktopViewport || isSlowNetwork) {
       return;
     }
 
@@ -31,17 +40,6 @@ const HomeBanner = () => {
     <section className="relative mb-20 w-full">
       {/* Hero container */}
       <div className="relative min-h-[calc(100svh-78px)] overflow-hidden bg-[#d9d9d9] sm:min-h-[calc(100vh-68px)]">
-        <Image
-          src="/home/banner.png"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="absolute inset-0 h-full w-full object-cover"
-          draggable={false}
-          onContextMenu={(event) => event.preventDefault()}
-        />
-
         {/* Video Background */}
         {shouldLoadVideo ? (
           <video
@@ -49,12 +47,10 @@ const HomeBanner = () => {
             loop
             muted
             playsInline
-            preload="metadata"
+            preload="none"
             disablePictureInPicture
             controlsList="nodownload noplaybackrate noremoteplayback"
-            poster="/home/banner.png"
-            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${videoReady ? "opacity-100" : "opacity-0"}`}
-            onLoadedData={() => setVideoReady(true)}
+            className="absolute inset-0 h-full w-full object-cover"
             onContextMenu={(event) => event.preventDefault()}
           >
             <source src="/home/banner.mp4" type="video/mp4" />

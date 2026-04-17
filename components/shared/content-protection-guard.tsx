@@ -13,7 +13,8 @@ function isMediaTarget(target: EventTarget | null) {
 function isScreenshotShortcut(event: KeyboardEvent) {
   const key = event.key.toLowerCase();
   const keyCode = "keyCode" in event ? event.keyCode : 0;
-  const isMacScreenshot = event.metaKey && event.shiftKey && (key === "3" || key === "4" || key === "5");
+  const isMacScreenshot =
+    event.metaKey && event.shiftKey && (key === "3" || key === "4" || key === "5");
   const isWindowsSnip = (event.metaKey || event.ctrlKey) && event.shiftKey && key === "s";
   const isPrintScreen = key === "printscreen" || key === "prtsc" || keyCode === 44;
 

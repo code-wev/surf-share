@@ -17,12 +17,7 @@ export function Providers({ children }: ProvidersProps) {
   const [queryClient] = useState(makeQueryClient);
 
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="light"
-      enableSystem
-      disableTransitionOnChange
-    >
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
       <QueryClientProvider client={queryClient}>
         <ContentProtectionGuard />
         {children}
