@@ -204,6 +204,12 @@ canvas {
   user-select: none;
 }
 
+.capture-media-blackout img,
+.capture-media-blackout video,
+.capture-media-blackout canvas {
+  filter: brightness(0) !important;
+}
+
 .font-sf-pro {
   font-family: var(--font-sf-pro);
 }
