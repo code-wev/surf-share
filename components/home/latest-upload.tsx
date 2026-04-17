@@ -103,9 +103,11 @@ export default function LatestUpload() {
           <CardView items={latestUploadItems} />
         </div>
         <div className="flex items-center justify-center text-center">
-          <Button className="mt-12 cursor-pointer rounded-lg border border-(--color-icon-weaker) bg-(--color-fill-brand-strong) px-5 py-2 text-sm text-white shadow-md transition-colors duration-200 hover:bg-(--color-brand-hover) hover:shadow-lg">
-            Browse More Photos <ArrowRight className="h-4 w-4" />
-          </Button>
+          <Link href="/gallery">
+            <Button className="mt-12 cursor-pointer rounded-lg border border-(--color-icon-weaker) bg-(--color-fill-brand-strong) px-5 py-2 text-sm text-white shadow-md transition-colors duration-200 hover:bg-(--color-brand-hover) hover:shadow-lg">
+              Browse More Photos <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

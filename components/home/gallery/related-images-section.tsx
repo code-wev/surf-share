@@ -1,9 +1,14 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { ExternalLink, Heart, Plus } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ArrowRight, ExternalLink, Heart, Plus } from "lucide-react";
 
 import ImageCard from "@/components/shared/image-card";
 import type { GalleryDetailItem } from "@/components/home/gallery/gallery-images";
+import { PageTitle } from "@/components/shared/page-title";
+import { Button } from "@/components/ui/button";
 
 type RelatedImagesSectionProps = {
   items: GalleryDetailItem[];
@@ -32,7 +37,7 @@ function buildActions() {
 
 function buildInfo(item: GalleryDetailItem) {
   return (
-    <div className="flex items-end justify-between gap-4">
+    <div className="flex items-end justify-between gap-6">
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           {item.avatarSrc ? (
@@ -49,41 +54,59 @@ function buildInfo(item: GalleryDetailItem) {
           </p>
         </div>
 
-        <div className="mt-1 flex items-center gap-1 text-[13px] text-white/85">
+        <div className="mt-1 flex items-center gap-1 text-xs text-white/85 sm:text-[13px]">
           <span>{item.location}</span>
           <ExternalLink className="h-3 w-3" />
         </div>
       </div>
 
-      <p className="text-[40px] leading-none font-semibold text-white">{item.price}</p>
+      <p className="text-3xl leading-none font-semibold text-white sm:text-3xl lg:text-4xl">
+        {item.price}
+      </p>
     </div>
   );
 }
 
 export default function RelatedImagesSection({ items }: RelatedImagesSectionProps) {
+  const itemsPerPage = 4;
+  const totalPages = Math.max(1, Math.ceil(items.length / itemsPerPage));
+  const [activePage, setActivePage] = useState(0);
+  const currentPage = Math.min(activePage, totalPages - 1);
+
+  const pagedItems = useMemo(() => {
+    const startIndex = currentPage * itemsPerPage;
+    return items.slice(startIndex, startIndex + itemsPerPage);
+  }, [currentPage, items]);
+
   return (
-    <section className="mt-10 rounded-md border border-(--color-line-weaker) bg-(--color-surface-base) px-4 py-6 sm:px-6 sm:py-8">
+    <section className="mt-10 bg-(--color-surface-base) py-6 sm:py-8">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
+        {/* <div>
           <p className="text-sm font-medium text-(--color-text-weak)">
             Captured around the same location
           </p>
-          <h2 className="mt-1 text-4xl font-semibold tracking-tight text-(--color-text-strong)">
+          <h2 className="mt-1 text-3xl font-semibold tracking-tight text-(--color-text-strong) sm:text-4xl">
             Related Photos
           </h2>
-        </div>
+        </div> */}
+        <PageTitle
+          subtitlePosition="top"
+          subtitle="Captured around the same location"
+          subtitleClassName="text-lg! leading-tight text-(--color-text-weak) sm:text-2xl! lg:text-[28px]!"
+          title=" Related Photos"
+          titleClassName="text-(--color-text-strong) text-[34px]! leading-none sm:text-[46px]! lg:text-[58px]!"
+        />
 
-        <Link
-          href="/gallery"
-          className="inline-flex h-8 items-center justify-center rounded-md border border-(--color-line-weaker) px-3 text-xs font-medium text-(--color-text-brand-strong)"
-        >
-          View All
+        <Link href="/gallery">
+          <Button className="mt-12 cursor-pointer rounded-lg border border-(--color-line-weaker) bg-transparent px-5 py-2 text-sm text-(--color-text-brand-strong) transition-colors duration-200 hover:bg-(--color-fill-brand-strong) hover:text-white hover:shadow-lg">
+            View All <ArrowRight className="h-4 w-4" />
+          </Button>
         </Link>
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {items.slice(0, 4).map((item) => (
-          <div key={item.id} className="h-66">
+      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {pagedItems.map((item) => (
+          <div key={item.id} className="h-80 sm:h-66">
             <ImageCard
               src={item.src}
               alt={item.alt}
@@ -100,18 +123,24 @@ export default function RelatedImagesSection({ items }: RelatedImagesSectionProp
         ))}
       </div>
 
-      <div className="mt-6 flex items-center justify-center gap-3">
-        {[0, 1, 2, 3, 4].map((dotIndex) => (
-          <span
-            key={dotIndex}
-            className={
-              dotIndex === 0
-                ? "inline-block h-3 w-3 rounded-full bg-(--color-fill-brand-strong)"
-                : "inline-block h-3 w-3 rounded-full bg-(--color-fill-disabled)"
-            }
-          />
-        ))}
-      </div>
+      {totalPages > 1 ? (
+        <div className="mt-6 flex items-center justify-center gap-3">
+          {Array.from({ length: totalPages }).map((_, dotIndex) => (
+            <button
+              key={dotIndex}
+              type="button"
+              aria-label={`Show related photos page ${dotIndex + 1}`}
+              aria-current={dotIndex === currentPage}
+              className={
+                dotIndex === currentPage
+                  ? "inline-block h-3 w-3 rounded-full bg-(--color-fill-brand-strong)"
+                  : "inline-block h-3 w-3 rounded-full bg-(--color-icon-disable) transition-colors hover:bg-(--color-fill-strong)"
+              }
+              onClick={() => setActivePage(dotIndex)}
+            />
+          ))}
+        </div>
+      ) : null}
     </section>
   );
 }
