@@ -84,8 +84,8 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   const relatedImages = getRelatedGalleryImagesBySlugOrId(slug, 8);
 
   return (
-    <section className="mx-5 py-6 md:mx-12.5 lg:px-8 lg:py-10">
-      <div className="mb-5 flex flex-wrap items-center gap-2 text-sm text-(--color-text-weak)">
+    <section className="mx-auto max-w-480 py-6 lg:py-10">
+      <div className="mx-5 mb-5 flex flex-wrap items-center gap-2 text-sm text-(--color-text-weak) md:mx-12.5">
         <Link href="/gallery" className="font-medium hover:text-(--color-text-brand-strong)">
           Gallery
         </Link>
@@ -93,7 +93,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
         <span className="text-sm font-semibold text-(--color-text-strong)">Image details</span>
       </div>
 
-      <div className="grid gap-9 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
+      <div className="mx-5 grid gap-9 md:mx-12.5 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
         <div className="mx-auto w-full max-w-80 sm:max-w-150 md:max-w-2xl lg:max-w-none">
           <div className="relative overflow-hidden rounded-md border border-(--color-line-weaker)">
             <Image

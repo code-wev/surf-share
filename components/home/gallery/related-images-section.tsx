@@ -79,7 +79,7 @@ export default function RelatedImagesSection({ items }: RelatedImagesSectionProp
   }, [currentPage, items]);
 
   return (
-    <section className="mt-10 bg-(--color-surface-base) py-6 sm:py-8">
+    <section className="mx-5 mt-10 max-w-480 bg-(--color-surface-base) py-6 sm:py-8 md:mx-12.5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         {/* <div>
           <p className="text-sm font-medium text-(--color-text-weak)">

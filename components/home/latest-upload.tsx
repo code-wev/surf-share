@@ -82,7 +82,7 @@ const latestUploadItems: CardViewItem[] = [
 export default function LatestUpload() {
   return (
     <section className="mb-10 bg-(--color-fill-hover) md:mb-25">
-      <div className="py-12 sm:px-6 md:px-8 lg:mx-12.5 lg:px-0 lg:py-21">
+      <div className="mx-auto max-w-480 py-12 sm:px-6 md:px-8 lg:py-21">
         <div className="flex flex-col gap-5 px-4 sm:flex-row sm:items-end sm:justify-between">
           <PageTitle
             subtitle="Trending Now"

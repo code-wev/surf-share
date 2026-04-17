@@ -107,7 +107,7 @@ export default function FeaturedLocation() {
   const translatePercent = (clampedActiveIndex * 100) / cardsPerView;
 
   return (
-    <section className="mb-24 px-4 sm:px-6 md:mx-12.5 md:px-0">
+    <section className="mx-auto mb-24 max-w-480 px-4 sm:px-6 md:px-12.5">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <PageTitle
           subtitle="Destinations"
