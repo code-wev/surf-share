@@ -24,7 +24,7 @@ export default function Navbar() {
   return (
     <header className="font-sf-pro relative z-30 border-b border-(--color-line-weak) bg-(--color-surface-muted-100)">
       <div className="mx-2 md:mx-12.5">
-        <div className="flex h-17 w-full items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="flex h-17 w-full items-center justify-between">
           <Link href="/" className="shrink-0" onClick={closeMobileMenu}>
             <Image
               src="/home/logo.png"
@@ -44,8 +44,8 @@ export default function Navbar() {
                 aria-current={isNavItemActive(item.href) ? "page" : undefined}
                 className={`text-sm transition-colors ${
                   isNavItemActive(item.href)
-                    ? "font-bold text-text-brand-strong"
-                    : "font-normal text-gray-900 hover:text-text-brand-strong"
+                    ? "text-text-brand-strong text-2xl font-bold"
+                    : "hover:text-text-brand-strong font-normal text-gray-900"
                 }`}
               >
                 {item.label}
@@ -93,8 +93,8 @@ export default function Navbar() {
                   aria-current={isNavItemActive(item.href) ? "page" : undefined}
                   className={`rounded-sm px-2 py-2 text-sm transition-colors ${
                     isNavItemActive(item.href)
-                      ? "font-bold text-text-brand-strong"
-                      : "font-normal text-gray-900 hover:bg-(--color-fill-hover) hover:text-text-brand-strong"
+                      ? "text-text-brand-strong font-bold"
+                      : "hover:text-text-brand-strong font-normal text-gray-900 hover:bg-(--color-fill-hover)"
                   }`}
                 >
                   {item.label}
