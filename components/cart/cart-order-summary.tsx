@@ -3,11 +3,12 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
 import { checkoutTaxRate, formatPrice, type CartLineItem } from "@/components/cart/cart-model";
+import { ShieldCheck } from "lucide-react";
 
 type CartOrderSummaryProps = {
   mode: "cart" | "checkout";
   items: CartLineItem[];
-  onProceed: () => void;
+  onProceed: () => void | Promise<void>;
   proceedDisabled?: boolean;
 };
 
@@ -22,7 +23,7 @@ export default function CartOrderSummary({
   const total = subtotal + tax;
 
   return (
-    <aside className="h-fit rounded-[4px] bg-(--color-fill-brand-strong) p-4 text-(--color-text-inverse-strong) sm:p-5 xl:sticky xl:top-24">
+    <aside className="h-fit rounded-sm bg-(--color-fill-brand-strong) p-4 text-(--color-text-inverse-strong) sm:p-5 xl:sticky xl:top-24">
       <h2 className="text-[28px] font-medium tracking-tight">
         {mode === "checkout" ? "Purchase Summary" : "Order Summary"}
       </h2>
@@ -63,14 +64,14 @@ export default function CartOrderSummary({
         </div>
 
         {mode === "checkout" ? (
-          <div className="flex items-center justify-between">
-            <span>Tax(10%)</span>
-            <span>{formatPrice(tax)}</span>
+          <div className="mt-2 flex items-center justify-between">
+            <span className="text-sm">Tax(10%)</span>
+            <span className="text-sm">{formatPrice(tax)}</span>
           </div>
         ) : null}
       </div>
 
-      <div className="mt-2.5 flex items-end justify-between">
+      <div className="mt-3.5 flex items-end justify-between">
         <p className="text-[22px] font-semibold text-(--color-text-inverse-strong)">Total</p>
         <p className="text-[32px] leading-none font-semibold text-(--color-text-inverse-strong)">
           {formatPrice(total)}
@@ -78,7 +79,7 @@ export default function CartOrderSummary({
       </div>
 
       <Button
-        className="mt-16 h-10 w-full cursor-pointer bg-(--color-fill-inverse-strong) text-(--color-fill-brand-strong) hover:opacity-95"
+        className="my-16 h-10 w-full cursor-pointer bg-(--color-fill-inverse-strong) text-(--color-fill-brand-strong) hover:opacity-95"
         disabled={proceedDisabled}
         onClick={onProceed}
       >
@@ -87,9 +88,14 @@ export default function CartOrderSummary({
 
       {mode === "checkout" ? (
         <div className="mt-5 text-center">
-          <p className="text-xs text-white/85">100% secure and encrypted payment.</p>
-          <p className="mt-1 text-xs text-white/85">Accepted payment methods</p>
-          <div className="mx-auto mt-2 w-fit rounded-sm bg-white px-2 py-1 text-[11px] font-semibold text-[#003087]">
+          <div className="-ml-6 flex items-start justify-center gap-x-3">
+            <ShieldCheck className="mt-0.5 h-5 w-5" color="#22C55E" />
+            <div>
+              <p className="text-xs text-white/85">100% secure and encrypted payment.</p>
+              <p className="mt-1 text-xs text-white/85">Accepted payment methods</p>
+            </div>
+          </div>
+          <div className="mx-auto mt-3 w-fit rounded-sm bg-white px-2 py-1 text-[11px] font-semibold text-[#003087]">
             PayPal
           </div>
         </div>
