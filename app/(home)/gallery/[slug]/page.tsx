@@ -247,18 +247,20 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
               variant="secondary"
               className={
                 favoriteActive
-                  ? "h-10 cursor-pointer border border-(--color-line-brand) bg-(--color-fill-inverse-weak) text-(--color-text-white)"
-                  : "h-10 cursor-pointer border border-(--color-line-weaker) bg-(--color-fill-inverse-weak) text-(--color-text-brand-strong)"
+                  ? "h-10 w-full cursor-pointer border border-(--color-line-brand) bg-(--color-fill-inverse-weak) text-(--color-text-white)"
+                  : "h-10 w-full cursor-pointer border border-(--color-line-weaker) bg-(--color-fill-inverse-weak) text-(--color-text-brand-strong)"
               }
               onClick={() => setFavoriteActive((previousValue) => !previousValue)}
             >
               Add to favorites
               <Heart className="h-4 w-4" />
             </Button>
-            <Button className="h-10 cursor-pointer bg-(--color-fill-brand-strong) text-(--color-text-inverse-strong) hover:opacity-95">
-              Add to cart
-              <ShoppingCart className="h-4 w-4" />
-            </Button>
+            <Link href="/cart" className="block h-10 w-full">
+              <Button className="h-full w-full cursor-pointer bg-(--color-fill-brand-strong) text-(--color-text-inverse-strong) hover:opacity-95">
+                Add to cart
+                <ShoppingCart className="h-4 w-4" />
+              </Button>
+            </Link>
           </div>
 
           <div className="mt-6 border-t border-(--color-line-weaker) pt-5">
