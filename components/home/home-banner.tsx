@@ -1,25 +1,66 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { PageTitle } from "../shared/page-title";
 import { ArrowRight } from "lucide-react";
+
 const HomeBanner = () => {
+  const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
+
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isDesktopViewport = window.matchMedia("(min-width: 768px)").matches;
+
+    if (prefersReducedMotion || !isDesktopViewport) {
+      return;
+    }
+
+    const timerId = window.setTimeout(() => {
+      setShouldLoadVideo(true);
+    }, 350);
+
+    return () => {
+      window.clearTimeout(timerId);
+    };
+  }, []);
+
   return (
     <section className="relative mb-20 w-full">
       {/* Hero container */}
       <div className="relative min-h-[calc(100svh-78px)] overflow-hidden bg-[#d9d9d9] sm:min-h-[calc(100vh-68px)]">
-        {/* Video Background */}
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          poster="/home/banner.png"
+        <Image
+          src="/home/banner.png"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
           className="absolute inset-0 h-full w-full object-cover"
-        >
-          <source src="/home/banner.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
+          draggable={false}
+          onContextMenu={(event) => event.preventDefault()}
+        />
+
+        {/* Video Background */}
+        {shouldLoadVideo ? (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            disablePictureInPicture
+            controlsList="nodownload noplaybackrate noremoteplayback"
+            poster="/home/banner.png"
+            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${videoReady ? "opacity-100" : "opacity-0"}`}
+            onLoadedData={() => setVideoReady(true)}
+            onContextMenu={(event) => event.preventDefault()}
+          >
+            <source src="/home/banner.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        ) : null}
 
         {/* Dark overlay for text contrast */}
         <div className="absolute inset-0 bg-black/55 md:bg-black/35" />
