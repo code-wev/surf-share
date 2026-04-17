@@ -46,7 +46,7 @@ export default function HowItWorks() {
   ];
 
   return (
-    <section className="px-4 pb-8 sm:px-6 md:mx-12.5 md:px-0 md:pb-20">
+    <section className="mx-auto max-w-480 px-4 pb-8 sm:px-6 md:px-12.5 md:pb-20">
       <div className="grid grid-cols-1 items-center justify-between md:grid-cols-2 md:gap-x-17 lg:gap-x-37">
         <div className="relative hidden h-160 md:block lg:ml-10 lg:h-190">
           {stackedImages.map((image) => (

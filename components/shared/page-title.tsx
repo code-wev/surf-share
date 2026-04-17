@@ -45,7 +45,7 @@ export function PageTitle({
         )}
       >
         {beforeTitle ? (
-          <div className={cn("mt-1 shrink-0", beforeTitleClassName)}>{beforeTitle}</div>
+          <div className={cn("mt-2.5 shrink-0", beforeTitleClassName)}>{beforeTitle}</div>
         ) : null}
 
         <div className={cn("min-w-0 space-y-2", align === "center" ? "text-center" : "text-left")}>
