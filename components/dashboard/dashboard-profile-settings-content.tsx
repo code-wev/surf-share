@@ -1,7 +1,7 @@
 import Image from "next/image";
 
-import DashboardInfoField from "@/components/dashboard/dashboard-info-field";
-import DashboardPasswordField from "@/components/dashboard/dashboard-password-field";
+import DashboardProfileInfoField from "@/components/dashboard/dashboard-profile-info-field";
+import DashboardProfilePasswordField from "@/components/dashboard/dashboard-profile-password-field";
 
 const dashboardDefaults = {
   fullName: "Makibul Hossain Tamim",
@@ -11,7 +11,7 @@ const dashboardDefaults = {
   address: "The Mill Suite, Hardmans Business Centre New Hey Hall Road, Rawtenstall, BB4 6HH",
 } as const;
 
-export default function DashboardSettingsContent() {
+export default function DashboardProfileSettingsContent() {
   return (
     <div className="h-full px-4 py-4 sm:px-6 sm:py-6 md:px-0 md:py-0">
       <section className="flex h-full flex-col">
@@ -35,11 +35,11 @@ export default function DashboardSettingsContent() {
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-4 md:mt-9 md:grid-cols-2 md:gap-x-6 md:gap-y-5">
-          <DashboardInfoField label="Full name" defaultValue={dashboardDefaults.fullName} />
-          <DashboardInfoField label="Country Name" defaultValue={dashboardDefaults.country} />
-          <DashboardInfoField label="Phone Number" defaultValue={dashboardDefaults.phone} />
-          <DashboardInfoField label="Email Address" defaultValue={dashboardDefaults.email} />
-          <DashboardInfoField
+          <DashboardProfileInfoField label="Full name" defaultValue={dashboardDefaults.fullName} />
+          <DashboardProfileInfoField label="Country Name" defaultValue={dashboardDefaults.country} />
+          <DashboardProfileInfoField label="Phone Number" defaultValue={dashboardDefaults.phone} />
+          <DashboardProfileInfoField label="Email Address" defaultValue={dashboardDefaults.email} />
+          <DashboardProfileInfoField
             label="Address"
             defaultValue={dashboardDefaults.address}
             className="md:col-span-2"
@@ -50,13 +50,16 @@ export default function DashboardSettingsContent() {
           <h2 className="text-text-strong mb-6 text-[22px] font-semibold">Change Password</h2>
           <div className="space-y-5">
             <div>
-              <DashboardPasswordField label="Password" placeholder="Type your password" />
+              <DashboardProfilePasswordField label="Password" placeholder="Type your password" />
             </div>
             <div>
-              <DashboardPasswordField label="New Password" placeholder="Type new your password" />
+              <DashboardProfilePasswordField
+                label="New Password"
+                placeholder="Type new your password"
+              />
             </div>
             <div>
-              <DashboardPasswordField
+              <DashboardProfilePasswordField
                 label="Confirm New Password"
                 placeholder="Confirm your password"
               />

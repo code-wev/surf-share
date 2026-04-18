@@ -2,15 +2,15 @@ import { EyeOff } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 
-type DashboardPasswordFieldProps = {
+type DashboardProfilePasswordFieldProps = {
   label: string;
   placeholder: string;
 };
 
-export default function DashboardPasswordField({
+export default function DashboardProfilePasswordField({
   label,
   placeholder,
-}: DashboardPasswordFieldProps) {
+}: DashboardProfilePasswordFieldProps) {
   return (
     <label>
       <span className="mb-2 block text-sm font-medium text-text-strong">{label}</span>

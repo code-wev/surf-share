@@ -49,7 +49,7 @@ export default function DashboardShellLayout({ children }: DashboardShellLayoutP
             <main
               className={cn(
                 "no-scrollbar min-h-0 overflow-y-auto lg:h-full",
-                isDesktopSidebarCollapsed ? "lg:pl-6" : "lg:pl-10",
+                // isDesktopSidebarCollapsed ? "lg:pl-6" : "lg:pl-10",
               )}
             >
               {children}

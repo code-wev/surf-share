@@ -1,16 +1,16 @@
 import { Input } from "@/components/ui/input";
 
-type DashboardInfoFieldProps = {
+type DashboardProfileInfoFieldProps = {
   label: string;
   defaultValue: string;
   className?: string;
 };
 
-export default function DashboardInfoField({
+export default function DashboardProfileInfoField({
   label,
   defaultValue,
   className,
-}: DashboardInfoFieldProps) {
+}: DashboardProfileInfoFieldProps) {
   return (
     <label className={className}>
       <span className="mb-2 block text-base font-medium text-text-strong">{label}</span>
