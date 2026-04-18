@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Download, Heart, LogOut, Package, UserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -8,10 +10,10 @@ import { useDemoAuth } from "@/lib/demo-auth";
 import { cn } from "@/lib/utils";
 
 const profileNavItems = [
-  { label: "Profile", Icon: UserRound },
-  { label: "Order", Icon: Package },
-  { label: "Downloads", Icon: Download },
-  { label: "Favorites", Icon: Heart },
+  { label: "Profile", href: "/profile", Icon: UserRound },
+  { label: "Order", href: "/profile/order", Icon: Package },
+  { label: "Downloads", href: "/profile/download", Icon: Download },
+  { label: "Favorites", href: "/profile/favorite", Icon: Heart },
 ] as const;
 
 type ProfileSidebarProps = {
@@ -29,39 +31,57 @@ export default function ProfileSidebar({ className, onNavigate }: ProfileSidebar
     toast.success("Logged out.");
     router.push("/login");
   };
+  const pathname = usePathname();
 
   return (
-    <aside className={cn("flex h-full min-h-0 w-full flex-col border border-line-weaker bg-surface-muted-100", className)}>
+    <aside
+      className={cn(
+        "border-line-weaker bg-surface-muted-100 flex h-full min-h-0 w-full flex-col border",
+        className,
+      )}
+    >
       <div className="p-4">
-        <p className="text-xs font-medium text-text-weaker">Profile Overview</p>
+        <p className="text-text-weaker text-xs font-medium">Profile Overview</p>
 
         <ul className="mt-2">
-          {profileNavItems.map((item, index) => (
-            <li key={item.label}>
-              <button
-                type="button"
-                onClick={onNavigate}
-                className={`flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm transition-colors ${
-                  index === 0
-                    ? "bg-fill-disable font-medium text-text-strong"
-                    : "font-normal text-text-weak hover:bg-fill-hover hover:text-text-strong"
-                }`}
-              >
-                <item.Icon size={14} />
-                <span>{item.label}</span>
-              </button>
-            </li>
-          ))}
+          {profileNavItems.map((item) => {
+            const isActive = pathname === item.href;
+
+            return (
+              <li key={item.label}>
+                <Link
+                  href={item.href}
+                  onClick={onNavigate}
+                  className={cn(
+                    "group flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm transition-colors",
+                    isActive
+                      ? "bg-fill-disable text-text-strong font-medium"
+                      : "text-text-weak hover:bg-fill-hover hover:text-text-strong font-normal",
+                  )}
+                >
+                  <item.Icon
+                    size={16}
+                    color="#0D1420"
+                    className={cn(
+                      "transition-colors",
+                      isActive ? "text-text-strong" : "text-text-weak group-hover:text-text-strong",
+                    )}
+                  />
+                  <span>{item.label}</span>
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </div>
 
-      <div className="mt-auto border-t border-line-weaker px-4 py-2">
+      <div className="border-line-weaker mt-auto border-t px-4 py-2">
         <button
           type="button"
           onClick={handleLogout}
           className="px-2 py-1.5 inline-flex items-center gap-2 text-sm font-medium text-danger-strong transition-colors hover:opacity-80"
         >
-          <LogOut size={14} />
+          <LogOut size={16} />
           Logout
         </button>
       </div>

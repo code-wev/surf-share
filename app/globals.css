@@ -181,7 +181,7 @@
 *,
 *::before,
 *::after {
-  border-color: var(--border);
+  /* border-color: var(--border); */
 }
 
 html,
@@ -194,6 +194,20 @@ body {
   color: var(--foreground);
   font-family: var(--font-dm-sans), var(--font-sf-pro);
   text-rendering: optimizeLegibility;
+}
+
+img,
+video,
+canvas {
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.capture-media-blackout img,
+.capture-media-blackout video,
+.capture-media-blackout canvas {
+  filter: brightness(0) !important;
 }
 
 .font-sf-pro {
@@ -280,7 +294,9 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   transform: rotate(-45deg);
   transform-origin: center;
-  transition: transform 160ms ease, background-color 160ms ease;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease;
 }
 
 .surf-map .surf-map-pin.is-active {

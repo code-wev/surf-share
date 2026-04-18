@@ -1,25 +1,62 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { PageTitle } from "../shared/page-title";
 import { ArrowRight } from "lucide-react";
+
 const HomeBanner = () => {
+  const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
+
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isDesktopViewport = window.matchMedia("(min-width: 768px)").matches;
+    const connection = (
+      navigator as Navigator & {
+        connection?: {
+          saveData?: boolean;
+          effectiveType?: string;
+        };
+      }
+    ).connection;
+    const isSlowNetwork =
+      Boolean(connection?.saveData) ||
+      ["slow-2g", "2g", "3g"].includes(connection?.effectiveType ?? "");
+
+    if (prefersReducedMotion || !isDesktopViewport || isSlowNetwork) {
+      return;
+    }
+
+    const timerId = window.setTimeout(() => {
+      setShouldLoadVideo(true);
+    }, 350);
+
+    return () => {
+      window.clearTimeout(timerId);
+    };
+  }, []);
+
   return (
     <section className="relative mb-20 w-full">
       {/* Hero container */}
       <div className="relative min-h-[calc(100svh-78px)] overflow-hidden bg-[#d9d9d9] sm:min-h-[calc(100vh-68px)]">
         {/* Video Background */}
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          poster="/home/banner.png"
-          className="absolute inset-0 h-full w-full object-cover"
-        >
-          <source src="/home/banner.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
+        {shouldLoadVideo ? (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="none"
+            disablePictureInPicture
+            controlsList="nodownload noplaybackrate noremoteplayback"
+            className="absolute inset-0 h-full w-full object-cover"
+            onContextMenu={(event) => event.preventDefault()}
+          >
+            <source src="/home/banner.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        ) : null}
 
         {/* Dark overlay for text contrast */}
         <div className="absolute inset-0 bg-black/55 md:bg-black/35" />

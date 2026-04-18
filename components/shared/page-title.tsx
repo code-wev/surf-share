@@ -9,7 +9,7 @@ type PageTitleProps = {
   subtitleUppercase?: boolean;
   beforeTitle?: ReactNode;
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
-  align?: "start" | "center";
+  align?: "start" | "center" | "end";
   className?: string;
   beforeTitleClassName?: string;
   titleClassName?: string;
@@ -41,14 +41,23 @@ export function PageTitle({
       <div
         className={cn(
           "flex gap-3",
-          align === "center" ? "items-center justify-center" : "items-start justify-start",
+          align === "center"
+            ? "items-center justify-center"
+            : align === "end"
+              ? "items-end justify-end"
+              : "items-start justify-start",
         )}
       >
         {beforeTitle ? (
           <div className={cn("mt-2.5 shrink-0", beforeTitleClassName)}>{beforeTitle}</div>
         ) : null}
 
-        <div className={cn("min-w-0 space-y-2", align === "center" ? "text-center" : "text-left")}>
+        <div
+          className={cn(
+            "min-w-0 space-y-2",
+            align === "center" ? "text-center" : align === "end" ? "text-end" : "text-left",
+          )}
+        >
           {showSubtitleOnTop ? (
             <p
               className={cn(
