@@ -1,12 +1,37 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowRight, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 
 import { Input } from "@/components/ui/input";
+import { DEMO_CREDENTIALS, useDemoAuth } from "@/lib/demo-auth";
 
 export function LoginForm() {
+  const router = useRouter();
+  const { login } = useDemoAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const session = login(email, password);
+    if (!session) {
+      toast.error("Invalid demo email or password.");
+      return;
+    }
+
+    toast.success(`Logged in as ${session.role}.`);
+    router.push("/profile");
+  };
+
   return (
     <form
-      action="/"
+      onSubmit={handleSubmit}
       className="mt-8 space-y-5 sm:mt-10 md:mt-12 [font-family:var(--font-sf-pro)]"
       noValidate
     >
@@ -14,7 +39,13 @@ export function LoginForm() {
         <label htmlFor="email" className="text-base font-medium text-text-strong">
           Email
         </label>
-        <Input id="email" type="email" placeholder="Enter your email address" />
+        <Input
+          id="email"
+          type="email"
+          placeholder="Enter your email address"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+        />
       </div>
 
       <div className="space-y-2">
@@ -24,12 +55,15 @@ export function LoginForm() {
         <div className="relative">
           <Input
             id="password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="Type your password"
             className="pr-10"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
           />
           <button
             type="button"
+            onClick={() => setShowPassword((previousValue) => !previousValue)}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-icon-weaker"
             aria-label="Toggle password visibility"
           >
@@ -58,6 +92,17 @@ export function LoginForm() {
           Login
           <ArrowRight size={18} />
         </button>
+      </div>
+
+      <div className="rounded-md border border-line-weaker bg-surface-muted-100 p-3 text-xs text-text-weak">
+        <p className="font-semibold text-text-strong">Demo credentials</p>
+        <ul className="mt-2 space-y-1">
+          {DEMO_CREDENTIALS.map((credential) => (
+            <li key={credential.email}>
+              {credential.role}: {credential.email} / {credential.password}
+            </li>
+          ))}
+        </ul>
       </div>
     </form>
   );

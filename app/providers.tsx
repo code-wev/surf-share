@@ -6,6 +6,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 
+import { DemoAuthProvider } from "@/lib/demo-auth";
 import { makeQueryClient } from "@/lib/query/query-client";
 
 type ProvidersProps = {
@@ -16,16 +17,18 @@ export function Providers({ children }: ProvidersProps) {
   const [queryClient] = useState(makeQueryClient);
 
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="light"
-      enableSystem
-      disableTransitionOnChange
-    >
-      <QueryClientProvider client={queryClient}>
-        {children}
-        <Toaster richColors position="top-right" closeButton />
-      </QueryClientProvider>
-    </ThemeProvider>
+    <DemoAuthProvider>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="light"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <QueryClientProvider client={queryClient}>
+          {children}
+          <Toaster richColors position="top-right" closeButton />
+        </QueryClientProvider>
+      </ThemeProvider>
+    </DemoAuthProvider>
   );
 }

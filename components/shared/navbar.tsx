@@ -6,6 +6,8 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 
+import { useDemoAuth } from "@/lib/demo-auth";
+
 const navItems = [
   { label: "Map", href: "/map" },
   { label: "Gallery", href: "/gallery" },
@@ -17,6 +19,7 @@ const navItems = [
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { session } = useDemoAuth();
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
   const isNavItemActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
@@ -55,57 +58,63 @@ export default function Navbar() {
           </nav>
 
           <div className="hidden items-center gap-3 sm:gap-4 lg:flex">
-            <Link
-              href="/login"
-              className="text-sm font-medium text-(--color-text-strong) transition-colors hover:text-[#0c3173]"
-            >
-              Log in
-            </Link>
+            {session ? (
+              <Link
+                href="/profile"
+                aria-label="Go to profile"
+                className={`inline-flex h-9 w-9 overflow-hidden rounded-full border transition-colors ${
+                  isProfileActive
+                    ? "border-brand-default"
+                    : "border-line-weaker hover:border-brand-default/60"
+                }`}
+              >
+                <Image
+                  src="/home/latest/latest1.jpg"
+                  alt="Profile"
+                  width={36}
+                  height={36}
+                  className="h-full w-full object-cover"
+                />
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="text-sm font-medium text-(--color-text-strong) transition-colors hover:text-[#0c3173]"
+                >
+                  Log in
+                </Link>
 
-            <Link
-              href="/signup"
-              className="inline-flex h-8 items-center rounded-sm bg-(--color-fill-brand-strong) px-4 text-sm font-medium text-white transition-colors hover:bg-[#12418f]"
-            >
-              Sign up
-            </Link>
-
-            <Link
-              href="/profile"
-              aria-label="Go to profile"
-              className={`inline-flex h-9 w-9 overflow-hidden rounded-full border transition-colors ${
-                isProfileActive
-                  ? "border-brand-default"
-                  : "border-line-weaker hover:border-brand-default/60"
-              }`}
-            >
-              <Image
-                src="/home/latest/latest1.jpg"
-                alt="Profile"
-                width={36}
-                height={36}
-                className="h-full w-full object-cover"
-              />
-            </Link>
+                <Link
+                  href="/signup"
+                  className="inline-flex h-8 items-center rounded-sm bg-(--color-fill-brand-strong) px-4 text-sm font-medium text-white transition-colors hover:bg-[#12418f]"
+                >
+                  Sign up
+                </Link>
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-2 lg:hidden">
-            <Link
-              href="/profile"
-              aria-label="Go to profile"
-              className={`inline-flex h-8 w-8 overflow-hidden rounded-full border transition-colors ${
-                isProfileActive
-                  ? "border-brand-default"
-                  : "border-line-weaker hover:border-brand-default/60"
-              }`}
-            >
-              <Image
-                src="/home/latest/latest1.jpg"
-                alt="Profile"
-                width={32}
-                height={32}
-                className="h-full w-full object-cover"
-              />
-            </Link>
+            {session ? (
+              <Link
+                href="/profile"
+                aria-label="Go to profile"
+                className={`inline-flex h-8 w-8 overflow-hidden rounded-full border transition-colors ${
+                  isProfileActive
+                    ? "border-brand-default"
+                    : "border-line-weaker hover:border-brand-default/60"
+                }`}
+              >
+                <Image
+                  src="/home/latest/latest1.jpg"
+                  alt="Profile"
+                  width={32}
+                  height={32}
+                  className="h-full w-full object-cover"
+                />
+              </Link>
+            ) : null}
 
             <button
               type="button"
@@ -138,21 +147,25 @@ export default function Navbar() {
                 </Link>
               ))}
 
-              <Link
-                href="/signup"
-                onClick={closeMobileMenu}
-                className="mt-2 inline-flex h-10 items-center justify-center rounded-sm bg-(--color-fill-brand-strong) px-2 text-sm font-medium text-white transition-colors hover:bg-[#12418f]"
-              >
-                Sign up
-              </Link>
+              {!session ? (
+                <>
+                  <Link
+                    href="/signup"
+                    onClick={closeMobileMenu}
+                    className="mt-2 inline-flex h-10 items-center justify-center rounded-sm bg-(--color-fill-brand-strong) px-2 text-sm font-medium text-white transition-colors hover:bg-[#12418f]"
+                  >
+                    Sign up
+                  </Link>
 
-              <Link
-                href="/login"
-                onClick={closeMobileMenu}
-                className="mt-2 inline-flex h-10 items-center justify-center rounded-sm border border-(--color-line-weaker) px-2 py-2 text-sm font-medium text-(--color-text-strong) transition-colors hover:bg-(--color-fill-hover)"
-              >
-                Log in
-              </Link>
+                  <Link
+                    href="/login"
+                    onClick={closeMobileMenu}
+                    className="mt-2 inline-flex h-10 items-center justify-center rounded-sm border border-(--color-line-weaker) px-2 py-2 text-sm font-medium text-(--color-text-strong) transition-colors hover:bg-(--color-fill-hover)"
+                  >
+                    Log in
+                  </Link>
+                </>
+              ) : null}
             </nav>
           </div>
         )}
