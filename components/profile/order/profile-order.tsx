@@ -63,22 +63,16 @@ export default function ProfileOrderPage({ items = defaultOrderItems }: CartCont
 
   return (
     <section className="">
-      <div className="mb-9">
-        <h1 className="text-text-brand-strong inline-flex w-fit border-b-2 border-[#0C3173] pb-2.5 text-lg font-semibold md:text-[18px] md:leading-tight">
-          All Orders
-        </h1>
-      </div>
-
       {/* Tabs */}
-      <div className="border-line-weaker mb-6 flex border-b">
+      <div className="mb-6 flex ">
         {tabs.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`px-4 py-2.5 text-sm font-medium transition-colors ${
               activeTab === tab
-                ? "border-text-brand-strong text-text-brand-strong border-b-2"
-                : "text-text-weak hover:text-text-strong"
+                ? "border-text-brand-strong text-text-brand-strong inline-flex w-fit border-b-2 pb-2.5 text-lg font-semibold md:text-[18px] md:leading-tight"
+                : "text-text-weak hover:text-text-strong text-[17px]"
             }`}
           >
             {tab}
