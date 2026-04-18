@@ -24,14 +24,23 @@ export type CardViewItem = {
 type CardViewProps = {
   items: CardViewItem[];
   className?: string;
+  desktopColumns?: 3 | 4;
 };
 
-const desktopColumnPattern: Array<["tall" | "short", "tall" | "short"]> = [
-  ["tall", "short"],
-  ["short", "tall"],
-  ["tall", "short"],
-  ["short", "tall"],
-];
+// Define How many grids will be in desktop
+const desktopColumnPatternByCount: Record<3 | 4, Array<["tall" | "short", "tall" | "short"]>> = {
+  3: [
+    ["tall", "short"],
+    ["short", "tall"],
+    ["tall", "short"],
+  ],
+  4: [
+    ["tall", "short"],
+    ["short", "tall"],
+    ["tall", "short"],
+    ["short", "tall"],
+  ],
+};
 const tabletColumnPattern: Array<{
   indices: [number, number, number, number];
   sizes: ["tall" | "short", "tall" | "short", "tall" | "short", "tall" | "short"];
@@ -134,9 +143,17 @@ function buildActions(item: CardViewItem) {
   );
 }
 
-export default function CardView({ items, className }: CardViewProps) {
-  const desktopGroups = Array.from({ length: Math.ceil(items.length / 8) }, (_, index) =>
-    items.slice(index * 8, index * 8 + 8),
+export default function CardView({ items, className, desktopColumns = 4 }: CardViewProps) {
+  const desktopItemsPerGroup = desktopColumns * 2;
+  const desktopColumnPattern = desktopColumnPatternByCount[desktopColumns];
+
+  const desktopGroups = Array.from(
+    { length: Math.ceil(items.length / desktopItemsPerGroup) },
+    (_, index) =>
+      items.slice(
+        index * desktopItemsPerGroup,
+        index * desktopItemsPerGroup + desktopItemsPerGroup,
+      ),
   );
 
   return (
@@ -212,11 +229,14 @@ export default function CardView({ items, className }: CardViewProps) {
       {desktopGroups.map((group, groupIndex) => (
         <div
           key={`desktop-group-${groupIndex}`}
-          className="hidden max-h-236 overflow-hidden lg:grid lg:grid-cols-4 lg:gap-x-3"
+          className={cn(
+            "hidden max-h-236 overflow-hidden lg:grid lg:gap-x-3",
+            desktopColumns === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3",
+          )}
         >
           {desktopColumnPattern.map(([topSize, bottomSize], columnIndex) => {
             const topItem = group[columnIndex];
-            const bottomItem = group[columnIndex + 4];
+            const bottomItem = group[columnIndex + desktopColumns];
 
             return (
               <div
