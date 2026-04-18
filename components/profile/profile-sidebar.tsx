@@ -1,10 +1,12 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { Download, Heart, LogOut, Package, UserRound } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { toast } from "sonner";
 
+import { useDemoAuth } from "@/lib/demo-auth";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 const profileNavItems = [
   { label: "Profile", href: "/profile", Icon: UserRound },
@@ -20,6 +22,15 @@ type ProfileSidebarProps = {
 
 export default function ProfileSidebar({ className, onNavigate }: ProfileSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { logout } = useDemoAuth();
+
+  const handleLogout = () => {
+    logout();
+    onNavigate?.();
+    toast.success("Logged out.");
+    router.push("/login");
+  };
 
   return (
     <aside
