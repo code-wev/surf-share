@@ -181,7 +181,7 @@
 *,
 *::before,
 *::after {
-  border-color: var(--border);
+  /* border-color: var(--border); */
 }
 
 html,
