@@ -2,12 +2,16 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Clock, Check, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { PageTitle } from "@/components/shared/page-title";
 import { defaultOrderItems, formatPrice, normalizeOrderItems, OrderLineItem } from "./order-model";
+
+type TabType = "All Orders" | "Completed" | "Ordered" | "Cancelled";
+
+const tabs: TabType[] = ["All Orders", "Completed", "Ordered", "Cancelled"];
 
 const statusConfig: Record<
   string,
@@ -37,7 +41,13 @@ type CartContentProps = {
 };
 
 export default function ProfileOrderPage({ items = defaultOrderItems }: CartContentProps) {
+  const [activeTab, setActiveTab] = useState<TabType>("All Orders");
   const initialItems = useMemo(() => normalizeOrderItems(items), [items]);
+
+  const filteredItems = useMemo(() => {
+    if (activeTab === "All Orders") return initialItems;
+    return initialItems.filter((item) => item.status === activeTab);
+  }, [initialItems, activeTab]);
 
   const getStatusConfig = (status?: string) => {
     if (!status) return { bg: "", text: "text-text-weak", icon: null };
@@ -59,14 +69,31 @@ export default function ProfileOrderPage({ items = defaultOrderItems }: CartCont
         </h1>
       </div>
 
+      {/* Tabs */}
+      <div className="border-line-weaker mb-6 flex border-b">
+        {tabs.map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`px-4 py-2.5 text-sm font-medium transition-colors ${
+              activeTab === tab
+                ? "border-text-brand-strong text-text-brand-strong border-b-2"
+                : "text-text-weak hover:text-text-strong"
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
       {/* Cart Items */}
       <div className="space-y-3">
-        {initialItems.length === 0 ? (
+        {filteredItems.length === 0 ? (
           <div className="rounded-md border border-(--color-line-weaker) bg-(--color-surface-base) p-6 text-center text-(--color-text-weak)">
             Your Order List is empty.
           </div>
         ) : (
-          initialItems.map((item) => (
+          filteredItems.map((item) => (
             <article
               key={item.id}
               className="rounded-md border border-(--color-line-weaker) bg-(--color-surface-base) p-3 sm:p-4"
