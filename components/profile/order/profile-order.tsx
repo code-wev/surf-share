@@ -64,15 +64,15 @@ export default function ProfileOrderPage({ items = defaultOrderItems }: CartCont
   return (
     <section className="">
       {/* Tabs */}
-      <div className="mb-6 flex ">
+      <div className="border-line-weaker mb-6 flex overflow-x-auto border-b">
         {tabs.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2.5 text-sm font-medium transition-colors ${
+            className={`px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors sm:px-4 sm:text-sm md:text-base ${
               activeTab === tab
-                ? "border-text-brand-strong text-text-brand-strong inline-flex w-fit border-b-2 pb-2.5 text-lg font-semibold md:text-[18px] md:leading-tight"
-                : "text-text-weak hover:text-text-strong text-[17px]"
+                ? "border-text-brand-strong text-text-brand-strong inline-flex w-fit border-b-2 pb-2.5 md:text-lg md:leading-tight"
+                : "text-text-weak hover:text-text-strong"
             }`}
           >
             {tab}
@@ -83,26 +83,26 @@ export default function ProfileOrderPage({ items = defaultOrderItems }: CartCont
       {/* Cart Items */}
       <div className="space-y-3">
         {filteredItems.length === 0 ? (
-          <div className="rounded-md border border-(--color-line-weaker) bg-(--color-surface-base) p-6 text-center text-(--color-text-weak)">
-            Your Order List is empty.
+          <div className="rounded-md border border-(--color-line-weaker) bg-(--color-surface-base) p-4 text-center text-(--color-text-weak) sm:p-6">
+            <p className="text-sm sm:text-base">Your Order List is empty.</p>
           </div>
         ) : (
           filteredItems.map((item) => (
             <article
               key={item.id}
-              className="rounded-md border border-(--color-line-weaker) bg-(--color-surface-base) p-3 sm:p-4"
+              className="rounded-md border border-(--color-line-weaker) bg-(--color-surface-base) p-3 sm:p-4 md:p-5"
             >
               {/* Order Part */}
-              <div className="mb-3 flex flex-row justify-between">
-                <div className="flex items-center justify-center gap-x-5">
+              <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-x-5">
                   <PageTitle
                     title={`Order #${item.orderNo || "N/A"}`}
                     subtitle={`Placed on ${item.placedOn || "N/A"}`}
-                    titleClassName="text-[22px]! text-(--color-text-strong) font-medium!"
-                    subtitleClassName="text-sm! text-(--color-text-weak) -mt-2"
+                    titleClassName="text-base sm:text-[22px]! text-(--color-text-strong) font-medium!"
+                    subtitleClassName="text-xs sm:text-sm! text-(--color-text-weak) -mt-1 sm:-mt-2"
                   />
                   <p
-                    className={`-mt-2 inline-flex items-start gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium ${getStatusConfig(item.status).bg} ${getStatusConfig(item.status).text}`}
+                    className={`inline-flex w-fit items-start gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium ${getStatusConfig(item.status).bg} ${getStatusConfig(item.status).text}`}
                   >
                     {renderStatusIcon(item.status)}
                     {item.status || "N/A"}
@@ -110,45 +110,52 @@ export default function ProfileOrderPage({ items = defaultOrderItems }: CartCont
                 </div>
                 <div>
                   <PageTitle
-                    align="end"
+                    align="start"
                     title={formatPrice(item.price)}
                     subtitle={`${item.imageQuantity || "0"} Photos`}
-                    titleClassName="text-2xl! text-(--color-text-brand-strong) font-medium!"
-                    subtitleClassName="text-sm! text-(--color-text-weak) -mt-2"
+                    titleClassName="text-lg sm:text-2xl! text-(--color-text-brand-strong) font-medium!"
+                    subtitleClassName="text-xs sm:text-sm! text-(--color-text-weak) -mt-1 sm:-mt-2"
                   />
                 </div>
               </div>
               {/* Details Part */}
-              <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-                <div className="flex items-center gap-3">
-                  <Image
-                    src={item.imageSrc}
-                    alt={item.title}
-                    width={69}
-                    height={69}
-                    className="h-17 w-14 rounded-sm object-cover"
-                  />
-                  <PageTitle
-                    title={item.title}
-                    subtitle={item.location}
-                    titleClassName="text-[22px]! text-(--color-text-strong) font-medium!"
-                    subtitleClassName="text-sm! text-(--color-text-weak) -mt-2"
-                  />
+              <div className="flex flex-col gap-3 sm:gap-4">
+                <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex w-full items-center gap-3 sm:flex-1">
+                    <Image
+                      src={item.imageSrc}
+                      alt={item.title}
+                      width={69}
+                      height={69}
+                      className="h-16 w-16 shrink-0 rounded-sm object-cover sm:h-17 sm:w-14"
+                    />
+                    <PageTitle
+                      title={item.title}
+                      subtitle={item.location}
+                      titleClassName="text-base sm:text-[22px]! text-(--color-text-strong) font-medium!"
+                      subtitleClassName="text-xs sm:text-sm! text-(--color-text-weak) -mt-1 sm:-mt-2"
+                    />
+                  </div>
+
+                  <div className="hidden sm:block">
+                    <p className="text-sm leading-none font-semibold text-(--color-text-strong)">
+                      {formatPrice(item.price)}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="min-w-0">
-                  <p className="text-sm leading-none font-semibold text-(--color-text-strong)">
-                    {formatPrice(item.price)}
-                  </p>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+                  <div className="sm:hidden">
+                    <p className="text-sm leading-none font-semibold text-(--color-text-strong)">
+                      {formatPrice(item.price)}
+                    </p>
+                  </div>
+                  <Link href={item.detailsHref} className="w-full sm:w-auto">
+                    <Button className="h-8 w-full bg-(--color-fill-brand-strong) px-5 text-xs text-(--color-text-inverse-strong) hover:opacity-95 sm:h-8">
+                      View Details
+                    </Button>
+                  </Link>
                 </div>
-              </div>
-
-              <div className="mt-3 flex justify-end">
-                <Link href={item.detailsHref} className="block">
-                  <Button className="h-8 bg-(--color-fill-brand-strong) px-5 text-xs text-(--color-text-inverse-strong) hover:opacity-95">
-                    View Details
-                  </Button>
-                </Link>
               </div>
             </article>
           ))
