@@ -109,31 +109,31 @@ const topContributors = Array.from({ length: 7 }).map((_, index) => ({
 
 export default function DashboardOverviewContent() {
   return (
-    <section className="h-full py-5 sm:py-6 lg:py-3 pr-12.5">
+    <section className="h-full px-3 py-4 sm:px-4 sm:py-5 md:px-5 lg:px-6 lg:py-6 xl:px-7 2xl:py-3 2xl:pr-12.5">
       <div className="mx-auto w-full max-w-420">
-        <div className="inline-flex items-center border-b border-brand-default pb-1 text-lg font-medium text-brand-default">
+        <div className="inline-flex items-center border-b border-brand-default pb-1 text-sm font-medium text-brand-default sm:text-base lg:text-lg">
           Overview
         </div>
 
-        <h1 className="my-9 text-[30px] leading-tight font-bold tracking-tight text-text-strong sm:text-[48px]">
+        <h1 className="my-5 text-[27px] leading-tight font-bold tracking-tight text-text-strong sm:my-6 sm:text-[34px] md:my-7 md:text-[40px] lg:text-[44px] xl:my-8 2xl:text-[48px]">
           Welcome Back, Jake Morrison
         </h1>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:gap-5 xl:grid-cols-4 xl:gap-6">
           {overviewStats.map((item) => (
             <article
               key={item.label}
-              className="rounded-sm border border-line-weaker bg-surface-muted-100 p-4"
+              className="rounded-sm border border-line-weaker bg-surface-muted-100 p-3 sm:p-4"
             >
               <div className="flex items-start justify-between gap-3">
-                <div className="inline-flex h-9 w-9 p-2.5 items-center justify-center rounded-md bg-brand-disabled text-brand-default">
-                  <item.Icon size={14} />
+                <div className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-brand-disabled text-brand-default sm:h-9 sm:w-9">
+                  <item.Icon size={13} className="sm:h-3.5 sm:w-3.5" />
                 </div>
 
                 <div className="flex flex-col items-end gap-1">
                   <button
                     type="button"
-                    className="inline-flex items-center gap-1 text-xs text-text-weaker"
+                    className="inline-flex items-center gap-1 text-[11px] text-text-weaker sm:text-xs"
                   >
                     January
                     <ChevronDown size={12} />
@@ -152,18 +152,22 @@ export default function DashboardOverviewContent() {
                 </div>
               </div>
 
-              <p className="mt-6 text-[24px] leading-none text-text-strong">{item.value}</p>
-              <p className="mt-1 text-xs text-text-weak">{item.label}</p>
+              <p className="mt-5 text-[22px] leading-none text-text-strong sm:mt-6 sm:text-[24px]">
+                {item.value}
+              </p>
+              <p className="mt-1 text-[11px] text-text-weak sm:text-xs">{item.label}</p>
             </article>
           ))}
         </div>
 
-        <div className="mt-16 grid grid-cols-1 items-stretch gap-4 xl:auto-rows-fr xl:grid-cols-[1fr_1fr]">
+        <div className="mt-10 grid grid-cols-1 items-stretch gap-5 sm:mt-12 lg:mt-14 lg:gap-6 xl:mt-16 xl:auto-rows-fr xl:grid-cols-[1fr_1fr] xl:gap-4">
           <section className="flex h-full flex-col">
-            <h2 className="text-[28px] leading-tight font-semibold text-text-strong">Earnings Overview</h2>
+            <h2 className="text-[20px] leading-tight font-semibold text-text-strong sm:text-[24px] lg:text-[28px]">
+              Earnings Overview
+            </h2>
 
-            <div className="mt-3 flex-1 rounded-sm border border-line-weaker bg-surface-muted-100 p-3">
-              <div className="h-90 w-full overflow-hidden xl:h-full">
+            <div className="mt-3 flex-1 rounded-sm border border-line-weaker bg-surface-muted-100 p-2 sm:p-3">
+              <div className="h-64 w-full overflow-hidden sm:h-72 md:h-80 lg:h-90 xl:h-full">
                 <svg
                   viewBox={`0 0 ${chartWidth} ${chartHeight}`}
                   className="h-full w-full"
@@ -240,32 +244,36 @@ export default function DashboardOverviewContent() {
           </section>
 
           <section className="flex h-full flex-col">
-            <h2 className="text-[22px] leading-tight font-semibold text-text-strong">Top Contributors</h2>
+            <h2 className="text-[20px] leading-tight font-semibold text-text-strong sm:text-[22px]">
+              Top Contributors
+            </h2>
 
-            <div className="mt-9 space-y-3">
+            <div className="mt-4 flex-1 space-y-2 sm:mt-6 sm:space-y-2.5 md:mt-8 md:space-y-3 xl:mt-9">
               {topContributors.map((contributor) => (
                 <article
                   key={contributor.id}
-                  className="flex items-center justify-between border-b border-line-weaker last:border-b-0 pb-2"
+                  className="flex items-center justify-between border-b border-line-weaker pb-2 last:border-b-0"
                 >
-                  <div className="flex min-w-0 items-center gap-3">
+                  <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
                     <Image
                       src={contributor.avatarSrc}
                       alt={contributor.name}
                       width={34}
                       height={34}
-                      className="h-10 w-10 rounded-full object-cover"
+                      className="h-8 w-8 rounded-full object-cover sm:h-9 sm:w-9 lg:h-10 lg:w-10"
                     />
 
                     <div className="min-w-0">
-                      <p className="truncate text-lg leading-tight text-text-strong sm:text-[22px]">
+                      <p className="truncate text-base leading-tight text-text-strong sm:text-lg lg:text-[22px]">
                         {contributor.name}
                       </p>
-                      <p className="text-[12px] text-text-weaker">{contributor.photosLabel}</p>
+                      <p className="text-[11px] text-text-weaker sm:text-[12px]">
+                        {contributor.photosLabel}
+                      </p>
                     </div>
                   </div>
 
-                  <p className="shrink-0 text-lg leading-tight font-medium text-brand-default sm:text-[22px]">
+                  <p className="shrink-0 text-base leading-tight font-medium text-brand-default sm:text-lg lg:text-[22px]">
                     {contributor.earnings}
                   </p>
                 </article>
