@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Clock, Download } from "lucide-react";
+import { CircleAlert, Clock, Download } from "lucide-react";
 import Image from "next/image";
 
 export default function AvailableDownload() {
@@ -68,6 +68,13 @@ export default function AvailableDownload() {
               </div>
             </div>
           ))}
+        </div>
+        <div className="mt-6 flex items-center gap-2">
+          <CircleAlert className="h-4 w-4" color="#D97706" />
+          <p className="text-sm text-(--color-alert-strong)">
+            <span className="font-bold">Note:</span> Downloads expire 30 days after purchase. Make
+            sure to download your photos before they expire.
+          </p>
         </div>
       </div>
     </section>
