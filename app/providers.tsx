@@ -19,13 +19,9 @@ export function Providers({ children }: ProvidersProps) {
 
   return (
     <DemoAuthProvider>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="light"
-        enableSystem
-        disableTransitionOnChange
-      >
+      <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
         <QueryClientProvider client={queryClient}>
+          <ContentProtectionGuard />
           {children}
           <Toaster richColors position="top-right" closeButton />
         </QueryClientProvider>

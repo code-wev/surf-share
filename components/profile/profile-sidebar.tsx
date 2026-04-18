@@ -77,7 +77,7 @@ export default function ProfileSidebar({ className, onNavigate }: ProfileSidebar
       <div className="border-line-weaker mt-auto border-t px-4 py-2">
         <button
           type="button"
-          onClick={onNavigate}
+          onClick={handleLogout}
           className="text-danger-strong inline-flex items-center gap-2 px-2 py-1.5 text-sm font-medium transition-colors hover:opacity-80"
         >
           <LogOut size={16} />
