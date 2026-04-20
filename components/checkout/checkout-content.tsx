@@ -176,7 +176,7 @@ export default function CheckoutContent({
                     alt="PayPal"
                     width={20}
                     height={30}
-                    className="rounded-[2px]"
+                    className="rounded-xs"
                   />
                   <span className="text-sm">Pay with PayPal</span>
                 </Button>

@@ -10,7 +10,7 @@ import DashboardProfilePasswordSection from "@/components/dashboard/profile/dash
 
 export default function DashboardProfileSettingsContent() {
   return (
-    <div className="h-full px-4 py-4 sm:px-6 sm:py-6 md:px-0 md:py-0">
+    <div className="px-3 pb-5 sm:px-4 sm:pb-6 md:px-6 md:pb-8 lg:px-0 lg:pr-10 lg:pb-10 xl:pr-12.5 xl:pb-12.5">
       <section className="flex h-full flex-col">
         <DashboardProfileHeader />
 

@@ -12,7 +12,7 @@ import DashboardOverviewTopContributors from "@/components/dashboard/overview/da
 
 export default function DashboardOverviewContent() {
   return (
-    <section className="h-full px-3 py-4 sm:px-4 sm:py-5 md:px-5 lg:px-6 lg:py-6 xl:px-7 2xl:py-3 2xl:pr-12.5">
+    <section className="px-3 pb-5 sm:px-4 sm:pb-6 md:px-6 md:pb-8 lg:px-0 lg:pr-10 lg:pb-10 xl:pr-12.5 xl:pb-12.5">
       <div className="mx-auto w-full max-w-420">
         <DashboardOverviewHeader />
 

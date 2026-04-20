@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 const dashboardNavItems = [
   { label: "Overview", Icon: LayoutGrid, href: "/dashboard" },
   { label: "User Management", Icon: UsersRound, href: "/dashboard/user-management" },
-  { label: "Photo Moderation", Icon: ImageIcon },
+  { label: "Photo Moderation", Icon: ImageIcon, href: "/dashboard/photo-moderation" },
   { label: "Locations Moderation", Icon: MapPin },
   { label: "Profile Settings", Icon: Settings, href: "/dashboard/profile" },
 ] as const satisfies ReadonlyArray<{
