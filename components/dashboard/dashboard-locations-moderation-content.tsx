@@ -4,6 +4,9 @@ import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
+import AddLocationModal, {
+  type AddLocationModalPayload,
+} from "@/components/dashboard/locations-moderation/add-location-modal";
 import { locationsModerationItems } from "@/components/dashboard/locations-moderation/locations-moderation-data";
 import LocationsModerationFeaturedCard from "@/components/dashboard/locations-moderation/locations-moderation-featured-card";
 import LocationsModerationSidebar from "@/components/dashboard/locations-moderation/locations-moderation-sidebar";
@@ -24,6 +27,7 @@ const LocationsModerationMap = dynamic(
 export default function DashboardLocationsModerationContent() {
   const [locations, setLocations] = useState<LocationModerationItem[]>(locationsModerationItems);
   const [searchValue, setSearchValue] = useState("");
+  const [isAddLocationModalOpen, setIsAddLocationModalOpen] = useState(false);
   const [activeLocationId, setActiveLocationId] = useState<string | null>(
     locationsModerationItems[0]?.id ?? null,
   );
@@ -54,8 +58,34 @@ export default function DashboardLocationsModerationContent() {
     return filteredLocations.find((location) => location.id === resolvedActiveLocationId) ?? null;
   }, [filteredLocations, resolvedActiveLocationId]);
 
+  const addLocationInitialCoordinates: [number, number] = activeLocation?.coordinates ?? [
+    -19.2576,
+    146.8179,
+  ];
+
   const handleAddLocation = () => {
-    toast.success("Add location flow is ready.");
+    setIsAddLocationModalOpen(true);
+  };
+
+  const handleCreateLocation = (payload: AddLocationModalPayload) => {
+    const resolvedRegion = payload.state || payload.region || "NSW";
+
+    const newLocation: LocationModerationItem = {
+      id: `location-${Date.now()}`,
+      name: payload.name,
+      region: resolvedRegion,
+      country: "Australia",
+      coordinates: [payload.latitude, payload.longitude],
+      photosAvailable: 0,
+      previewImage: "/home/latest/latest4.jpg",
+      status: "Active",
+    };
+
+    setLocations((previous) => [newLocation, ...previous]);
+    setActiveLocationId(newLocation.id);
+    setSearchValue("");
+    setIsAddLocationModalOpen(false);
+    toast.success("Location added.");
   };
 
   const handleEditLocation = (location: LocationModerationItem) => {
@@ -118,6 +148,14 @@ export default function DashboardLocationsModerationContent() {
           </div>
         </div>
       </div>
+
+      {isAddLocationModalOpen ? (
+        <AddLocationModal
+          initialCoordinates={addLocationInitialCoordinates}
+          onClose={() => setIsAddLocationModalOpen(false)}
+          onSubmit={handleCreateLocation}
+        />
+      ) : null}
     </section>
   );
 }
