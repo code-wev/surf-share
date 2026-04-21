@@ -8,6 +8,7 @@ import { Toaster } from "sonner";
 
 import { DemoAuthProvider } from "@/lib/demo-auth";
 import { makeQueryClient } from "@/lib/query/query-client";
+import AuthRouteGuard from "@/components/shared/auth-route-guard";
 import ContentProtectionGuard from "@/components/shared/content-protection-guard";
 
 type ProvidersProps = {
@@ -22,6 +23,7 @@ export function Providers({ children }: ProvidersProps) {
       <DemoAuthProvider>
         <QueryClientProvider client={queryClient}>
           <ContentProtectionGuard />
+          <AuthRouteGuard />
           {children}
           <Toaster richColors position="top-right" closeButton />
         </QueryClientProvider>

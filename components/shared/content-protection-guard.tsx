@@ -9,8 +9,12 @@ function isMediaTarget(target: EventTarget | null) {
   return target instanceof Element && Boolean(target.closest(protectedMediaSelector));
 }
 
+function normalizeKeyboardKey(value: unknown) {
+  return typeof value === "string" ? value.toLowerCase() : "";
+}
+
 function isScreenshotShortcut(event: KeyboardEvent) {
-  const key = event.key.toLowerCase();
+  const key = normalizeKeyboardKey(event.key);
   const keyCode = "keyCode" in event ? event.keyCode : 0;
   const isMacScreenshot =
     event.metaKey && event.shiftKey && (key === "3" || key === "4" || key === "5");
@@ -65,7 +69,7 @@ export default function ContentProtectionGuard() {
     };
 
     const onKeyDown = (event: KeyboardEvent) => {
-      const key = event.key.toLowerCase();
+      const key = normalizeKeyboardKey(event.key);
       const isCmdOrCtrl = event.ctrlKey || event.metaKey;
 
       if (isCmdOrCtrl && (key === "s" || key === "u" || key === "p")) {
