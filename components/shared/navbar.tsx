@@ -19,7 +19,7 @@ const navItems = [
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-  const { session } = useDemoAuth();
+  const { session, isHydrated } = useDemoAuth();
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
   const isDashboardRoute = pathname === "/dashboard" || pathname.startsWith("/dashboard/");
@@ -67,7 +67,7 @@ export default function Navbar() {
           ) : null}
 
           <div className="hidden items-center gap-3 sm:gap-4 lg:flex">
-            {isDashboardRoute ? (
+            {!isHydrated ? null : isDashboardRoute ? (
               <Link
                 href={profileHref}
                 aria-label="Go to profile"
@@ -123,7 +123,7 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-2 lg:hidden">
-            {isDashboardRoute || session ? (
+            {isHydrated && (isDashboardRoute || session) ? (
               <Link
                 href={profileHref}
                 aria-label="Go to profile"
@@ -176,7 +176,7 @@ export default function Navbar() {
                 </Link>
               ))}
 
-              {!session ? (
+              {isHydrated && !session ? (
                 <>
                   <Link
                     href="/signup"

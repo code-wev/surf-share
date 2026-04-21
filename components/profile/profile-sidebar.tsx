@@ -2,19 +2,21 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Download, Heart, LogOut, Package, UserRound } from "lucide-react";
+import {
+  Download,
+  Heart,
+  LogOut,
+  Package,
+  Upload,
+  TrendingUp,
+  UserRound,
+  LayoutDashboard,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { useDemoAuth } from "@/lib/demo-auth";
 import { cn } from "@/lib/utils";
-
-const profileNavItems = [
-  { label: "Profile", href: "/profile", Icon: UserRound },
-  { label: "Order", href: "/profile/order", Icon: Package },
-  { label: "Downloads", href: "/profile/download", Icon: Download },
-  { label: "Favorites", href: "/profile/favorite", Icon: Heart },
-] as const;
 
 type ProfileSidebarProps = {
   className?: string;
@@ -23,7 +25,8 @@ type ProfileSidebarProps = {
 
 export default function ProfileSidebar({ className, onNavigate }: ProfileSidebarProps) {
   const router = useRouter();
-  const { logout } = useDemoAuth();
+  const pathname = usePathname();
+  const { session, isHydrated, logout } = useDemoAuth();
 
   const handleLogout = () => {
     logout();
@@ -31,7 +34,40 @@ export default function ProfileSidebar({ className, onNavigate }: ProfileSidebar
     toast.success("Logged out.");
     router.push("/login");
   };
-  const pathname = usePathname();
+
+  // Keep role-specific menus hidden until auth state is ready to avoid flicker.
+  if (!isHydrated) {
+    return (
+      <aside
+        className={cn(
+          "border-line-weaker bg-surface-muted-100 flex h-full min-h-0 w-full flex-col border",
+          className,
+        )}
+      >
+        <div className="p-4">
+          <p className="text-text-weaker text-xs font-medium">Loading menu...</p>
+        </div>
+      </aside>
+    );
+  }
+
+  // Define navigation items based on role
+  const isContributor = session?.role === "contributor";
+
+  const navItems = isContributor
+    ? [
+        { label: "Overview", href: "/profile/overview", Icon: LayoutDashboard },
+        { label: "My Uploads", href: "/profile/my-uploads", Icon: Package },
+        { label: "Upload New", href: "/profile/upload", Icon: Upload },
+        { label: "Sales", href: "/profile/sales", Icon: TrendingUp },
+        { label: "Profile", href: "/profile", Icon: UserRound },
+      ]
+    : [
+        { label: "Profile", href: "/profile", Icon: UserRound },
+        { label: "Order", href: "/profile/order", Icon: Package },
+        { label: "Downloads", href: "/profile/download", Icon: Download },
+        { label: "Favorites", href: "/profile/favorite", Icon: Heart },
+      ];
 
   return (
     <aside
@@ -41,10 +77,12 @@ export default function ProfileSidebar({ className, onNavigate }: ProfileSidebar
       )}
     >
       <div className="p-4">
-        <p className="text-text-weaker text-xs font-medium">Profile Overview</p>
+        <p className="text-text-weaker text-xs font-medium">
+          {isContributor ? "Contributor Dashboard" : "Profile Overview"}
+        </p>
 
         <ul className="mt-2">
-          {profileNavItems.map((item) => {
+          {navItems.map((item) => {
             const isActive = pathname === item.href;
 
             return (
@@ -61,7 +99,6 @@ export default function ProfileSidebar({ className, onNavigate }: ProfileSidebar
                 >
                   <item.Icon
                     size={16}
-                    color="#0D1420"
                     className={cn(
                       "transition-colors",
                       isActive ? "text-text-strong" : "text-text-weak group-hover:text-text-strong",
@@ -79,7 +116,7 @@ export default function ProfileSidebar({ className, onNavigate }: ProfileSidebar
         <button
           type="button"
           onClick={handleLogout}
-          className="px-2 py-1.5 inline-flex items-center gap-2 text-sm font-medium text-danger-strong transition-colors hover:opacity-80"
+          className="text-danger-strong inline-flex items-center gap-2 px-2 py-1.5 text-sm font-medium transition-colors hover:opacity-80"
         >
           <LogOut size={16} />
           Logout
