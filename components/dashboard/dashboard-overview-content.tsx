@@ -1,12 +1,9 @@
+"use client";
+
 import Image from "next/image";
-import {
-  ChevronDown,
-  Clock3,
-  Download,
-  Images,
-  TrendingUp,
-  Users,
-} from "lucide-react";
+import { ChevronDown, Clock3, Download, Images, TrendingUp, Users } from "lucide-react";
+
+import { useDemoAuth } from "@/lib/demo-auth";
 
 const overviewStats = [
   {
@@ -108,32 +105,34 @@ const topContributors = Array.from({ length: 7 }).map((_, index) => ({
 }));
 
 export default function DashboardOverviewContent() {
+  const { session } = useDemoAuth();
+
   return (
     <section className="h-full px-3 py-4 sm:px-4 sm:py-5 md:px-5 lg:px-6 lg:py-6 xl:px-7 2xl:py-3 2xl:pr-12.5">
       <div className="mx-auto w-full max-w-420">
-        <div className="inline-flex items-center border-b border-brand-default pb-1 text-sm font-medium text-brand-default sm:text-base lg:text-lg">
+        <div className="border-brand-default text-brand-default inline-flex items-center border-b pb-1 text-sm font-medium sm:text-base lg:text-lg">
           Overview
         </div>
 
-        <h1 className="my-5 text-[27px] leading-tight font-bold tracking-tight text-text-strong sm:my-6 sm:text-[34px] md:my-7 md:text-[40px] lg:text-[44px] xl:my-8 2xl:text-[48px]">
-          Welcome Back, Jake Morrison
+        <h1 className="text-text-strong my-5 text-[27px] leading-tight font-bold tracking-tight sm:my-6 sm:text-[34px] md:my-7 md:text-[40px] lg:text-[44px] xl:my-8 2xl:text-[48px]">
+          Welcome Back, {session?.name ?? "Demo Moderator"}
         </h1>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:gap-5 xl:grid-cols-4 xl:gap-6">
           {overviewStats.map((item) => (
             <article
               key={item.label}
-              className="rounded-sm border border-line-weaker bg-surface-muted-100 p-3 sm:p-4"
+              className="border-line-weaker bg-surface-muted-100 rounded-sm border p-3 sm:p-4"
             >
               <div className="flex items-start justify-between gap-3">
-                <div className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-brand-disabled text-brand-default sm:h-9 sm:w-9">
+                <div className="bg-brand-disabled text-brand-default inline-flex h-8 w-8 items-center justify-center rounded-md sm:h-9 sm:w-9">
                   <item.Icon size={13} className="sm:h-3.5 sm:w-3.5" />
                 </div>
 
                 <div className="flex flex-col items-end gap-1">
                   <button
                     type="button"
-                    className="inline-flex items-center gap-1 text-[11px] text-text-weaker sm:text-xs"
+                    className="text-text-weaker inline-flex items-center gap-1 text-[11px] sm:text-xs"
                   >
                     January
                     <ChevronDown size={12} />
@@ -152,21 +151,21 @@ export default function DashboardOverviewContent() {
                 </div>
               </div>
 
-              <p className="mt-5 text-[22px] leading-none text-text-strong sm:mt-6 sm:text-[24px]">
+              <p className="text-text-strong mt-5 text-[22px] leading-none sm:mt-6 sm:text-[24px]">
                 {item.value}
               </p>
-              <p className="mt-1 text-[11px] text-text-weak sm:text-xs">{item.label}</p>
+              <p className="text-text-weak mt-1 text-[11px] sm:text-xs">{item.label}</p>
             </article>
           ))}
         </div>
 
         <div className="mt-10 grid grid-cols-1 items-stretch gap-5 sm:mt-12 lg:mt-14 lg:gap-6 xl:mt-16 xl:auto-rows-fr xl:grid-cols-[1fr_1fr] xl:gap-4">
           <section className="flex h-full flex-col">
-            <h2 className="text-[20px] leading-tight font-semibold text-text-strong sm:text-[24px] lg:text-[28px]">
+            <h2 className="text-text-strong text-[20px] leading-tight font-semibold sm:text-[24px] lg:text-[28px]">
               Earnings Overview
             </h2>
 
-            <div className="mt-3 flex-1 rounded-sm border border-line-weaker bg-surface-muted-100 p-2 sm:p-3">
+            <div className="border-line-weaker bg-surface-muted-100 mt-3 flex-1 rounded-sm border p-2 sm:p-3">
               <div className="h-64 w-full overflow-hidden sm:h-72 md:h-80 lg:h-90 xl:h-full">
                 <svg
                   viewBox={`0 0 ${chartWidth} ${chartHeight}`}
@@ -244,7 +243,7 @@ export default function DashboardOverviewContent() {
           </section>
 
           <section className="flex h-full flex-col">
-            <h2 className="text-[20px] leading-tight font-semibold text-text-strong sm:text-[22px]">
+            <h2 className="text-text-strong text-[20px] leading-tight font-semibold sm:text-[22px]">
               Top Contributors
             </h2>
 
@@ -252,7 +251,7 @@ export default function DashboardOverviewContent() {
               {topContributors.map((contributor) => (
                 <article
                   key={contributor.id}
-                  className="flex items-center justify-between border-b border-line-weaker pb-2 last:border-b-0"
+                  className="border-line-weaker flex items-center justify-between border-b pb-2 last:border-b-0"
                 >
                   <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
                     <Image
@@ -264,16 +263,16 @@ export default function DashboardOverviewContent() {
                     />
 
                     <div className="min-w-0">
-                      <p className="truncate text-base leading-tight text-text-strong sm:text-lg lg:text-[22px]">
+                      <p className="text-text-strong truncate text-base leading-tight sm:text-lg lg:text-[22px]">
                         {contributor.name}
                       </p>
-                      <p className="text-[11px] text-text-weaker sm:text-[12px]">
+                      <p className="text-text-weaker text-[11px] sm:text-[12px]">
                         {contributor.photosLabel}
                       </p>
                     </div>
                   </div>
 
-                  <p className="shrink-0 text-base leading-tight font-medium text-brand-default sm:text-lg lg:text-[22px]">
+                  <p className="text-brand-default shrink-0 text-base leading-tight font-medium sm:text-lg lg:text-[22px]">
                     {contributor.earnings}
                   </p>
                 </article>

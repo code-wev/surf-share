@@ -6,7 +6,7 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 
-import { useDemoAuth } from "@/lib/demo-auth";
+import { getRoleHomePath, useDemoAuth } from "@/lib/demo-auth";
 
 const navItems = [
   { label: "Map", href: "/map" },
@@ -26,6 +26,7 @@ export default function Navbar() {
   const isNavItemActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
   const isProfileActive = pathname === "/profile" || pathname.startsWith("/profile/");
   const isProfileIconActive = isProfileActive || isDashboardRoute;
+  const profileHref = session ? getRoleHomePath(session.role) : "/profile";
 
   return (
     <header
@@ -68,7 +69,7 @@ export default function Navbar() {
           <div className="hidden items-center gap-3 sm:gap-4 lg:flex">
             {isDashboardRoute ? (
               <Link
-                href="/profile"
+                href={profileHref}
                 aria-label="Go to profile"
                 className={`inline-flex h-9 w-9 overflow-hidden rounded-full border transition-colors ${
                   isProfileIconActive
@@ -86,7 +87,7 @@ export default function Navbar() {
               </Link>
             ) : session ? (
               <Link
-                href="/profile"
+                href={profileHref}
                 aria-label="Go to profile"
                 className={`inline-flex h-9 w-9 overflow-hidden rounded-full border transition-colors ${
                   isProfileIconActive
@@ -124,7 +125,7 @@ export default function Navbar() {
           <div className="flex items-center gap-2 lg:hidden">
             {isDashboardRoute || session ? (
               <Link
-                href="/profile"
+                href={profileHref}
                 aria-label="Go to profile"
                 className={`inline-flex h-8 w-8 overflow-hidden rounded-full border transition-colors ${
                   isProfileIconActive

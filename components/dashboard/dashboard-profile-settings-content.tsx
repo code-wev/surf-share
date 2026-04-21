@@ -1,17 +1,19 @@
+"use client";
+
 import Image from "next/image";
 
 import DashboardProfileInfoField from "@/components/dashboard/dashboard-profile-info-field";
 import DashboardProfilePasswordField from "@/components/dashboard/dashboard-profile-password-field";
-
-const dashboardDefaults = {
-  fullName: "Makibul Hossain Tamim",
-  country: "Bangladesh",
-  phone: "714-242-888",
-  email: "info@vividstaffing.com",
-  address: "The Mill Suite, Hardmans Business Centre New Hey Hall Road, Rawtenstall, BB4 6HH",
-} as const;
+import { getDemoUserProfile, useDemoAuth } from "@/lib/demo-auth";
 
 export default function DashboardProfileSettingsContent() {
+  const { session } = useDemoAuth();
+  const profile = getDemoUserProfile(session);
+
+  if (!profile) {
+    return null;
+  }
+
   return (
     <div className="h-full px-4 py-4 sm:px-6 sm:py-6 md:px-0 md:py-0">
       <section className="flex h-full flex-col">
@@ -23,7 +25,7 @@ export default function DashboardProfileSettingsContent() {
           <div className="relative">
             <div className="border-line-weaker bg-fill-hover h-25 w-25 overflow-hidden rounded-full border">
               <Image
-                src="/home/latest/latest15.jpg"
+                src={profile.avatarSrc}
                 alt="Profile photo"
                 width={100}
                 height={100}
@@ -31,17 +33,17 @@ export default function DashboardProfileSettingsContent() {
               />
             </div>
           </div>
-          <p className="text-text-strong mt-4 text-lg font-medium">{dashboardDefaults.fullName}</p>
+          <p className="text-text-strong mt-4 text-lg font-medium">{profile.fullName}</p>
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-4 md:mt-9 md:grid-cols-2 md:gap-x-6 md:gap-y-5">
-          <DashboardProfileInfoField label="Full name" defaultValue={dashboardDefaults.fullName} />
-          <DashboardProfileInfoField label="Country Name" defaultValue={dashboardDefaults.country} />
-          <DashboardProfileInfoField label="Phone Number" defaultValue={dashboardDefaults.phone} />
-          <DashboardProfileInfoField label="Email Address" defaultValue={dashboardDefaults.email} />
+          <DashboardProfileInfoField label="Full name" defaultValue={profile.fullName} />
+          <DashboardProfileInfoField label="Country Name" defaultValue={profile.country} />
+          <DashboardProfileInfoField label="Phone Number" defaultValue={profile.phone} />
+          <DashboardProfileInfoField label="Email Address" defaultValue={profile.email} />
           <DashboardProfileInfoField
             label="Address"
-            defaultValue={dashboardDefaults.address}
+            defaultValue={profile.address}
             className="md:col-span-2"
           />
         </div>

@@ -1,17 +1,19 @@
+"use client";
+
 import Image from "next/image";
 
 import ProfileInfoField from "@/components/profile/profile-info-field";
 import ProfilePasswordField from "@/components/profile/profile-password-field";
-
-const profileDefaults = {
-  fullName: "Makibul Hossain Tamim",
-  country: "Bangladesh",
-  phone: "714-242-888",
-  email: "info@vividstaffing.com",
-  address: "The Mill Suite, Hardmans Business Centre New Hey Hall Road, Rawtenstall, BB4 6HH",
-} as const;
+import { getDemoUserProfile, useDemoAuth } from "@/lib/demo-auth";
 
 export default function ProfileSettingsContent() {
+  const { session } = useDemoAuth();
+  const profile = getDemoUserProfile(session);
+
+  if (!profile) {
+    return null;
+  }
+
   return (
     <div className="h-full px-4 py-4 sm:px-6 sm:py-6 md:px-0 md:py-0">
       <section className="flex h-full flex-col">
@@ -23,7 +25,7 @@ export default function ProfileSettingsContent() {
           <div className="relative">
             <div className="border-line-weaker bg-fill-hover h-25 w-25 overflow-hidden rounded-full border">
               <Image
-                src="/home/latest/latest15.jpg"
+                src={profile.avatarSrc}
                 alt="Profile photo"
                 width={100}
                 height={100}
@@ -31,17 +33,17 @@ export default function ProfileSettingsContent() {
               />
             </div>
           </div>
-          <p className="text-text-strong mt-4 text-lg font-medium">{profileDefaults.fullName}</p>
+          <p className="text-text-strong mt-4 text-lg font-medium">{profile.fullName}</p>
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-4 md:mt-9 md:grid-cols-2 md:gap-x-6 md:gap-y-5">
-          <ProfileInfoField label="Full name" defaultValue={profileDefaults.fullName} />
-          <ProfileInfoField label="Country Name" defaultValue={profileDefaults.country} />
-          <ProfileInfoField label="Phone Number" defaultValue={profileDefaults.phone} />
-          <ProfileInfoField label="Email Address" defaultValue={profileDefaults.email} />
+          <ProfileInfoField label="Full name" defaultValue={profile.fullName} />
+          <ProfileInfoField label="Country Name" defaultValue={profile.country} />
+          <ProfileInfoField label="Phone Number" defaultValue={profile.phone} />
+          <ProfileInfoField label="Email Address" defaultValue={profile.email} />
           <ProfileInfoField
             label="Address"
-            defaultValue={profileDefaults.address}
+            defaultValue={profile.address}
             className="md:col-span-2"
           />
         </div>
