@@ -20,7 +20,7 @@ const dashboardNavItems = [
   { label: "Overview", Icon: LayoutGrid, href: "/dashboard" },
   { label: "User Management", Icon: UsersRound, href: "/dashboard/user-management" },
   { label: "Photo Moderation", Icon: ImageIcon, href: "/dashboard/photo-moderation" },
-  { label: "Locations Moderation", Icon: MapPin },
+  { label: "Locations Moderation", Icon: MapPin, href: "/dashboard/locations-moderation" },
   { label: "Profile Settings", Icon: Settings, href: "/dashboard/profile" },
 ] as const satisfies ReadonlyArray<{
   label: string;
@@ -80,7 +80,7 @@ export default function DashboardSidebar({
 
   return (
     <aside className={cn("bg-surface-muted-100 flex h-full min-h-0 w-full flex-col", className)}>
-      <div className={cn("p-4", collapsed ? "px-3" : "")}>
+      <div className={cn("p-0", collapsed ? "px-3" : "")}>
         <div
           className={cn(
             "mb-2 flex items-center px-4.5 py-3.5",
