@@ -1,10 +1,14 @@
 "use client";
-
+import DashboardProfileActions from "@/components/dashboard/profile/dashboard-profile-actions";
+import {
+  dashboardPasswordFields,
+} from "@/components/dashboard/profile/dashboard-profile-data";
+import DashboardProfileHeader from "@/components/dashboard/profile/dashboard-profile-header";
+import DashboardProfilePasswordSection from "@/components/dashboard/profile/dashboard-profile-password-section";
 import Image from "next/image";
 
-import DashboardProfileInfoField from "@/components/dashboard/dashboard-profile-info-field";
-import DashboardProfilePasswordField from "@/components/dashboard/dashboard-profile-password-field";
 import { getDemoUserProfile, useDemoAuth } from "@/lib/demo-auth";
+import DashboardProfileInfoField from "./profile/dashboard-profile-info-field";
 
 export default function DashboardProfileSettingsContent() {
   const { session } = useDemoAuth();
@@ -15,11 +19,9 @@ export default function DashboardProfileSettingsContent() {
   }
 
   return (
-    <div className="h-full px-4 py-4 sm:px-6 sm:py-6 md:px-0 md:py-0">
+    <div className="px-3 pb-5 sm:px-4 sm:pb-6 md:px-6 md:pb-8 lg:px-0 lg:pr-10 lg:pb-10 xl:pr-12.5 xl:pb-12.5">
       <section className="flex h-full flex-col">
-        <h1 className="border-line-weaker text-text-brand-strong inline-flex w-fit border-b pb-2.5 text-lg font-semibold md:text-[18px] md:leading-tight">
-          Dashboard Settings
-        </h1>
+        <DashboardProfileHeader />
 
         <div className="mt-6 md:mt-12">
           <div className="relative">
@@ -48,41 +50,9 @@ export default function DashboardProfileSettingsContent() {
           />
         </div>
 
-        <div className="mt-8 md:mt-12">
-          <h2 className="text-text-strong mb-6 text-[22px] font-semibold">Change Password</h2>
-          <div className="space-y-5">
-            <div>
-              <DashboardProfilePasswordField label="Password" placeholder="Type your password" />
-            </div>
-            <div>
-              <DashboardProfilePasswordField
-                label="New Password"
-                placeholder="Type new your password"
-              />
-            </div>
-            <div>
-              <DashboardProfilePasswordField
-                label="Confirm New Password"
-                placeholder="Confirm your password"
-              />
-            </div>
-          </div>
-        </div>
+        <DashboardProfilePasswordSection fields={dashboardPasswordFields} />
 
-        <div className="mt-6 flex items-center justify-end gap-3">
-          <button
-            type="button"
-            className="border-line-weaker bg-fill-weak text-text-weak hover:bg-surface-muted-100 inline-flex h-10 items-center rounded-sm border px-4 text-sm font-medium transition-colors"
-          >
-            Discard
-          </button>
-          <button
-            type="button"
-            className="bg-brand-default text-text-inverse-strong hover:bg-brand-hover inline-flex h-10 items-center rounded-sm px-4 text-sm font-medium transition-colors"
-          >
-            Save changes
-          </button>
-        </div>
+        <DashboardProfileActions />
       </section>
     </div>
   );
