@@ -13,7 +13,7 @@ export default function LocationsModerationFeaturedCard({
   onViewGallery,
 }: LocationsModerationFeaturedCardProps) {
   return (
-    <article className="absolute top-1/2 left-1/2 z-600 w-[calc(100%-1rem)] max-w-76 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-sm border border-[#d6dde8] bg-[#dde5ef] p-3 shadow-[0_16px_28px_rgba(15,23,42,0.14)] sm:w-80 sm:max-w-86.25 sm:p-4 lg:left-[40%] lg:max-w-none lg:p-5">
+    <article className="absolute top-3 left-1/2 z-600 w-[calc(100%-1.5rem)] max-w-[320px] -translate-x-1/2 overflow-hidden rounded-sm border border-[#d6dde8] bg-[#dde5ef] p-3 shadow-[0_16px_28px_rgba(15,23,42,0.14)] sm:top-6 sm:w-[320px] sm:max-w-86.25 sm:p-4 md:left-4 md:w-75 md:max-w-none md:translate-x-0 lg:left-6 lg:top-7 lg:w-[320px] lg:p-5 xl:left-[38%]">
       <div className="relative h-44 w-full sm:h-56 md:h-64 lg:h-70">
         <Image src={location.previewImage} alt={location.name} fill className="object-cover" />
       </div>

@@ -113,8 +113,8 @@ export default function DashboardLocationsModerationContent() {
         </h1>
 
         <div className="mt-4 overflow-hidden bg-surface-muted-100 sm:mt-5 md:mt-9">
-          <div className="grid min-h-125 grid-cols-1 xl:grid-cols-[1.5fr_1fr] gap-4 md:gap-6">
-            <div className="relative min-h-90 xl:min-h-125">
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.5fr_1fr] md:gap-6">
+            <div className="relative h-[52vh] min-h-90 w-full overflow-hidden sm:h-[56vh] sm:min-h-105 md:h-[60vh] md:min-h-130 lg:h-[64vh] lg:min-h-145 xl:h-[72vh] xl:min-h-160 2xl:h-[78vh] 2xl:min-h-190">
               <LocationsModerationMap
                 locations={filteredLocations}
                 activeLocationId={resolvedActiveLocationId}
