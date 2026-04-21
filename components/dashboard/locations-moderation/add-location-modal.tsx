@@ -91,110 +91,124 @@ export default function AddLocationModal({
 
   return (
     <div
-      className="fixed inset-0 z-1200 flex items-center justify-center bg-black/45 p-3 sm:p-5"
+      className="fixed inset-0 z-1200 flex items-center justify-center bg-black/45 p-3 sm:p-4 md:p-5"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-215 overflow-hidden rounded-sm border border-[#d6dde8] bg-[#dde5ef] shadow-[0_26px_70px_rgba(15,23,42,0.25)]"
+        className="flex w-full max-w-215 flex-col overflow-hidden rounded-sm border border-[#d6dde8] bg-[#dde5ef] shadow-[0_26px_70px_rgba(15,23,42,0.25)] max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-2rem)] md:max-h-[calc(100dvh-2.5rem)]"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="h-60 sm:h-80 p-2 md:p-4 md:h-100">
+        <div className="h-52 shrink-0 p-2 sm:h-64 sm:p-3 md:h-80 md:p-4 lg:h-100">
           <AddLocationMapPicker
             coordinates={coordinates}
             onCoordinatesChange={handleMapCoordinatesChange}
           />
         </div>
 
-        <form onSubmit={handleSubmit} className="p-2 md:p-4 family-[var(--font-sf-pro)]">
-          <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
-            <label>
-              <span className="mb-1 block text-base font-medium text-text-strong">Spot Name</span>
-              <Input
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                placeholder="Enter the spot name"
-                className="h-9 rounded-sm px-2.5 py-1.5 text-xs border-[#d8deea] bg-[#dde5ef] placeholder:text-[#98a4b7]"
-              />
-            </label>
+        <div className="no-scrollbar flex-1 overflow-y-auto">
+          <form onSubmit={handleSubmit} className="p-3 [font-family:var(--font-sf-pro)] sm:p-4 md:p-5">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-4 md:gap-x-6">
+              <label>
+                <span className="mb-1 block text-sm font-medium text-text-strong sm:text-base">
+                  Spot Name
+                </span>
+                <Input
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  placeholder="Enter the spot name"
+                  className="h-10 rounded-sm border-[#d8deea] bg-[#dde5ef] px-2.5 py-2 text-xs placeholder:text-[#98a4b7] sm:h-9"
+                />
+              </label>
 
-            <label>
-              <span className="mb-1 block text-base font-medium text-text-strong">Parent Spot</span>
-              <Input
-                value={parentSpot}
-                onChange={(event) => setParentSpot(event.target.value)}
-                placeholder="Enter the parent spot name"
-                className="h-9 rounded-sm px-2.5 py-1.5 text-xs border-[#d8deea] bg-[#dde5ef] placeholder:text-[#98a4b7]"
-              />
-            </label>
+              <label>
+                <span className="mb-1 block text-sm font-medium text-text-strong sm:text-base">
+                  Parent Spot
+                </span>
+                <Input
+                  value={parentSpot}
+                  onChange={(event) => setParentSpot(event.target.value)}
+                  placeholder="Enter the parent spot name"
+                  className="h-10 rounded-sm border-[#d8deea] bg-[#dde5ef] px-2.5 py-2 text-xs placeholder:text-[#98a4b7] sm:h-9"
+                />
+              </label>
 
-            <label>
-              <span className="mb-1 block text-base font-medium text-text-strong">Region</span>
-              <Input
-                value={region}
-                onChange={(event) => setRegion(event.target.value)}
-                placeholder="Enter the region"
-                className="h-9 rounded-sm border-[#d8deea] bg-[#dde5ef] px-2.5 py-1.5 text-xs placeholder:text-[#98a4b7]"
-              />
-            </label>
+              <label>
+                <span className="mb-1 block text-sm font-medium text-text-strong sm:text-base">
+                  Region
+                </span>
+                <Input
+                  value={region}
+                  onChange={(event) => setRegion(event.target.value)}
+                  placeholder="Enter the region"
+                  className="h-10 rounded-sm border-[#d8deea] bg-[#dde5ef] px-2.5 py-2 text-xs placeholder:text-[#98a4b7] sm:h-9"
+                />
+              </label>
 
-            <label>
-              <span className="mb-1 block text-base font-medium text-text-strong">State</span>
-              <Input
-                value={stateValue}
-                onChange={(event) => setStateValue(event.target.value)}
-                placeholder="Enter the state"
-                className="h-9 rounded-sm border-[#d8deea] bg-[#dde5ef] px-2.5 py-1.5 text-xs placeholder:text-[#98a4b7]"
-              />
-            </label>
+              <label>
+                <span className="mb-1 block text-sm font-medium text-text-strong sm:text-base">
+                  State
+                </span>
+                <Input
+                  value={stateValue}
+                  onChange={(event) => setStateValue(event.target.value)}
+                  placeholder="Enter the state"
+                  className="h-10 rounded-sm border-[#d8deea] bg-[#dde5ef] px-2.5 py-2 text-xs placeholder:text-[#98a4b7] sm:h-9"
+                />
+              </label>
 
-            <label>
-              <span className="mb-1 block text-base font-medium text-text-strong">Latitude</span>
-              <Input
-                value={latitudeInput}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  setLatitudeInput(value);
+              <label>
+                <span className="mb-1 block text-sm font-medium text-text-strong sm:text-base">
+                  Latitude
+                </span>
+                <Input
+                  value={latitudeInput}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    setLatitudeInput(value);
 
-                  const parsed = Number.parseFloat(value);
+                    const parsed = Number.parseFloat(value);
 
-                  if (Number.isFinite(parsed)) {
-                    setCoordinates((previous) => [parsed, previous[1]]);
-                  }
-                }}
-                placeholder="Enter the latitude"
-                className="h-9 rounded-sm border-[#d8deea] bg-[#dde5ef] px-2.5 py-1.5 text-xs placeholder:text-[#98a4b7]"
-              />
-            </label>
+                    if (Number.isFinite(parsed)) {
+                      setCoordinates((previous) => [parsed, previous[1]]);
+                    }
+                  }}
+                  placeholder="Enter the latitude"
+                  className="h-10 rounded-sm border-[#d8deea] bg-[#dde5ef] px-2.5 py-2 text-xs placeholder:text-[#98a4b7] sm:h-9"
+                />
+              </label>
 
-            <label>
-              <span className="mb-1 block text-base font-medium text-text-strong">Longitude</span>
-              <Input
-                value={longitudeInput}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  setLongitudeInput(value);
+              <label>
+                <span className="mb-1 block text-sm font-medium text-text-strong sm:text-base">
+                  Longitude
+                </span>
+                <Input
+                  value={longitudeInput}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    setLongitudeInput(value);
 
-                  const parsed = Number.parseFloat(value);
+                    const parsed = Number.parseFloat(value);
 
-                  if (Number.isFinite(parsed)) {
-                    setCoordinates((previous) => [previous[0], parsed]);
-                  }
-                }}
-                placeholder="Enter longitude"
-                className="h-9 rounded-sm border-[#d8deea] bg-[#dde5ef] px-2.5 py-1.5 text-xs placeholder:text-[#98a4b7]"
-              />
-            </label>
-          </div>
+                    if (Number.isFinite(parsed)) {
+                      setCoordinates((previous) => [previous[0], parsed]);
+                    }
+                  }}
+                  placeholder="Enter longitude"
+                  className="h-10 rounded-sm border-[#d8deea] bg-[#dde5ef] px-2.5 py-2 text-xs placeholder:text-[#98a4b7] sm:h-9"
+                />
+              </label>
+            </div>
 
-          <div className="mt-3 flex items-center justify-end">
-            <button
-              type="submit"
-              className="inline-flex h-8 items-center rounded-sm bg-brand-default px-4 text-xs font-medium text-text-inverse-strong transition-colors hover:bg-brand-hover"
-            >
-              Add Location
-            </button>
-          </div>
-        </form>
+            <div className="mt-4 flex flex-col gap-3 sm:mt-5 sm:flex-row sm:items-center sm:justify-end">
+              <button
+                type="submit"
+                className="inline-flex h-10 w-full items-center justify-center rounded-sm bg-brand-default px-4 text-sm font-medium text-text-inverse-strong transition-colors hover:bg-brand-hover sm:h-8 sm:w-auto sm:text-xs"
+              >
+                Add Location
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
