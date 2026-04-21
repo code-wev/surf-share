@@ -72,7 +72,7 @@ export default function ProfileSidebar({ className, onNavigate }: ProfileSidebar
   return (
     <aside
       className={cn(
-        "border-line-weaker bg-surface-muted-100 flex h-full min-h-0 w-full flex-col border",
+        "border-line-weaker bg-surface-muted-100 flex h-full min-h-0 w-full flex-col rounded-[4px] border",
         className,
       )}
     >
