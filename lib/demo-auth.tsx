@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -95,6 +96,8 @@ const DEMO_USER_PROFILES: Record<string, DemoUserProfile> = {
 
 const DEMO_AUTH_STORAGE_KEY = "surf-share-demo-session";
 
+const useIsomorphicLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
+
 const DEMO_ROLES: DemoRole[] = ["user", "contributor", "moderator", "admin"];
 
 function normalizeEmail(value: unknown) {
@@ -141,7 +144,7 @@ export function DemoAuthProvider({ children }: DemoAuthProviderProps) {
   const [session, setSession] = useState<DemoSession | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     try {
       const rawSession = localStorage.getItem(DEMO_AUTH_STORAGE_KEY);
       if (!rawSession) {
