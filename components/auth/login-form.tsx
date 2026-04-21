@@ -7,7 +7,7 @@ import { ArrowRight, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
 import { Input } from "@/components/ui/input";
-import { DEMO_CREDENTIALS, useDemoAuth } from "@/lib/demo-auth";
+import { DEMO_CREDENTIALS, getRoleHomePath, useDemoAuth } from "@/lib/demo-auth";
 
 export function LoginForm() {
   const router = useRouter();
@@ -26,17 +26,17 @@ export function LoginForm() {
     }
 
     toast.success(`Logged in as ${session.role}.`);
-    router.push("/profile");
+    router.push(getRoleHomePath(session.role));
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-8 space-y-5 sm:mt-10 md:mt-12 [font-family:var(--font-sf-pro)]"
+      className="mt-8 space-y-5 [font-family:var(--font-sf-pro)] sm:mt-10 md:mt-12"
       noValidate
     >
       <div className="space-y-2">
-        <label htmlFor="email" className="text-base font-medium text-text-strong">
+        <label htmlFor="email" className="text-text-strong text-base font-medium">
           Email
         </label>
         <Input
@@ -49,7 +49,7 @@ export function LoginForm() {
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="password" className="text-base font-medium text-text-strong">
+        <label htmlFor="password" className="text-text-strong text-base font-medium">
           Password
         </label>
         <div className="relative">
@@ -64,7 +64,7 @@ export function LoginForm() {
           <button
             type="button"
             onClick={() => setShowPassword((previousValue) => !previousValue)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-icon-weaker"
+            className="text-icon-weaker absolute top-1/2 right-3 -translate-y-1/2"
             aria-label="Toggle password visibility"
           >
             <EyeOff size={16} />
@@ -79,23 +79,23 @@ export function LoginForm() {
       </div>
 
       <div className="flex flex-col gap-4 pt-8 sm:pt-10 md:flex-row md:items-center md:justify-between md:pt-12">
-        <p className="order-2 text-sm text-text-weak md:order-1">
+        <p className="text-text-weak order-2 text-sm md:order-1">
           Don&apos;t have an account?{" "}
-          <Link href="/signup" className="font-medium text-brand-default hover:underline">
+          <Link href="/signup" className="text-brand-default font-medium hover:underline">
             Sign Up
           </Link>
         </p>
         <button
           type="submit"
-          className="order-1 inline-flex w-full items-center justify-center gap-2 rounded-md bg-brand-default px-4 py-2 text-sm font-medium text-text-inverse-strong transition-colors hover:bg-brand-hover md:order-2 md:w-auto"
+          className="bg-brand-default text-text-inverse-strong hover:bg-brand-hover order-1 inline-flex w-full items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors md:order-2 md:w-auto"
         >
           Login
           <ArrowRight size={18} />
         </button>
       </div>
 
-      <div className="rounded-md border border-line-weaker bg-surface-muted-100 p-3 text-xs text-text-weak">
-        <p className="font-semibold text-text-strong">Demo credentials</p>
+      <div className="border-line-weaker bg-surface-muted-100 text-text-weak rounded-md border p-3 text-xs">
+        <p className="text-text-strong font-semibold">Demo credentials</p>
         <ul className="mt-2 space-y-1">
           {DEMO_CREDENTIALS.map((credential) => (
             <li key={credential.email}>

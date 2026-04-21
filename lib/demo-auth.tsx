@@ -18,6 +18,15 @@ export type DemoSession = {
   name: string;
 };
 
+export type DemoUserProfile = {
+  fullName: string;
+  country: string;
+  phone: string;
+  email: string;
+  address: string;
+  avatarSrc: string;
+};
+
 type DemoCredential = DemoSession & {
   password: string;
 };
@@ -49,7 +58,71 @@ export const DEMO_CREDENTIALS: DemoCredential[] = [
   },
 ];
 
+const DEMO_USER_PROFILES: Record<string, DemoUserProfile> = {
+  "user@surfshare.demo": {
+    fullName: "Demo User",
+    country: "United States",
+    phone: "+1 714-242-888",
+    email: "user@surfshare.demo",
+    address: "1915 Pacific Coast Hwy, Huntington Beach, CA 92648",
+    avatarSrc: "/home/latest/latest15.jpg",
+  },
+  "contributor@surfshare.demo": {
+    fullName: "Demo Contributor",
+    country: "Australia",
+    phone: "+61 2 9123 4567",
+    email: "contributor@surfshare.demo",
+    address: "8 Campbell Parade, Bondi Beach NSW 2026",
+    avatarSrc: "/home/latest/latest15.jpg",
+  },
+  "moderator@surfshare.demo": {
+    fullName: "Demo Moderator",
+    country: "Portugal",
+    phone: "+351 21 456 7890",
+    email: "moderator@surfshare.demo",
+    address: "Av. Marginal 1200, Carcavelos 2775-604",
+    avatarSrc: "/home/latest/latest15.jpg",
+  },
+  "admin@surfshare.demo": {
+    fullName: "Demo Admin",
+    country: "Indonesia",
+    phone: "+62 361 555 888",
+    email: "admin@surfshare.demo",
+    address: "Jalan Pantai Batu Bolong 24, Canggu, Bali 80361",
+    avatarSrc: "/home/latest/latest15.jpg",
+  },
+};
+
 const DEMO_AUTH_STORAGE_KEY = "surf-share-demo-session";
+
+const DEMO_ROLES: DemoRole[] = ["user", "contributor", "moderator", "admin"];
+
+function normalizeEmail(value: unknown) {
+  if (typeof value !== "string") {
+    return "";
+  }
+
+  return value.trim().toLowerCase();
+}
+
+function isDemoRole(value: unknown): value is DemoRole {
+  return typeof value === "string" && DEMO_ROLES.includes(value as DemoRole);
+}
+
+function isDemoSession(value: unknown): value is DemoSession {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Partial<DemoSession>;
+  return (
+    typeof candidate.email === "string" &&
+    Boolean(candidate.email.trim()) &&
+    isDemoRole(candidate.role) &&
+    typeof candidate.name === "string" &&
+    Boolean(candidate.name.trim())
+  );
+}
 
 type DemoAuthContextValue = {
   session: DemoSession | null;
@@ -76,9 +149,11 @@ export function DemoAuthProvider({ children }: DemoAuthProviderProps) {
         return;
       }
 
-      const parsedSession = JSON.parse(rawSession) as DemoSession;
-      if (parsedSession?.email && parsedSession?.role) {
+      const parsedSession: unknown = JSON.parse(rawSession);
+      if (isDemoSession(parsedSession)) {
         setSession(parsedSession);
+      } else {
+        localStorage.removeItem(DEMO_AUTH_STORAGE_KEY);
       }
     } catch {
       localStorage.removeItem(DEMO_AUTH_STORAGE_KEY);
@@ -88,11 +163,15 @@ export function DemoAuthProvider({ children }: DemoAuthProviderProps) {
   }, []);
 
   const login = useCallback((email: string, password: string) => {
-    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedEmail = normalizeEmail(email);
+
+    if (!normalizedEmail || typeof password !== "string") {
+      return null;
+    }
 
     const matchedCredential = DEMO_CREDENTIALS.find(
       (credential) =>
-        credential.email.toLowerCase() === normalizedEmail && credential.password === password,
+        normalizeEmail(credential.email) === normalizedEmail && credential.password === password,
     );
 
     if (!matchedCredential) {
@@ -137,4 +216,39 @@ export function useDemoAuth() {
   }
 
   return context;
+}
+
+export function isDashboardRole(role: DemoRole) {
+  return role === "moderator" || role === "admin";
+}
+
+export function getRoleHomePath(role: DemoRole) {
+  return isDashboardRole(role) ? "/dashboard" : "/profile";
+}
+
+export function getDemoUserProfile(session: DemoSession | null): DemoUserProfile | null {
+  if (!session) {
+    return null;
+  }
+
+  const normalizedEmail = normalizeEmail(session.email);
+
+  if (!normalizedEmail) {
+    return null;
+  }
+
+  const mappedProfile = DEMO_USER_PROFILES[normalizedEmail];
+
+  if (mappedProfile) {
+    return mappedProfile;
+  }
+
+  return {
+    fullName: session.name,
+    country: "",
+    phone: "",
+    email: session.email,
+    address: "",
+    avatarSrc: "/home/latest/latest15.jpg",
+  };
 }
