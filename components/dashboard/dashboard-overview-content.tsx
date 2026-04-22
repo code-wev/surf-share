@@ -5,6 +5,7 @@ import {
   chartValues,
   getOverviewStatsByRole,
   topContributors,
+  topLocations,
   weeklyUploadActivityBars,
   weeklyUploadActivityTicks,
   yTicks,
@@ -13,6 +14,7 @@ import DashboardOverviewEarningsChart from "@/components/dashboard/overview/dash
 import DashboardOverviewHeader from "@/components/dashboard/overview/dashboard-overview-header";
 import DashboardOverviewStatsGrid from "@/components/dashboard/overview/dashboard-overview-stats-grid";
 import DashboardOverviewTopContributors from "@/components/dashboard/overview/dashboard-overview-top-contributors";
+import DashboardOverviewTopLocations from "@/components/dashboard/overview/dashboard-overview-top-locations";
 import DashboardOverviewWeeklyUploadActivity from "@/components/dashboard/overview/dashboard-overview-weekly-upload-activity";
 import { useDemoAuth } from "@/lib/demo-auth";
 
@@ -42,12 +44,13 @@ export default function DashboardOverviewContent() {
                 bars={weeklyUploadActivityBars}
                 yTicks={weeklyUploadActivityTicks}
               />
-              <div className="xl:col-span-2">
-                <DashboardOverviewTopContributors contributors={topContributors} />
-              </div>
+              <DashboardOverviewTopContributors contributors={topContributors} />
+              <DashboardOverviewTopLocations locations={topLocations} />
             </>
           ) : (
-            <DashboardOverviewTopContributors contributors={topContributors} />
+            <div className="xl:col-span-2">
+                <DashboardOverviewTopContributors contributors={topContributors} />
+            </div>
           )}
         </div>
       </div>

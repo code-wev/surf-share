@@ -12,6 +12,7 @@ import {
 import type {
   OverviewStat,
   TopContributor,
+  TopLocation,
   WeeklyUploadBar,
 } from "@/components/dashboard/overview/dashboard-overview-types";
 
@@ -132,3 +133,14 @@ export const topContributors: TopContributor[] = Array.from({ length: 7 }).map((
   earnings: "$12,450",
   avatarSrc: "/home/latest/latest1.jpg",
 }));
+
+export const topLocations: TopLocation[] = [
+  { id: 1, name: "Banzai, Japan", photosLabel: "1247 photos", progress: 0.93 },
+  { id: 2, name: "Tavarua, Fiji", photosLabel: "1247 photos", progress: 0.79 },
+  { id: 3, name: "Teahupo'o, Tahiti", photosLabel: "1247 photos", progress: 0.74 },
+  { id: 4, name: "Jeffreys Bay, South Africa", photosLabel: "1247 photos", progress: 0.69 },
+  { id: 5, name: "Mentawai Islands, Indonesia", photosLabel: "1247 photos", progress: 0.67 },
+  { id: 6, name: "Gold Coast, Australia", photosLabel: "1247 photos", progress: 0.65 },
+  { id: 7, name: "Huntington Beach, USA", photosLabel: "1247 photos", progress: 0.64 },
+  { id: 8, name: "Bundoran, Ireland", photosLabel: "1247 photos", progress: 0.64 },
+];

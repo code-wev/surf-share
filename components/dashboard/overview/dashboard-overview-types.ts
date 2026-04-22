@@ -18,6 +18,13 @@ export type TopContributor = {
   avatarSrc: string;
 };
 
+export type TopLocation = {
+  id: number;
+  name: string;
+  photosLabel: string;
+  progress: number;
+};
+
 export type WeeklyUploadBar = {
   dayLabel: string;
   uploads: number;
