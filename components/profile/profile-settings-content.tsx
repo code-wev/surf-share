@@ -1,14 +1,54 @@
 "use client";
 
 import Image from "next/image";
+import { Plus } from "lucide-react";
+import { useState } from "react";
 
 import ProfileInfoField from "@/components/profile/profile-info-field";
 import ProfilePasswordField from "@/components/profile/profile-password-field";
+import { Input } from "@/components/ui/input";
 import { getDemoUserProfile, useDemoAuth } from "@/lib/demo-auth";
+
+type SocialAccountType = "facebook" | "instagram" | "twitter" | "x";
+
+type SocialAccountLink = {
+  id: string;
+  type: SocialAccountType;
+  url: string;
+};
+
+const SOCIAL_ACCOUNT_TYPES: { value: SocialAccountType; label: string }[] = [
+  { value: "facebook", label: "Facebook" },
+  { value: "instagram", label: "Instagram" },
+  { value: "twitter", label: "Twitter" },
+  { value: "x", label: "X" },
+];
 
 export default function ProfileSettingsContent() {
   const { session } = useDemoAuth();
   const profile = getDemoUserProfile(session);
+  const [socialType, setSocialType] = useState<SocialAccountType | "">("");
+  const [socialUrl, setSocialUrl] = useState("");
+  const [socialLinks, setSocialLinks] = useState<SocialAccountLink[]>([]);
+
+  const isContributor = session?.role === "contributor";
+
+  const addSocialLink = () => {
+    const trimmedUrl = socialUrl.trim();
+    if (!socialType || !trimmedUrl) return;
+
+    setSocialLinks((prev) => [
+      ...prev,
+      {
+        id: Math.random().toString(36).slice(2, 10),
+        type: socialType,
+        url: trimmedUrl,
+      },
+    ]);
+
+    setSocialType("");
+    setSocialUrl("");
+  };
 
   if (!profile) {
     return null;
@@ -46,6 +86,69 @@ export default function ProfileSettingsContent() {
             defaultValue={profile.address}
             className="md:col-span-2"
           />
+
+          {isContributor && (
+            <div className="md:col-span-2">
+              <span className="text-text-strong mb-2 block text-base font-medium">
+                Social Media Account
+              </span>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-[160px_minmax(0,1fr)_40px] md:items-center">
+                <div className="relative">
+                  <select
+                    value={socialType}
+                    onChange={(event) =>
+                      setSocialType(event.target.value as SocialAccountType | "")
+                    }
+                    className="border-line-weaker bg-surface-muted-100 text-text-weak focus-visible:ring-brand-default/30 h-11 w-full appearance-none rounded-md border px-3 pr-8 text-sm focus-visible:ring-2 focus-visible:outline-none"
+                  >
+                    <option value="">Account</option>
+                    {SOCIAL_ACCOUNT_TYPES.map((type) => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="text-text-weak pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </span>
+                </div>
+
+                <Input
+                  value={socialUrl}
+                  onChange={(event) => setSocialUrl(event.target.value)}
+                  placeholder="Enter profile link"
+                />
+
+                <button
+                  type="button"
+                  onClick={addSocialLink}
+                  aria-label="Add social media link"
+                  disabled={!socialType || !socialUrl.trim()}
+                  className="text-text-weak hover:bg-surface-muted-100 inline-flex h-10 w-10 items-center justify-center rounded-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <Plus className="h-5 w-5" />
+                </button>
+              </div>
+
+              {socialLinks.length > 0 && (
+                <div className="mt-3 space-y-2">
+                  {socialLinks.map((link) => (
+                    <p key={link.id} className="text-text-weak text-sm">
+                      <span className="text-text-strong font-medium">{link.type}:</span> {link.url}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="mt-8 md:mt-12">
