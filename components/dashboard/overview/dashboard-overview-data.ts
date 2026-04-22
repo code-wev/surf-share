@@ -12,6 +12,7 @@ import {
 import type {
   OverviewStat,
   TopContributor,
+  WeeklyUploadBar,
 } from "@/components/dashboard/overview/dashboard-overview-types";
 
 export const moderatorOverviewStats: OverviewStat[] = [
@@ -111,6 +112,18 @@ export function getOverviewStatsByRole(role: "moderator" | "admin") {
 export const chartLabels = ["Mar 28", "Mar 29", "Mar 30", "Mar 31", "Apr 1", "Apr 2", "Apr 3"];
 export const chartValues = [120, 145, 133, 168, 154, 178, 156];
 export const yTicks = [0, 45, 90, 135, 180];
+
+export const weeklyUploadActivityBars: WeeklyUploadBar[] = [
+  { dayLabel: "Mon", uploads: 240 },
+  { dayLabel: "Tue", uploads: 310 },
+  { dayLabel: "Wed", uploads: 290 },
+  { dayLabel: "Thu", uploads: 355 },
+  { dayLabel: "Fri", uploads: 420 },
+  { dayLabel: "Sat", uploads: 510 },
+  { dayLabel: "Sun", uploads: 475 },
+];
+
+export const weeklyUploadActivityTicks = [0, 150, 300, 450, 600];
 
 export const topContributors: TopContributor[] = Array.from({ length: 7 }).map((_, index) => ({
   id: index,

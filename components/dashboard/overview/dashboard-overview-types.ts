@@ -17,3 +17,8 @@ export type TopContributor = {
   earnings: string;
   avatarSrc: string;
 };
+
+export type WeeklyUploadBar = {
+  dayLabel: string;
+  uploads: number;
+};
