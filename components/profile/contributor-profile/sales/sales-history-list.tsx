@@ -22,7 +22,6 @@ export type SaleHistoryTableRow = {
 
 type SaleHistoryTableProps<T extends SaleHistoryTableRow> = {
   rows: T[];
-  onViewDetails: (row: T) => void;
 };
 
 export default function SaleHistoryTable<T extends SaleHistoryTableRow>({

@@ -5,7 +5,6 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronRight as ChevronRightSmall,
-  Clock3,
   MapPin,
   SlidersHorizontal,
 } from "lucide-react";
@@ -20,7 +19,6 @@ import {
   ContributorUploadRow,
   mockApiResponse,
 } from "../my-uploads/my-upload-data";
-import UploadDetailsModal from "../my-uploads/upload-details-modal";
 import SaleHistoryTable, { SaleHistoryTableRow } from "./sales-history-list";
 
 function formatApiDate(dateValue: string) {
@@ -42,16 +40,6 @@ function mapApiUploadToRow(item: ContributorUploadApiItem): ContributorUploadRow
     status: item.status,
   };
 }
-
-const uploadStatuses = ["all", "approved", "rejected", "pending"] as const;
-type UploadStatusFilter = (typeof uploadStatuses)[number];
-
-const uploadStatusLabels: Record<UploadStatusFilter, string> = {
-  all: "All Status",
-  approved: "Approved",
-  rejected: "Rejected",
-  pending: "Pending",
-};
 
 type EnrichedUploadRow = SaleHistoryTableRow & {
   uploadedAt: string;
@@ -87,11 +75,9 @@ function buildModalDetailsFromUpload(item: ContributorUploadApiItem) {
 
 export default function ContributorSalesHistoryPage() {
   const [selectedLocation, setSelectedLocation] = useState<GalleryLocation>("all");
-  const [selectedStatus, setSelectedStatus] = useState<UploadStatusFilter>("all");
   const [showFilterPanel, setShowFilterPanel] = useState(false);
-  const [activeSubmenu, setActiveSubmenu] = useState<"location" | "status" | null>(null);
+  const [activeSubmenu, setActiveSubmenu] = useState<"location" | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedUpload, setSelectedUpload] = useState<EnrichedUploadRow | null>(null);
 
   const uploads = useMemo<EnrichedUploadRow[]>(
     () =>
@@ -117,12 +103,11 @@ export default function ContributorSalesHistoryPage() {
   const filteredUploads = useMemo(() => {
     const filtered = uploads.filter((upload) => {
       const matchesLocation = selectedLocation === "all" || upload.locationKey === selectedLocation;
-      const matchesStatus = selectedStatus === "all" || upload.status === selectedStatus;
-      return matchesLocation && matchesStatus;
+      return matchesLocation;
     });
 
     return filtered;
-  }, [selectedLocation, selectedStatus, uploads]);
+  }, [selectedLocation, uploads]);
 
   const totalPages = Math.max(1, Math.ceil(filteredUploads.length / PAGE_SIZE));
   const safeCurrentPage = Math.min(currentPage, totalPages);
@@ -134,13 +119,6 @@ export default function ContributorSalesHistoryPage() {
 
   const handleLocationSelect = (value: GalleryLocation) => {
     setSelectedLocation(value);
-    setCurrentPage(1);
-    setShowFilterPanel(false);
-    setActiveSubmenu(null);
-  };
-
-  const handleStatusSelect = (value: UploadStatusFilter) => {
-    setSelectedStatus(value);
     setCurrentPage(1);
     setShowFilterPanel(false);
     setActiveSubmenu(null);
@@ -191,25 +169,6 @@ export default function ContributorSalesHistoryPage() {
                 </div>
               ) : null}
 
-              {activeSubmenu === "status" ? (
-                <div className="border-line-weaker bg-surface-muted-100 w-full overflow-hidden rounded-md border shadow-lg md:mt-6 md:mr-1 md:w-44">
-                  {uploadStatuses.map((status) => (
-                    <button
-                      key={status}
-                      type="button"
-                      onClick={() => handleStatusSelect(status)}
-                      className={`hover:bg-fill-hover w-full px-4 py-2 text-left text-sm ${
-                        selectedStatus === status
-                          ? "text-text-strong font-medium"
-                          : "text-text-weak"
-                      }`}
-                    >
-                      {uploadStatusLabels[status]}
-                    </button>
-                  ))}
-                </div>
-              ) : null}
-
               <div className="border-line-weaker bg-surface-muted-100 w-full overflow-hidden rounded-md border shadow-lg md:w-56">
                 <div className="border-line-weaker flex items-center justify-between border-b px-4 py-3">
                   <span className="text-brand-default text-sm font-medium">Filter &amp; Sort</span>
@@ -229,27 +188,13 @@ export default function ContributorSalesHistoryPage() {
                   <span className="text-text-strong flex-1 text-left">Location</span>
                   <ChevronRightSmall size={16} />
                 </button>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setActiveSubmenu((previous) => (previous === "status" ? null : "status"))
-                  }
-                  className={`hover:bg-fill-hover flex w-full items-center gap-3 px-4 py-3 text-sm ${
-                    activeSubmenu === "status" ? "bg-fill-hover" : ""
-                  }`}
-                >
-                  <Clock3 size={16} />
-                  <span className="text-text-strong flex-1 text-left">Status</span>
-                  <ChevronRightSmall size={16} />
-                </button>
               </div>
             </div>
           ) : null}
         </div>
       </div>
 
-      <SaleHistoryTable rows={pagedUploads} onViewDetails={setSelectedUpload} />
+      <SaleHistoryTable rows={pagedUploads} />
 
       {/* Pagination */}
       <div className="text-text-weak mt-6 flex items-center justify-center gap-1.5 text-sm sm:gap-2">
@@ -290,9 +235,6 @@ export default function ContributorSalesHistoryPage() {
           <ChevronRight size={14} />
         </button>
       </div>
-
-      {/* View Details Modal */}
-      <UploadDetailsModal upload={selectedUpload} onClose={() => setSelectedUpload(null)} />
     </section>
   );
 }
