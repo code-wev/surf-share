@@ -1,7 +1,9 @@
+"use client";
+
 import {
   chartLabels,
   chartValues,
-  overviewStats,
+  getOverviewStatsByRole,
   topContributors,
   yTicks,
 } from "@/components/dashboard/overview/dashboard-overview-data";
@@ -9,8 +11,13 @@ import DashboardOverviewEarningsChart from "@/components/dashboard/overview/dash
 import DashboardOverviewHeader from "@/components/dashboard/overview/dashboard-overview-header";
 import DashboardOverviewStatsGrid from "@/components/dashboard/overview/dashboard-overview-stats-grid";
 import DashboardOverviewTopContributors from "@/components/dashboard/overview/dashboard-overview-top-contributors";
+import { useDemoAuth } from "@/lib/demo-auth";
 
 export default function DashboardOverviewContent() {
+  const { session } = useDemoAuth();
+  const dashboardRole = session?.role === "admin" ? "admin" : "moderator";
+  const overviewStats = getOverviewStatsByRole(dashboardRole);
+
   return (
     <section className="px-3 pb-5 sm:px-4 sm:pb-6 md:px-6 md:pb-8 lg:px-0 lg:pr-10 lg:pb-10 xl:pr-12.5 xl:pb-12.5">
       <div className="mx-auto w-full max-w-420">
