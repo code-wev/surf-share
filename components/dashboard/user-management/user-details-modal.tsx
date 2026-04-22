@@ -1,7 +1,11 @@
 import Image from "next/image";
-import { X } from "lucide-react";
+import { ChevronsRight, SquarePen } from "lucide-react";
 
-import type { UserPlan, UserRow, UserStatus } from "@/components/dashboard/user-management/user-management-types";
+import type {
+  UserPlan,
+  UserRow,
+  UserStatus,
+} from "@/components/dashboard/user-management/user-management-types";
 
 type UserDetailsModalProps = {
   user: UserRow | null;
@@ -10,22 +14,38 @@ type UserDetailsModalProps = {
   onClose: () => void;
 };
 
-type UserDetailFieldProps = {
+type UserDetailRowProps = {
   label: string;
-  value: string;
-  className?: string;
+  value: React.ReactNode;
 };
 
-function UserDetailField({ label, value, className }: UserDetailFieldProps) {
+const previewPhotoSources = [
+  "/home/latest/latest1.jpg",
+  "/home/latest/latest2.jpg",
+  "/home/latest/latest3.jpg",
+  "/home/latest/latest4.jpg",
+] as const;
+
+function UserDetailRow({ label, value }: UserDetailRowProps) {
   return (
-    <label className={className}>
-      <span className="mb-1.5 block text-sm font-medium text-text-strong sm:mb-2 sm:text-base">{label}</span>
-      <input
-        readOnly
-        value={value}
-        className="border-line-weaker bg-surface-muted-100 w-full rounded-md border px-3 py-2.5 text-xs text-text-weak sm:text-sm"
-      />
-    </label>
+    <div className="grid grid-cols-[92px_minmax(0,1fr)] gap-x-12 gap-y-1 text-xs leading-tight sm:grid-cols-[104px_minmax(0,1fr)] sm:text-sm [font-family:var(--font-sf-pro)] py-1">
+      <span className="text-text-strong font-medium">{label}</span>
+      <div className="min-w-0 text-text-weak">{value}</div>
+    </div>
+  );
+}
+
+function InlineBadge({
+  className,
+  children,
+}: {
+  className: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <span className={`inline-flex items-center rounded-sm px-2 py-0.5 text-[10px] ${className}`}>
+      {children}
+    </span>
   );
 }
 
@@ -39,98 +59,111 @@ export default function UserDetailsModal({
     return null;
   }
 
-  const userDetails = {
-    fullName: user.name,
-    country: user.country ?? "Australia",
-    phone: user.phone,
-    email: user.email,
-    address:
-      user.address ??
-      "The Mill Suite, Hardmans Business Centre New Hey Hall Road, Rawtenstall, BB4 6HH",
-  };
+  const contributedPhotos = user.contributedPhotos ?? "--";
+  const platformCommission = user.platformCommission ?? "--";
+  const purchasePhoto = user.purchasePhoto ?? 45;
+  const amountEarn =
+    typeof user.platformCommission === "number" && typeof user.contributedPhotos === "number"
+      ? `$${user.platformCommission * 10}`
+      : "$00";
 
   return (
-    <div
-      className="fixed inset-0 z-100 flex items-center justify-center bg-black/45 p-3 sm:p-4 md:p-5"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-100 bg-[#0d1420]/30" onClick={onClose}>
       <div
         role="dialog"
         aria-modal="true"
         aria-label="User details"
-        className="relative w-full max-h-[calc(100dvh-1.5rem)] overflow-hidden rounded-xl border border-line-weaker bg-white shadow-[0_20px_50px_rgba(15,23,42,0.25)] sm:max-h-[calc(100dvh-2rem)] sm:max-w-180 lg:max-w-215 xl:max-w-240"
+        className="absolute right-0 bottom-0 flex h-[80vh] w-full max-w-105 flex-col overflow-hidden rounded-lg border-t border-l border-line-weaker bg-white shadow-[-18px_0_40px_rgba(15,23,42,0.14)] sm:max-w-140"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-line-weaker px-4 py-3 sm:px-5 sm:py-3.5">
-          <h2 className="text-base font-semibold text-text-brand-strong sm:text-xl">User Details</h2>
+        <div className="flex items-center justify-between px-4.5 py-3 bg-white border-b border-line-weaker">
+          <div className="flex items-center gap-2 text-text-strong">
+            <button
+              type="button"
+              aria-label="Close user details"
+              onClick={onClose}
+              className="inline-flex h-5 w-5 items-center justify-center rounded-sm transition-colors hover:bg-fill-hover"
+            >
+              <ChevronsRight size={24} />
+            </button>
+            {/* <button
+              type="button"
+              aria-label="Expand user details"
+              className="inline-flex h-5 w-5 items-center justify-center rounded-sm transition-colors hover:bg-fill-hover"
+            >
+              <Expand size={12} />
+            </button> */}
+          </div>
 
           <button
             type="button"
-            aria-label="Close user details"
-            onClick={onClose}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-sm border border-line-weaker text-text-strong hover:bg-fill-hover"
+            aria-label="Edit user details"
+            className="inline-flex h-5 w-5 items-center justify-center rounded-sm text-text-weak transition-colors hover:bg-fill-hover hover:text-text-strong"
           >
-            <X size={16} />
+            <SquarePen size={24} />
           </button>
         </div>
 
-        <div className="max-h-[calc(100dvh-5.5rem)] overflow-y-auto px-4 py-4 sm:max-h-[calc(100dvh-7rem)] sm:px-5 sm:py-5">
-          <section className="flex h-full flex-col">
-            <div className="mt-1 flex flex-col items-center sm:mt-2 sm:items-start">
-              <div className="relative">
-                <div className="border-line-weaker bg-fill-hover h-20 w-20 overflow-hidden rounded-full border sm:h-25 sm:w-25">
-                  <Image
-                    src={user.photo}
-                    alt={`${user.name} profile photo`}
-                    width={100}
-                    height={100}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
+        <div className="no-scrollbar flex-1 overflow-y-auto pt-6 px-6 bg-[#FAFAFA]">
+          <div className="relative">
+              <div className="border-line-weaker h-10 w-10 overflow-hidden rounded-full border bg-fill-hover">
+                <Image
+                  src={user.photo}
+                  alt={`${user.name} thumbnail`}
+                  width={40}
+                  height={40}
+                  className="h-full w-full object-cover"
+                />
               </div>
+          </div>
 
-              <p className="text-text-strong mt-3 text-center text-base font-medium sm:mt-4 sm:text-left sm:text-lg">
-                {userDetails.fullName}
-              </p>
-              <div className="mt-2 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                <span className="inline-flex rounded-sm bg-[#F3F4F6] px-2 py-0.5 text-xs text-[#6B7280]">
-                  {user.role}
-                </span>
-                <span
-                  className={`inline-flex rounded-sm px-2 py-0.5 text-xs ${planClassNameMap[user.plan]}`}
-                >
-                  {user.plan}
-                </span>
-                <span
-                  className={`inline-flex rounded-sm px-2 py-0.5 text-xs ${statusClassNameMap[user.status]}`}
-                >
+          <div className="mt-6 space-y-3">
+            <UserDetailRow label="Name" value={user.name} />
+            <UserDetailRow label="Email" value={user.email} />
+            <UserDetailRow label="Phone Number" value={user.phone} />
+            <UserDetailRow label="Role" value={user.role} />
+            <UserDetailRow label="Contribute Photo" value={contributedPhotos} />
+            <UserDetailRow
+              label="Plan"
+              value={<InlineBadge className={planClassNameMap[user.plan]}>{user.plan}</InlineBadge>}
+            />
+            <UserDetailRow label="Platform Commission Fee" value={platformCommission} />
+            <UserDetailRow label="Purchase Photo" value={purchasePhoto} />
+            <UserDetailRow label="Amount Earn" value={amountEarn} />
+            <UserDetailRow
+              label="Status"
+              value={
+                <InlineBadge className={statusClassNameMap[user.status]}>
+                  {user.status === "Active" ? "✓ " : "✕ "}
                   {user.status}
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-5 grid grid-cols-1 gap-3 sm:mt-6 sm:gap-4 md:mt-8 md:grid-cols-2 md:gap-x-6 md:gap-y-5">
-              <UserDetailField label="Full name" value={userDetails.fullName} />
-              <UserDetailField label="Country Name" value={userDetails.country} />
-              <UserDetailField label="Phone Number" value={userDetails.phone} />
-              <UserDetailField label="Email Address" value={userDetails.email} />
-              <UserDetailField
-                label="Address"
-                value={userDetails.address}
-                className="md:col-span-2"
-              />
-            </div>
-
-            <div className="mt-5 border-t border-line-weaker pt-4 sm:mt-6 sm:justify-end sm:border-t-0 sm:pt-0">
-              <button
-                type="button"
-                onClick={onClose}
-                className="bg-brand-default text-text-inverse-strong hover:bg-brand-hover inline-flex h-10 w-full items-center justify-center rounded-sm px-4 text-sm font-medium transition-colors sm:w-auto"
-              >
-                Close
-              </button>
-            </div>
-          </section>
+                </InlineBadge>
+              }
+            />
+            <UserDetailRow
+              label="Photos"
+              value={
+                <div className="flex items-center gap-3">
+                  {previewPhotoSources.map((photoSrc, index) => (
+                    <div
+                      key={`${photoSrc}-${index}`}
+                      className="border-line-weaker h-10 w-14 overflow-hidden rounded-xs border bg-fill-hover"
+                    >
+                      <Image
+                        src={photoSrc}
+                        alt={`Submitted photo ${index + 1}`}
+                        width={56}
+                        height={40}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  ))}
+                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-default text-xs font-medium text-white">
+                    24+
+                  </span>
+                </div>
+              }
+            />
+          </div>
         </div>
       </div>
     </div>
