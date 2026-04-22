@@ -8,6 +8,9 @@ export type ContributorUploadApiItem = {
   uploadedAt: string;
   priceUsd: number;
   status: UploadStatus;
+  commissionUsd?: number;
+  totalDownloads?: number;
+  earningsUsd?: number;
   photographer?: string;
   resolution?: string;
   format?: string;
@@ -46,6 +49,9 @@ export const mockApiResponse: ContributorUploadsApiResponse = {
       uploadedAt: "2026-03-28",
       priceUsd: 45,
       status: "approved",
+      commissionUsd: 13.5,
+      totalDownloads: 120,
+      earningsUsd: 4050,
     },
     {
       id: "up-002",
@@ -55,6 +61,9 @@ export const mockApiResponse: ContributorUploadsApiResponse = {
       uploadedAt: "2026-03-12",
       priceUsd: 55,
       status: "rejected",
+      commissionUsd: 16.5,
+      totalDownloads: 80,
+      earningsUsd: 4400,
     },
     {
       id: "up-003",
@@ -64,6 +73,9 @@ export const mockApiResponse: ContributorUploadsApiResponse = {
       uploadedAt: "2026-03-10",
       priceUsd: 60,
       status: "pending",
+      commissionUsd: 18,
+      totalDownloads: 50,
+      earningsUsd: 3000,
     },
     {
       id: "up-004",
@@ -73,6 +85,9 @@ export const mockApiResponse: ContributorUploadsApiResponse = {
       uploadedAt: "2026-02-29",
       priceUsd: 50,
       status: "approved",
+      commissionUsd: 15,
+      totalDownloads: 100,
+      earningsUsd: 5000,
     },
     {
       id: "up-005",
@@ -82,6 +97,9 @@ export const mockApiResponse: ContributorUploadsApiResponse = {
       uploadedAt: "2026-02-22",
       priceUsd: 65,
       status: "approved",
+      commissionUsd: 19.5,
+      totalDownloads: 70,
+      earningsUsd: 4550,
     },
     {
       id: "up-006",
@@ -100,6 +118,9 @@ export const mockApiResponse: ContributorUploadsApiResponse = {
       uploadedAt: "2026-01-15",
       priceUsd: 70,
       status: "approved",
+      commissionUsd: 21,
+      totalDownloads: 90,
+      earningsUsd: 6300,
     },
     {
       id: "up-008",
@@ -118,6 +139,9 @@ export const mockApiResponse: ContributorUploadsApiResponse = {
       uploadedAt: "2025-12-25",
       priceUsd: 85,
       status: "pending",
+      commissionUsd: 25.5,
+      totalDownloads: 40,
+      earningsUsd: 3400,
     },
     {
       id: "up-010",
@@ -127,6 +151,9 @@ export const mockApiResponse: ContributorUploadsApiResponse = {
       uploadedAt: "2025-12-15",
       priceUsd: 90,
       status: "approved",
+      commissionUsd: 27,
+      totalDownloads: 110,
+      earningsUsd: 9900,
     },
     {
       id: "up-011",
@@ -136,6 +163,9 @@ export const mockApiResponse: ContributorUploadsApiResponse = {
       uploadedAt: "2025-11-30",
       priceUsd: 95,
       status: "approved",
+      commissionUsd: 28.5,
+      totalDownloads: 60,
+      earningsUsd: 5700,
     },
     {
       id: "up-012",
@@ -145,6 +175,9 @@ export const mockApiResponse: ContributorUploadsApiResponse = {
       uploadedAt: "2025-11-12",
       priceUsd: 100,
       status: "pending",
+      commissionUsd: 30,
+      totalDownloads: 30,
+      earningsUsd: 3000,
     },
     {
       id: "up-013",
@@ -154,6 +187,9 @@ export const mockApiResponse: ContributorUploadsApiResponse = {
       uploadedAt: "2025-10-22",
       priceUsd: 110,
       status: "approved",
+      commissionUsd: 33,
+      totalDownloads: 150,
+      earningsUsd: 16500,
     },
     {
       id: "up-014",
@@ -163,6 +199,9 @@ export const mockApiResponse: ContributorUploadsApiResponse = {
       uploadedAt: "2025-10-05",
       priceUsd: 120,
       status: "approved",
+      commissionUsd: 36,
+      totalDownloads: 200,
+      earningsUsd: 24000,
     },
     {
       id: "up-015",
@@ -172,6 +211,9 @@ export const mockApiResponse: ContributorUploadsApiResponse = {
       uploadedAt: "2025-10-05",
       priceUsd: 120,
       status: "approved",
+      commissionUsd: 36,
+      totalDownloads: 200,
+      earningsUsd: 24000,
     },
     {
       id: "up-016",
@@ -181,6 +223,9 @@ export const mockApiResponse: ContributorUploadsApiResponse = {
       uploadedAt: "2025-10-05",
       priceUsd: 120,
       status: "approved",
+      commissionUsd: 36,
+      totalDownloads: 200,
+      earningsUsd: 24000,
     },
     {
       id: "up-017",
@@ -190,6 +235,9 @@ export const mockApiResponse: ContributorUploadsApiResponse = {
       uploadedAt: "2025-10-05",
       priceUsd: 120,
       status: "approved",
+      commissionUsd: 36,
+      totalDownloads: 200,
+      earningsUsd: 24000,
     },
     {
       id: "up-018",
@@ -199,6 +247,9 @@ export const mockApiResponse: ContributorUploadsApiResponse = {
       uploadedAt: "2025-10-05",
       priceUsd: 120,
       status: "pending",
+      commissionUsd: 36,
+      totalDownloads: 200,
+      earningsUsd: 24000,
     },
     {
       id: "up-019",
@@ -208,6 +259,9 @@ export const mockApiResponse: ContributorUploadsApiResponse = {
       uploadedAt: "2025-10-05",
       priceUsd: 120,
       status: "approved",
+      commissionUsd: 36,
+      totalDownloads: 200,
+      earningsUsd: 24000,
     },
     {
       id: "up-020",
@@ -217,6 +271,9 @@ export const mockApiResponse: ContributorUploadsApiResponse = {
       uploadedAt: "2025-10-05",
       priceUsd: 120,
       status: "approved",
+      commissionUsd: 36,
+      totalDownloads: 200,
+      earningsUsd: 24000,
     },
     {
       id: "up-021",
@@ -226,6 +283,9 @@ export const mockApiResponse: ContributorUploadsApiResponse = {
       uploadedAt: "2025-10-05",
       priceUsd: 120,
       status: "approved",
+      commissionUsd: 36,
+      totalDownloads: 200,
+      earningsUsd: 24000,
     },
     {
       id: "up-022",
@@ -235,6 +295,9 @@ export const mockApiResponse: ContributorUploadsApiResponse = {
       uploadedAt: "2025-10-05",
       priceUsd: 120,
       status: "approved",
+      commissionUsd: 36,
+      totalDownloads: 200,
+      earningsUsd: 24000,
     },
     {
       id: "up-023",
@@ -244,6 +307,9 @@ export const mockApiResponse: ContributorUploadsApiResponse = {
       uploadedAt: "2025-10-05",
       priceUsd: 120,
       status: "rejected",
+      commissionUsd: 36,
+      totalDownloads: 200,
+      earningsUsd: 24000,
     },
   ],
 };
