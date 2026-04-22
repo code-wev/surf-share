@@ -58,7 +58,7 @@ export default function ProfileSidebar({ className, onNavigate }: ProfileSidebar
     ? [
         { label: "Overview", href: "/profile/overview", Icon: LayoutDashboard },
         { label: "My Uploads", href: "/profile/my-uploads", Icon: Package },
-        { label: "Upload New", href: "/profile/upload", Icon: Upload },
+        { label: "Upload New", href: "/profile/image-upload", Icon: Upload },
         { label: "Sales", href: "/profile/sales", Icon: TrendingUp },
         { label: "Profile", href: "/profile", Icon: UserRound },
       ]
