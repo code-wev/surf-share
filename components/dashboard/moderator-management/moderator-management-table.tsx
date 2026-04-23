@@ -1,0 +1,193 @@
+import Image from "next/image";
+import { ChevronsUpDown, Eye } from "lucide-react";
+
+import type {
+  ModeratorPlan,
+  ModeratorRow,
+  ModeratorStatus,
+} from "@/components/dashboard/moderator-management/moderator-management-types";
+
+type ModeratorManagementTableProps = {
+  rows: ModeratorRow[];
+  planClassNameMap: Record<ModeratorPlan, string>;
+  statusClassNameMap: Record<ModeratorStatus, string>;
+  onViewDetails: (moderator: ModeratorRow) => void;
+};
+
+export default function ModeratorManagementTable({
+  rows,
+  planClassNameMap,
+  statusClassNameMap,
+  onViewDetails,
+}: ModeratorManagementTableProps) {
+  return (
+    <>
+      <div className="mt-6 grid grid-cols-1 gap-3 lg:hidden">
+        {rows.map((row) => (
+          <article
+            key={row.id}
+            className="border-line-weaker bg-surface-muted-100 rounded-sm border p-3"
+          >
+            <div className="flex items-start gap-3">
+              <Image
+                src={row.photo}
+                alt={row.name}
+                width={44}
+                height={44}
+                className="h-11 w-11 rounded-full object-cover"
+              />
+
+              <div className="min-w-0 flex-1">
+                <p className="text-text-strong truncate text-sm font-semibold">{row.name}</p>
+                <p className="text-text-weak mt-0.5 truncate text-xs">{row.email}</p>
+
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <span className="inline-flex rounded-sm bg-[#F3F4F6] px-2 py-0.5 text-[11px] text-[#6B7280]">
+                    {row.role}
+                  </span>
+                  <span
+                    className={`inline-flex rounded-sm px-2 py-0.5 text-[11px] ${planClassNameMap[row.plan]}`}
+                  >
+                    {row.plan}
+                  </span>
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[11px] ${statusClassNameMap[row.status]}`}
+                  >
+                    {row.status === "Active" ? "✓" : "✕"} {row.status}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-text-weak mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
+              <p>
+                <span className="text-text-weaker block text-[11px] tracking-wide uppercase">
+                  Phone
+                </span>
+                <span className="mt-0.5 block">{row.phone}</span>
+              </p>
+              <p>
+                <span className="text-text-weaker block text-[11px] tracking-wide uppercase">
+                  Contributed
+                </span>
+                <span className="mt-0.5 block">{row.contributedPhotos ?? "--"}</span>
+              </p>
+              <p>
+                <span className="text-text-weaker block text-[11px] tracking-wide uppercase">
+                  Commission
+                </span>
+                <span className="mt-0.5 inline-flex items-center gap-1">
+                  {row.platformCommission ?? "--"}
+                  {row.showCommissionSortIcon ? (
+                    <ChevronsUpDown size={11} className="text-text-weaker" />
+                  ) : null}
+                </span>
+              </p>
+              <p>
+                <span className="text-text-weaker block text-[11px] tracking-wide uppercase">
+                  Purchase
+                </span>
+                <span className="mt-0.5 block">{row.purchasePhoto ?? "--"}</span>
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => onViewDetails(row)}
+              className="mt-3 inline-flex items-center gap-1 text-xs text-[#0EA5E9] hover:underline"
+            >
+              <Eye size={12} />
+              View details
+            </button>
+          </article>
+        ))}
+      </div>
+
+      <div className="border-line-weaker bg-surface-muted-100 mt-6 hidden overflow-x-auto border [font-family:var(--font-sf-pro)] lg:mt-9 lg:block">
+        <table className="text-text-weak w-full min-w-280 border-collapse text-xs xl:min-w-0">
+          <thead>
+            <tr className="border-line-weaker text-text-strong border-b text-left font-semibold">
+              <th className="p-2">Name</th>
+              <th className="p-2">Photo</th>
+              <th className="p-2">Email</th>
+              <th className="p-2">Phone Number</th>
+              <th className="p-2">Role</th>
+              <th className="p-2">Contributed Photos</th>
+              <th className="p-2">Plan</th>
+              <th className="p-2">Platform Commission</th>
+              <th className="p-2">Purchase Photo</th>
+              <th className="p-2">Status</th>
+              <th className="p-2" aria-label="Actions" />
+            </tr>
+          </thead>
+
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.id} className="border-line-weaker border-b last:border-b-0">
+                <td className="p-2">
+                  <Image
+                    src={row.photo}
+                    alt={row.name}
+                    width={40}
+                    height={40}
+                    className="h-10 w-10 rounded-full object-cover"
+                  />
+                </td>
+
+                <td className="p-2">{row.name}</td>
+                <td className="p-2">{row.email}</td>
+                <td className="p-2">{row.phone}</td>
+
+                <td className="p-2">
+                  <span className="inline-flex rounded-sm bg-[#F3F4F6] px-2 py-0.5 text-[#6B7280]">
+                    {row.role}
+                  </span>
+                </td>
+
+                <td className="p-2">{row.contributedPhotos ?? "--"}</td>
+
+                <td className="p-2">
+                  <span
+                    className={`inline-flex rounded-sm px-2 py-0.5 ${planClassNameMap[row.plan]}`}
+                  >
+                    {row.plan}
+                  </span>
+                </td>
+
+                <td className="p-2">
+                  <div className="inline-flex items-center gap-1">
+                    <span>{row.platformCommission ?? "--"}</span>
+                    {row.showCommissionSortIcon ? (
+                      <ChevronsUpDown size={11} className="text-text-weaker" />
+                    ) : null}
+                  </div>
+                </td>
+
+                <td className="p-2">{row.purchasePhoto ?? "--"}</td>
+
+                <td className="p-2">
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-sm px-2 py-0.5 ${statusClassNameMap[row.status]}`}
+                  >
+                    {row.status === "Active" ? "✓" : "✕"} {row.status}
+                  </span>
+                </td>
+
+                <td className="p-2">
+                  <button
+                    type="button"
+                    onClick={() => onViewDetails(row)}
+                    className="inline-flex items-center gap-1 text-[#0EA5E9] hover:underline"
+                  >
+                    <Eye size={12} />
+                    View details
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
+}

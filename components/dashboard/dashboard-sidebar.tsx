@@ -8,6 +8,7 @@ import {
   LogOut,
   MapPin,
   Settings,
+  Shield,
   UsersRound,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
@@ -19,6 +20,7 @@ import { cn } from "@/lib/utils";
 const dashboardNavItems = [
   { label: "Overview", Icon: LayoutGrid, href: "/dashboard" },
   { label: "User Management", Icon: UsersRound, href: "/dashboard/user-management" },
+  { label: "Moderator Management", Icon: Shield, href: "/dashboard/moderator-management" },
   { label: "Photo Moderation", Icon: ImageIcon, href: "/dashboard/photo-moderation" },
   { label: "Locations Moderation", Icon: MapPin, href: "/dashboard/locations-moderation" },
   { label: "Profile Settings", Icon: Settings, href: "/dashboard/profile" },
@@ -111,21 +113,21 @@ export default function DashboardSidebar({
                   const href = "href" in item ? item.href : undefined;
 
                   return (
-                <button
-                  type="button"
-                  onClick={() => handleItemClick(href)}
-                  title={collapsed ? item.label : undefined}
-                  className={`flex w-full items-center rounded-sm px-2 py-1.5 text-left text-sm transition-colors ${
-                    collapsed ? "justify-center" : "gap-2"
-                  } ${
-                    isItemActive(href)
-                      ? "bg-fill-disable text-text-strong font-medium"
-                      : "text-text-weak hover:bg-fill-hover hover:text-text-strong font-normal"
-                  }`}
-                >
-                  <item.Icon size={18} />
-                  {!collapsed ? <span>{item.label}</span> : null}
-                </button>
+                    <button
+                      type="button"
+                      onClick={() => handleItemClick(href)}
+                      title={collapsed ? item.label : undefined}
+                      className={`flex w-full items-center rounded-sm px-2 py-1.5 text-left text-sm transition-colors ${
+                        collapsed ? "justify-center" : "gap-2"
+                      } ${
+                        isItemActive(href)
+                          ? "bg-fill-disable text-text-strong font-medium"
+                          : "text-text-weak hover:bg-fill-hover hover:text-text-strong font-normal"
+                      }`}
+                    >
+                      <item.Icon size={18} />
+                      {!collapsed ? <span>{item.label}</span> : null}
+                    </button>
                   );
                 })()}
               </li>
