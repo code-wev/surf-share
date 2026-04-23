@@ -1,5 +1,5 @@
 export type ModeratorStatus = "Active" | "Suspended";
-export type AssignedPermission = "Photo Approval" | "Location Management";
+export type AssignedPermission = "Approve Photo" | "Add Location" | "All Access";
 
 export type ModeratorRow = {
   id: number;

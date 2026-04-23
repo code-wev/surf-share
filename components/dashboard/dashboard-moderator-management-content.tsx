@@ -2,14 +2,17 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import AddModeratorModal, {
+  type AddModeratorModalPayload,
+} from "@/components/dashboard/moderator-management/add-moderator-modal";
 import ModeratorDetailsModal from "@/components/dashboard/moderator-management/moderator-details-modal";
 import ModeratorManagementHeader from "@/components/dashboard/moderator-management/moderator-management-header";
 import ModeratorManagementPagination from "@/components/dashboard/moderator-management/moderator-management-pagination";
 import ModeratorManagementTable from "@/components/dashboard/moderator-management/moderator-management-table";
 import {
   filterOptions,
-  statusClassNameMap,
   moderatorRows,
+  statusClassNameMap,
 } from "@/components/dashboard/moderator-management/moderator-management-data";
 import type {
   FilterOption,
@@ -17,10 +20,12 @@ import type {
 } from "@/components/dashboard/moderator-management/moderator-management-types";
 
 export default function DashboardModeratorManagementContent() {
+  const [moderators, setModerators] = useState<ModeratorRow[]>(moderatorRows);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<FilterOption>("Recently Added");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedModerator, setSelectedModerator] = useState<ModeratorRow | null>(null);
+  const [isAddModeratorModalOpen, setIsAddModeratorModalOpen] = useState(false);
   const filterDropdownRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -65,10 +70,31 @@ export default function DashboardModeratorManagementContent() {
 
   const filteredRows = useMemo(() => {
     if (activeFilter === "View From Last") {
-      return [...moderatorRows].reverse();
+      return [...moderators].reverse();
     }
-    return moderatorRows; // "Recently Added" defaults to original order
-  }, [activeFilter]);
+
+    return moderators;
+  }, [activeFilter, moderators]);
+
+  const handleAddModerator = ({ name, email, assignedPermissions }: AddModeratorModalPayload) => {
+    const today = new Date().toLocaleDateString("en-GB");
+
+    setModerators((previous) => [
+      {
+        id: Date.now(),
+        photo: "/home/latest/latest15.jpg",
+        name,
+        email,
+        phone: "(000) 000-0000",
+        assignedDate: today,
+        assignedPermissions:
+          assignedPermissions.length > 0 ? assignedPermissions : ["Approve Photo"],
+        status: "Active",
+      },
+      ...previous,
+    ]);
+    setIsAddModeratorModalOpen(false);
+  };
 
   const totalPages = 4;
 
@@ -85,6 +111,7 @@ export default function DashboardModeratorManagementContent() {
             setActiveFilter(option);
             setIsFilterOpen(false);
           }}
+          onOpenAddModerator={() => setIsAddModeratorModalOpen(true)}
         />
 
         <ModeratorManagementTable
@@ -104,6 +131,13 @@ export default function DashboardModeratorManagementContent() {
           statusClassNameMap={statusClassNameMap}
           onClose={() => setSelectedModerator(null)}
         />
+
+        {isAddModeratorModalOpen ? (
+          <AddModeratorModal
+            onClose={() => setIsAddModeratorModalOpen(false)}
+            onSubmit={handleAddModerator}
+          />
+        ) : null}
       </div>
     </section>
   );

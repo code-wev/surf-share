@@ -10,6 +10,7 @@ type ModeratorManagementHeaderProps = {
   filterDropdownRef: RefObject<HTMLDivElement | null>;
   onToggleFilter: () => void;
   onSelectFilter: (option: FilterOption) => void;
+  onOpenAddModerator: () => void;
 };
 
 export default function ModeratorManagementHeader({
@@ -19,6 +20,7 @@ export default function ModeratorManagementHeader({
   filterDropdownRef,
   onToggleFilter,
   onSelectFilter,
+  onOpenAddModerator,
 }: ModeratorManagementHeaderProps) {
   return (
     <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -68,6 +70,7 @@ export default function ModeratorManagementHeader({
 
         <button
           type="button"
+          onClick={onOpenAddModerator}
           className="bg-brand-default text-text-inverse-strong hover:bg-brand-hover inline-flex h-9 w-full items-center justify-center gap-2 rounded-sm px-3 text-xs font-medium transition-colors sm:w-auto"
         >
           Add Moderator
