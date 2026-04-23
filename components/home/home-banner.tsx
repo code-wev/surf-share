@@ -53,7 +53,7 @@ const HomeBanner = () => {
             className="absolute inset-0 h-full w-full object-cover"
             onContextMenu={(event) => event.preventDefault()}
           >
-            <source src="/home/banner.mp4" type="video/mp4" />
+            <source src="/home/bannerVideo.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         ) : null}
