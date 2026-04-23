@@ -145,7 +145,7 @@ export default function ContributorMyUploadsPage() {
   };
 
   return (
-    <section className="[font-family:var(--font-sf-pro)]">
+    <section className="pt-10 [font-family:var(--font-sf-pro)] md:pt-0">
       <div className="flex items-center justify-between gap-3">
         <h1 className="border-brand-default text-brand-default inline-flex border-b pb-1 text-base font-medium sm:text-lg">
           My Uploads
