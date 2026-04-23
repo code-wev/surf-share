@@ -8,7 +8,6 @@ import ModeratorManagementPagination from "@/components/dashboard/moderator-mana
 import ModeratorManagementTable from "@/components/dashboard/moderator-management/moderator-management-table";
 import {
   filterOptions,
-  planClassNameMap,
   statusClassNameMap,
   moderatorRows,
 } from "@/components/dashboard/moderator-management/moderator-management-data";
@@ -19,7 +18,7 @@ import type {
 
 export default function DashboardModeratorManagementContent() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<FilterOption>("All Users");
+  const [activeFilter, setActiveFilter] = useState<FilterOption>("Recently Added");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedModerator, setSelectedModerator] = useState<ModeratorRow | null>(null);
   const filterDropdownRef = useRef<HTMLDivElement | null>(null);
@@ -65,15 +64,10 @@ export default function DashboardModeratorManagementContent() {
   }, [selectedModerator]);
 
   const filteredRows = useMemo(() => {
-    if (activeFilter === "Contributors") {
-      return moderatorRows.filter((row) => row.role === "Contributor");
+    if (activeFilter === "View From Last") {
+      return [...moderatorRows].reverse();
     }
-
-    if (activeFilter === "Users") {
-      return moderatorRows.filter((row) => row.role === "User");
-    }
-
-    return moderatorRows;
+    return moderatorRows; // "Recently Added" defaults to original order
   }, [activeFilter]);
 
   const totalPages = 4;
@@ -95,7 +89,6 @@ export default function DashboardModeratorManagementContent() {
 
         <ModeratorManagementTable
           rows={filteredRows}
-          planClassNameMap={planClassNameMap}
           statusClassNameMap={statusClassNameMap}
           onViewDetails={(moderator) => setSelectedModerator(moderator)}
         />
@@ -108,7 +101,6 @@ export default function DashboardModeratorManagementContent() {
 
         <ModeratorDetailsModal
           moderator={selectedModerator}
-          planClassNameMap={planClassNameMap}
           statusClassNameMap={statusClassNameMap}
           onClose={() => setSelectedModerator(null)}
         />

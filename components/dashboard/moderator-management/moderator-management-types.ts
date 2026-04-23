@@ -1,6 +1,5 @@
-export type ModeratorRole = "User" | "Contributor";
-export type ModeratorPlan = "Gold" | "Silver" | "Bronze";
 export type ModeratorStatus = "Active" | "Suspended";
+export type AssignedPermission = "Photo Approval" | "Location Management";
 
 export type ModeratorRow = {
   id: number;
@@ -8,15 +7,9 @@ export type ModeratorRow = {
   name: string;
   email: string;
   phone: string;
-  role: ModeratorRole;
-  contributedPhotos: number | null;
-  plan: ModeratorPlan;
-  platformCommission: number | null;
-  showCommissionSortIcon?: boolean;
-  purchasePhoto: number | null;
+  assignedDate: string;
+  assignedPermissions: AssignedPermission[];
   status: ModeratorStatus;
-  country?: string;
-  address?: string;
 };
 
-export type FilterOption = "All Users" | "Contributors" | "Users";
+export type FilterOption = "Recently Added" | "View From Last";

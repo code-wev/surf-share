@@ -2,14 +2,12 @@ import Image from "next/image";
 import { ChevronsRight, SquarePen } from "lucide-react";
 
 import type {
-  ModeratorPlan,
   ModeratorRow,
   ModeratorStatus,
 } from "@/components/dashboard/moderator-management/moderator-management-types";
 
 type ModeratorDetailsModalProps = {
   moderator: ModeratorRow | null;
-  planClassNameMap: Record<ModeratorPlan, string>;
   statusClassNameMap: Record<ModeratorStatus, string>;
   onClose: () => void;
 };
@@ -19,16 +17,9 @@ type ModeratorDetailRowProps = {
   value: React.ReactNode;
 };
 
-const previewPhotoSources = [
-  "/home/latest/latest1.jpg",
-  "/home/latest/latest2.jpg",
-  "/home/latest/latest3.jpg",
-  "/home/latest/latest4.jpg",
-] as const;
-
 function ModeratorDetailRow({ label, value }: ModeratorDetailRowProps) {
   return (
-    <div className="grid grid-cols-[92px_minmax(0,1fr)] gap-x-12 gap-y-1 py-1 [font-family:var(--font-sf-pro)] text-xs leading-tight sm:grid-cols-[104px_minmax(0,1fr)] sm:text-sm">
+    <div className="grid grid-cols-[120px_minmax(0,1fr)] gap-x-8 gap-y-1 py-1 [font-family:var(--font-sf-pro)] text-xs leading-tight sm:grid-cols-[140px_minmax(0,1fr)] sm:text-sm">
       <span className="text-text-strong font-medium">{label}</span>
       <div className="text-text-weak min-w-0">{value}</div>
     </div>
@@ -45,22 +36,10 @@ function InlineBadge({ className, children }: { className: string; children: Rea
 
 export default function ModeratorDetailsModal({
   moderator,
-  planClassNameMap,
   statusClassNameMap,
   onClose,
 }: ModeratorDetailsModalProps) {
-  if (!moderator) {
-    return null;
-  }
-
-  const contributedPhotos = moderator.contributedPhotos ?? "--";
-  const platformCommission = moderator.platformCommission ?? "--";
-  const purchasePhoto = moderator.purchasePhoto ?? 45;
-  const amountEarn =
-    typeof moderator.platformCommission === "number" &&
-    typeof moderator.contributedPhotos === "number"
-      ? `$${moderator.platformCommission * 10}`
-      : "$00";
+  if (!moderator) return null;
 
   return (
     <div className="fixed inset-0 z-100 bg-[#0d1420]/30" onClick={onClose}>
@@ -105,23 +84,23 @@ export default function ModeratorDetailsModal({
             </div>
           </div>
 
-          <div className="mt-6 space-y-3">
+          <div className="mt-6 space-y-3 pb-8">
             <ModeratorDetailRow label="Name" value={moderator.name} />
             <ModeratorDetailRow label="Email" value={moderator.email} />
             <ModeratorDetailRow label="Phone Number" value={moderator.phone} />
-            <ModeratorDetailRow label="Role" value={moderator.role} />
-            <ModeratorDetailRow label="Contribute Photo" value={contributedPhotos} />
-            <ModeratorDetailRow
-              label="Plan"
+            <ModeratorDetailRow label="Assigned Date" value={moderator.assignedDate} />
+            <ModeratorDetailRow 
+              label="Assigned Permissions" 
               value={
-                <InlineBadge className={planClassNameMap[moderator.plan]}>
-                  {moderator.plan}
-                </InlineBadge>
-              }
+                <div className="flex flex-wrap gap-1">
+                  {moderator.assignedPermissions.map((perm) => (
+                    <span key={perm} className="inline-flex rounded-sm bg-[#F3F4F6] px-2 py-1 text-[11px] text-[#6B7280]">
+                      {perm}
+                    </span>
+                  ))}
+                </div>
+              } 
             />
-            <ModeratorDetailRow label="Platform Commission Fee" value={platformCommission} />
-            <ModeratorDetailRow label="Purchase Photo" value={purchasePhoto} />
-            <ModeratorDetailRow label="Amount Earn" value={amountEarn} />
             <ModeratorDetailRow
               label="Status"
               value={
@@ -129,30 +108,6 @@ export default function ModeratorDetailsModal({
                   {moderator.status === "Active" ? "✓ " : "✕ "}
                   {moderator.status}
                 </InlineBadge>
-              }
-            />
-            <ModeratorDetailRow
-              label="Photos"
-              value={
-                <div className="flex items-center gap-3">
-                  {previewPhotoSources.map((photoSrc, index) => (
-                    <div
-                      key={`${photoSrc}-${index}`}
-                      className="border-line-weaker bg-fill-hover h-10 w-14 overflow-hidden rounded-xs border"
-                    >
-                      <Image
-                        src={photoSrc}
-                        alt={`Submitted photo ${index + 1}`}
-                        width={56}
-                        height={40}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                  ))}
-                  <span className="bg-brand-default inline-flex h-11 w-11 items-center justify-center rounded-full text-xs font-medium text-white">
-                    24+
-                  </span>
-                </div>
               }
             />
           </div>
