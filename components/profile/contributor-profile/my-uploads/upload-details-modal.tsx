@@ -54,7 +54,7 @@ export default function UploadDetailsModal({
         aria-modal="true"
         aria-label="Upload details"
         onClick={(event) => event.stopPropagation()}
-        className="border-line-weaker bg-surface-muted-100 w-full max-w-260 overflow-hidden rounded-lg border shadow-[0_20px_50px_rgba(15,23,42,0.25)]"
+        className="border-line-weaker bg-surface-muted-100 h-200 w-full max-w-260 overflow-hidden rounded-lg border shadow-[0_20px_50px_rgba(15,23,42,0.25)] md:h-auto"
       >
         <div className="border-line-weaker flex items-center justify-between border-b px-4 py-3">
           <h2 className="text-text-strong text-base font-semibold">Upload Details</h2>

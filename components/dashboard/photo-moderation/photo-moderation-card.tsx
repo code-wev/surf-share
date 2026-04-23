@@ -45,30 +45,30 @@ export default function PhotoModerationCard({
             alt={`${item.photographer} surf photo from ${item.location}`}
             width={600}
             height={440}
-            className="h-80 w-full object-cover md:h-90 xl:h-100"
+            className="h-56 w-full object-cover sm:h-72 md:h-90 xl:h-100"
           />
         </button>
       </div>
 
-      <div className="px-5 py-4">
-        <p className="text-text-strong text-[22px]">
+      <div className="px-3 py-3 sm:px-5 sm:py-4">
+        <p className="text-text-strong text-lg leading-tight sm:text-[22px]">
           <span className="font-semibold">{item.photographer}</span>
-          <span className="text-text-weak">
+          <span className="text-text-weak text-sm sm:text-base">
             {" "}
             | {item.location} | {item.imageCount} Images
           </span>
         </p>
 
-        <div className="text-text-weak mt-2 flex items-center gap-2 text-[16px]">
+        <div className="text-text-weak mt-2 flex items-center gap-1.5 text-sm sm:gap-2 sm:text-[16px]">
           <Calendar size={16} color="black" />
           <span>{item.submittedAt}</span>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-4">
+        <div className="mt-4 grid grid-cols-2 gap-2.5 sm:mt-6 sm:gap-4">
           <button
             type="button"
             onClick={() => onAction(item.id, "reject")}
-            className="inline-flex h-7 items-center justify-center gap-1 rounded-sm bg-[#FCE7E7] px-2 text-[11px] font-medium text-[#D85B5B]"
+            className="inline-flex h-8 items-center justify-center gap-1 rounded-sm bg-[#FCE7E7] px-2 text-[11px] font-medium text-[#D85B5B] sm:h-7"
           >
             Reject
             <X size={10} />
@@ -77,7 +77,7 @@ export default function PhotoModerationCard({
           <button
             type="button"
             onClick={() => onAction(item.id, "approve")}
-            className="inline-flex h-7 items-center justify-center gap-1 rounded-sm bg-[#EAF8EE] px-2 text-[11px] font-medium text-[#2AA65C]"
+            className="inline-flex h-8 items-center justify-center gap-1 rounded-sm bg-[#EAF8EE] px-2 text-[11px] font-medium text-[#2AA65C] sm:h-7"
           >
             Approve
             <Check size={10} />

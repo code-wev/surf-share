@@ -117,7 +117,7 @@ export default function FeaturedLocation() {
           subtitleClassName="text-xl! text-(--color-text-weak) sm:text-[34px]!"
         />
 
-        <Link href="/properties">
+        <Link href="/map">
           <Button className="border-(--color-line-weaker)font-medium cursor-pointer border bg-transparent text-(--color-text-brand-strong) transition-colors hover:bg-(--color-fill-hover)">
             View All <ArrowRight className="h-4 w-4" />
           </Button>
