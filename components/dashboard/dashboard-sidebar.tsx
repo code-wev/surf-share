@@ -7,7 +7,9 @@ import {
   LayoutGrid,
   LogOut,
   MapPin,
+  Megaphone,
   Settings,
+  Shield,
   UsersRound,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
@@ -16,17 +18,31 @@ import { toast } from "sonner";
 import { useDemoAuth } from "@/lib/demo-auth";
 import { cn } from "@/lib/utils";
 
-const dashboardNavItems = [
+type DashboardNavItem = {
+  label: string;
+  Icon: typeof LayoutGrid;
+  href: string;
+};
+
+const moderatorDashboardNavItems: ReadonlyArray<DashboardNavItem> = [
   { label: "Overview", Icon: LayoutGrid, href: "/dashboard" },
   { label: "User Management", Icon: UsersRound, href: "/dashboard/user-management" },
   { label: "Photo Moderation", Icon: ImageIcon, href: "/dashboard/photo-moderation" },
   { label: "Locations Moderation", Icon: MapPin, href: "/dashboard/locations-moderation" },
   { label: "Profile Settings", Icon: Settings, href: "/dashboard/profile" },
-] as const satisfies ReadonlyArray<{
-  label: string;
-  Icon: typeof LayoutGrid;
-  href?: string;
-}>;
+];
+
+const adminDashboardNavItems: ReadonlyArray<DashboardNavItem> = [
+  { label: "Overview", Icon: LayoutGrid, href: "/dashboard" },
+  { label: "User Management", Icon: UsersRound, href: "/dashboard/user-management" },
+  { label: "Moderator Management", Icon: Shield, href: "/dashboard/moderator-management" },
+  {
+    label: "Advertisement Settings",
+    Icon: Megaphone,
+    href: "/dashboard/advertisement-settings",
+  },
+  { label: "Profile Settings", Icon: Settings, href: "/dashboard/profile" },
+];
 
 type DashboardSidebarProps = {
   className?: string;
@@ -46,6 +62,8 @@ export default function DashboardSidebar({
   const pathname = usePathname();
   const router = useRouter();
   const { logout, session } = useDemoAuth();
+  const isAdmin = session?.role === "admin";
+  const dashboardNavItems = isAdmin ? adminDashboardNavItems : moderatorDashboardNavItems;
 
   const roleLabel = session?.role
     ? `${session.role[0].toUpperCase()}${session.role.slice(1)}`
@@ -107,18 +125,14 @@ export default function DashboardSidebar({
           <ul className="mt-2">
             {dashboardNavItems.map((item) => (
               <li key={item.label}>
-                {(() => {
-                  const href = "href" in item ? item.href : undefined;
-
-                  return (
                 <button
                   type="button"
-                  onClick={() => handleItemClick(href)}
+                  onClick={() => handleItemClick(item.href)}
                   title={collapsed ? item.label : undefined}
                   className={`flex w-full items-center rounded-sm px-2 py-1.5 text-left text-sm transition-colors ${
                     collapsed ? "justify-center" : "gap-2"
                   } ${
-                    isItemActive(href)
+                    isItemActive(item.href)
                       ? "bg-fill-disable text-text-strong font-medium"
                       : "text-text-weak hover:bg-fill-hover hover:text-text-strong font-normal"
                   }`}
@@ -126,8 +140,6 @@ export default function DashboardSidebar({
                   <item.Icon size={18} />
                   {!collapsed ? <span>{item.label}</span> : null}
                 </button>
-                  );
-                })()}
               </li>
             ))}
           </ul>

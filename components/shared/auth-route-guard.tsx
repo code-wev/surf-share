@@ -17,6 +17,11 @@ export default function AuthRouteGuard() {
 
     const isProfileRoute = pathname === "/profile" || pathname.startsWith("/profile/");
     const isDashboardRoute = pathname === "/dashboard" || pathname.startsWith("/dashboard/");
+    const isAdminOnlyDashboardRoute =
+      pathname === "/dashboard/moderator-management" ||
+      pathname.startsWith("/dashboard/moderator-management/") ||
+      pathname === "/dashboard/advertisement-settings" ||
+      pathname.startsWith("/dashboard/advertisement-settings/");
     const isAuthRoute =
       pathname === "/login" ||
       pathname === "/signup" ||
@@ -41,6 +46,11 @@ export default function AuthRouteGuard() {
 
     if (isDashboardRoute && !isDashboardRole(session.role)) {
       router.replace("/profile");
+      return;
+    }
+
+    if (isAdminOnlyDashboardRoute && session.role !== "admin") {
+      router.replace("/dashboard");
       return;
     }
 

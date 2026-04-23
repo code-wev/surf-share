@@ -2,26 +2,26 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import UserDetailsModal from "@/components/dashboard/user-management/user-details-modal";
-import UserManagementHeader from "@/components/dashboard/user-management/user-management-header";
-import UserManagementPagination from "@/components/dashboard/user-management/user-management-pagination";
-import UserManagementTable from "@/components/dashboard/user-management/user-management-table";
+import ModeratorDetailsModal from "@/components/dashboard/moderator-management/moderator-details-modal";
+import ModeratorManagementHeader from "@/components/dashboard/moderator-management/moderator-management-header";
+import ModeratorManagementPagination from "@/components/dashboard/moderator-management/moderator-management-pagination";
+import ModeratorManagementTable from "@/components/dashboard/moderator-management/moderator-management-table";
 import {
   filterOptions,
   planClassNameMap,
   statusClassNameMap,
-  userRows,
-} from "@/components/dashboard/user-management/user-management-data";
+  moderatorRows,
+} from "@/components/dashboard/moderator-management/moderator-management-data";
 import type {
   FilterOption,
-  UserRow,
-} from "@/components/dashboard/user-management/user-management-types";
+  ModeratorRow,
+} from "@/components/dashboard/moderator-management/moderator-management-types";
 
-export default function DashboardUserManagementContent() {
+export default function DashboardModeratorManagementContent() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<FilterOption>("All Users");
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedUser, setSelectedUser] = useState<UserRow | null>(null);
+  const [selectedModerator, setSelectedModerator] = useState<ModeratorRow | null>(null);
   const filterDropdownRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -47,13 +47,13 @@ export default function DashboardUserManagementContent() {
   }, [isFilterOpen]);
 
   useEffect(() => {
-    if (!selectedUser) {
+    if (!selectedModerator) {
       return;
     }
 
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setSelectedUser(null);
+        setSelectedModerator(null);
       }
     };
 
@@ -62,18 +62,18 @@ export default function DashboardUserManagementContent() {
     return () => {
       document.removeEventListener("keydown", handleEscape);
     };
-  }, [selectedUser]);
+  }, [selectedModerator]);
 
   const filteredRows = useMemo(() => {
     if (activeFilter === "Contributors") {
-      return userRows.filter((row) => row.role === "Contributor");
+      return moderatorRows.filter((row) => row.role === "Contributor");
     }
 
     if (activeFilter === "Users") {
-      return userRows.filter((row) => row.role === "User");
+      return moderatorRows.filter((row) => row.role === "User");
     }
 
-    return userRows;
+    return moderatorRows;
   }, [activeFilter]);
 
   const totalPages = 4;
@@ -81,7 +81,7 @@ export default function DashboardUserManagementContent() {
   return (
     <section className="px-3 pb-5 [font-family:var(--font-sf-pro)] sm:px-4 sm:pb-6 md:px-6 md:pb-8 lg:px-0 lg:pr-10 lg:pb-10 xl:pr-12.5 xl:pb-12.5">
       <div className="mx-auto flex w-full max-w-400 flex-col">
-        <UserManagementHeader
+        <ModeratorManagementHeader
           isFilterOpen={isFilterOpen}
           activeFilter={activeFilter}
           filterOptions={filterOptions}
@@ -93,24 +93,24 @@ export default function DashboardUserManagementContent() {
           }}
         />
 
-        <UserManagementTable
+        <ModeratorManagementTable
           rows={filteredRows}
           planClassNameMap={planClassNameMap}
           statusClassNameMap={statusClassNameMap}
-          onViewDetails={(user) => setSelectedUser(user)}
+          onViewDetails={(moderator) => setSelectedModerator(moderator)}
         />
 
-        <UserManagementPagination
+        <ModeratorManagementPagination
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={setCurrentPage}
         />
 
-        <UserDetailsModal
-          user={selectedUser}
+        <ModeratorDetailsModal
+          moderator={selectedModerator}
           planClassNameMap={planClassNameMap}
           statusClassNameMap={statusClassNameMap}
-          onClose={() => setSelectedUser(null)}
+          onClose={() => setSelectedModerator(null)}
         />
       </div>
     </section>
