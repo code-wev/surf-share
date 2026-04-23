@@ -11,6 +11,7 @@ type PhotoModerationCardProps = {
   selected: boolean;
   onToggleSelected: (id: number) => void;
   onAction: (id: number, action: ModerationAction) => void;
+  onOpenItem: (item: PhotoModerationItem) => void;
 };
 
 export default function PhotoModerationCard({
@@ -18,37 +19,48 @@ export default function PhotoModerationCard({
   selected,
   onToggleSelected,
   onAction,
+  onOpenItem,
 }: PhotoModerationCardProps) {
   return (
-    <article className="overflow-hidden rounded-sm border border-line-weaker bg-surface-muted-100">
+    <article className="border-line-weaker bg-surface-muted-100 overflow-hidden rounded-sm border">
       <div className="relative overflow-hidden">
         <label className="absolute top-1.5 left-1.5 z-10 inline-flex cursor-pointer items-center">
           <input
             type="checkbox"
             checked={selected}
             onChange={() => onToggleSelected(item.id)}
-            className="h-3 w-3 rounded-xs border border-line-weaker bg-white accent-text-strong"
+            className="border-line-weaker accent-text-strong h-3 w-3 rounded-xs border bg-white"
             aria-label={`Select ${item.photographer} submission`}
           />
         </label>
 
-        <Image
-          src={item.imageSrc}
-          alt={`${item.photographer} surf photo from ${item.location}`}
-          width={600}
-          height={440}
-          className="h-80 w-full object-cover md:h-90 xl:h-100"
-        />
+        <button
+          type="button"
+          onClick={() => onOpenItem(item)}
+          className="block w-full cursor-pointer text-left"
+          aria-label={`Open details for ${item.title}`}
+        >
+          <Image
+            src={item.imageSrc}
+            alt={`${item.photographer} surf photo from ${item.location}`}
+            width={600}
+            height={440}
+            className="h-80 w-full object-cover md:h-90 xl:h-100"
+          />
+        </button>
       </div>
 
       <div className="px-5 py-4">
-        <p className="text-[22px] text-text-strong">
+        <p className="text-text-strong text-[22px]">
           <span className="font-semibold">{item.photographer}</span>
-          <span className="text-text-weak"> | {item.location} | {item.imageCount} Images</span>
+          <span className="text-text-weak">
+            {" "}
+            | {item.location} | {item.imageCount} Images
+          </span>
         </p>
 
         <div className="text-text-weak mt-2 flex items-center gap-2 text-[16px]">
-          <Calendar size={16} color="black"/>
+          <Calendar size={16} color="black" />
           <span>{item.submittedAt}</span>
         </div>
 

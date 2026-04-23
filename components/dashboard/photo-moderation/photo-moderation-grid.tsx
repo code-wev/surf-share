@@ -9,6 +9,7 @@ type PhotoModerationGridProps = {
   selectedIds: Set<number>;
   onToggleSelected: (id: number) => void;
   onAction: (id: number, action: ModerationAction) => void;
+  onOpenItem: (item: PhotoModerationItem) => void;
 };
 
 export default function PhotoModerationGrid({
@@ -16,9 +17,10 @@ export default function PhotoModerationGrid({
   selectedIds,
   onToggleSelected,
   onAction,
+  onOpenItem,
 }: PhotoModerationGridProps) {
   return (
-    <div className="mt-4 grid grid-cols-1 gap-3 md:gap-6 sm:mt-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+    <div className="mt-4 grid grid-cols-1 gap-3 sm:mt-6 sm:grid-cols-2 md:gap-6 lg:grid-cols-2 xl:grid-cols-3">
       {items.map((item) => (
         <PhotoModerationCard
           key={item.id}
@@ -26,6 +28,7 @@ export default function PhotoModerationGrid({
           selected={selectedIds.has(item.id)}
           onToggleSelected={onToggleSelected}
           onAction={onAction}
+          onOpenItem={onOpenItem}
         />
       ))}
     </div>
