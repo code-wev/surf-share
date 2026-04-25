@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Plus } from "lucide-react";
+import { ChevronDown, Plus } from "lucide-react";
 import { useState } from "react";
 
 import ProfileInfoField from "@/components/profile/profile-info-field";
@@ -109,15 +109,7 @@ export default function ProfileSettingsContent() {
                     ))}
                   </select>
                   <span className="text-text-weak pointer-events-none absolute inset-y-0 right-3 flex items-center">
-                    <svg
-                      className="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                    </svg>
+                    <ChevronDown className="h-4 w-4" />
                   </span>
                 </div>
 
@@ -132,17 +124,18 @@ export default function ProfileSettingsContent() {
                   onClick={addSocialLink}
                   aria-label="Add social media link"
                   disabled={!socialType || !socialUrl.trim()}
-                  className="text-text-weak hover:bg-surface-muted-100 inline-flex h-10 w-10 items-center justify-center rounded-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+                  className="text-text-weak hover:bg-surface-muted-100 inline-flex h-10 w-10 items-center justify-center gap-x-1 rounded-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  <Plus className="h-5 w-5" />
+                  <Plus className="h-5 w-5" /> <span className="text-[10px]">Add</span>
                 </button>
               </div>
 
               {socialLinks.length > 0 && (
                 <div className="mt-3 space-y-2">
                   {socialLinks.map((link) => (
-                    <p key={link.id} className="text-text-weak text-sm">
-                      <span className="text-text-strong font-medium">{link.type}:</span> {link.url}
+                    <p key={link.id} className="text-text-brand-weak text-base">
+                      <span className="text-text-brand-strong font-medium">{link.type}:</span>{" "}
+                      {link.url}
                     </p>
                   ))}
                 </div>

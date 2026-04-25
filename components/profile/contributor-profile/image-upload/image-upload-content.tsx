@@ -201,7 +201,7 @@ export default function ImageUploadContentPage() {
             >
               Browse Photos
             </button>
-            <p className="mt-4 text-xs text-gray-400">
+            <p className="mt-4 px-2 text-xs text-gray-400">
               Supported formats: PDF, DOC, DOCX, JPG, PNG (Max 10MB)
             </p>
           </div>
@@ -290,7 +290,7 @@ export default function ImageUploadContentPage() {
               type="button"
               onClick={() => addMoreRef.current?.click()}
               aria-label="Add more photos"
-              className="z-10   flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-[#E7E5E4] text-[#0C3173] transition hover:border-[#0a2463] hover:text-[#0a2463]"
+              className="z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-[#E7E5E4] text-[#0C3173] transition hover:border-[#0a2463] hover:text-[#0a2463]"
             >
               <Plus className="h-5 w-5" />
             </button>

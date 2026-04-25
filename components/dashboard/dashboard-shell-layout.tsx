@@ -18,14 +18,14 @@ export default function DashboardShellLayout({ children }: DashboardShellLayoutP
   return (
     <section className="h-full bg-white">
       <div className="mx-auto flex h-full max-w-470 flex-col">
-        <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-sm bg-surface-muted-100">
-          <div className="flex items-center justify-between border-b border-line-weaker px-4 py-3 lg:hidden">
-            <p className="text-sm font-medium text-text-strong">Dashboard Menu</p>
+        <div className="bg-surface-muted-100 relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-sm">
+          <div className="border-line-weaker flex items-center justify-between border-b px-4 py-3 lg:hidden">
+            <p className="text-text-strong text-sm font-medium">Dashboard Menu</p>
             <button
               type="button"
               aria-label="Open dashboard menu"
               onClick={() => setIsSidebarOpen(true)}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-sm border border-line-weaker text-text-strong transition-colors hover:bg-fill-hover"
+              className="border-line-weaker text-text-strong hover:bg-fill-hover inline-flex h-8 w-8 items-center justify-center rounded-sm border transition-colors"
             >
               <Menu size={18} />
             </button>
@@ -62,17 +62,17 @@ export default function DashboardShellLayout({ children }: DashboardShellLayoutP
                 type="button"
                 aria-label="Close dashboard menu overlay"
                 onClick={() => setIsSidebarOpen(false)}
-                className="absolute inset-0 bg-base-black/30"
+                className="bg-base-black/30 absolute inset-0"
               />
 
-              <div className="absolute inset-y-0 left-0 w-75 max-w-[86vw] bg-surface-muted-100 shadow-[0_12px_30px_rgba(0,0,0,0.18)]">
-                <div className="flex items-center justify-between border-b border-line-weaker px-4 py-3">
-                  <p className="text-sm font-medium text-text-strong">Dashboard Overview</p>
+              <div className="bg-surface-muted-100 absolute inset-y-0 left-0 w-75 max-w-[86vw] shadow-[0_12px_30px_rgba(0,0,0,0.18)]">
+                <div className="border-line-weaker flex items-center justify-between border-b px-4 py-3">
+                  <p className="text-text-strong text-sm font-medium">Dashboard Overview</p>
                   <button
                     type="button"
                     aria-label="Close dashboard menu"
                     onClick={() => setIsSidebarOpen(false)}
-                    className="inline-flex h-7 w-7 items-center justify-center rounded-sm border border-line-weaker text-text-strong transition-colors hover:bg-fill-hover"
+                    className="border-line-weaker text-text-strong hover:bg-fill-hover inline-flex h-7 w-7 items-center justify-center rounded-sm border transition-colors"
                   >
                     <X size={16} />
                   </button>

@@ -33,10 +33,16 @@ export default function DashboardOverviewContent() {
 
         <div
           className={`mt-10 grid grid-cols-1 items-stretch gap-5 sm:mt-12 lg:mt-14 lg:gap-6 xl:mt-16 ${
-            isAdmin ? "xl:grid-cols-[1fr_1fr] xl:gap-8" : "xl:auto-rows-fr xl:grid-cols-[1fr_1fr] xl:gap-4"
+            isAdmin
+              ? "xl:grid-cols-[1fr_1fr] xl:gap-8"
+              : "xl:auto-rows-fr xl:grid-cols-[1fr_1fr] xl:gap-4"
           }`}
         >
-          <DashboardOverviewEarningsChart labels={chartLabels} values={chartValues} yTicks={yTicks} />
+          <DashboardOverviewEarningsChart
+            labels={chartLabels}
+            values={chartValues}
+            yTicks={yTicks}
+          />
 
           {isAdmin ? (
             <>
@@ -48,8 +54,8 @@ export default function DashboardOverviewContent() {
               <DashboardOverviewTopLocations locations={topLocations} />
             </>
           ) : (
-            <div className="xl:col-span-2">
-                <DashboardOverviewTopContributors contributors={topContributors} />
+            <div>
+              <DashboardOverviewTopContributors contributors={topContributors} />
             </div>
           )}
         </div>
