@@ -1,4 +1,7 @@
-import { EyeOff } from "lucide-react";
+"use client";
+
+import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
 
 import { Input } from "@/components/ui/input";
 
@@ -8,21 +11,28 @@ type ProfilePasswordFieldProps = {
 };
 
 export default function ProfilePasswordField({ label, placeholder }: ProfilePasswordFieldProps) {
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
+
   return (
     <label>
-      <span className="mb-2 block text-sm font-medium text-text-strong">{label}</span>
+      <span className="text-text-strong mb-2 block text-sm font-medium">{label}</span>
       <div className="relative">
         <Input
-          type="password"
+          type={showPassword ? "text" : "password"}
           placeholder={placeholder}
-          className="h-10 bg-surface-muted-100 pr-9 text-sm text-text-weak"
+          className="bg-surface-muted-100 text-text-weak h-10 pr-9 text-sm"
         />
         <button
           type="button"
           aria-label={`Toggle ${label.toLowerCase()} visibility`}
-          className="absolute top-1/2 right-3 -translate-y-1/2 text-text-weaker transition-colors hover:text-text-weak"
+          onClick={togglePasswordVisibility}
+          className="text-text-weaker hover:text-text-weak absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
         >
-          <EyeOff size={14} />
+          {showPassword ? <Eye size={14} /> : <EyeOff size={14} />}
         </button>
       </div>
     </label>
