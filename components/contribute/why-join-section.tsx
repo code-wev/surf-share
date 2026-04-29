@@ -1,8 +1,8 @@
 import WhyJoinBenefitItem from "@/components/contribute/why-join-benefit-item";
 
 const leftColumnBenefits = [
-  "Earn 70% commission on all sales",
-  "Instant PayPal payouts",
+  "Earn a commission on all sales",
+  "Instant payouts",
   "Analytics and sales tracking",
   "Reach thousands of surfers",
 ] as const;
