@@ -10,7 +10,7 @@ export default function IsPhotographer() {
         <PageTitle
           align="center"
           title="Are you a photographer?"
-          subtitle="Turn your passion for surf photography into a revenue stream. Upload your session shots and get paid when surfers find themselves "
+          subtitle="Turn your passion for surf photography into a revenue stream. Upload your images and get paid when surfers purchase your shots."
           titleClassName="mt-2 text-4xl text-(--color-text-inverse-strong) sm:text-[42px] md:text-5xl lg:text-[64px]"
           subtitleClassName="text-(--color-text-inverse-weak) text-base! max-w-[800px]! mx-auto"
         />
