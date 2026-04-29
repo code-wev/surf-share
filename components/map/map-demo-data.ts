@@ -1,10 +1,9 @@
 export const timeOptions = [
   { value: "all", label: "All Times" },
-  { value: "05:00 AM-07:00 AM", label: "05:00 AM-07:00 AM" },
-  { value: "07:00 AM-12:00 PM", label: "07:00 AM-12:00 PM" },
-  { value: "12:00 PM-05:00 PM", label: "12:00 PM-05:00 PM" },
-  { value: "05:00 PM-08:00 PM", label: "05:00 PM-08:00 PM" },
-  { value: "08:00 PM-05:00 AM", label: "08:00 PM-05:00 AM" },
+  { value: "04:00 AM-08:00 AM", label: "First Light (4-8 AM)" },
+  { value: "08:00 AM-11:00 AM", label: "Morning (8-11 AM)" },
+  { value: "11:00 AM-02:00 PM", label: "Lunch (11 AM-2 PM)" },
+  { value: "02:00 PM-07:00 PM", label: "Afternoon (2-7 PM)" },
 ] as const;
 
 export type TimeOptionValue = (typeof timeOptions)[number]["value"];
@@ -39,9 +38,9 @@ export const demoSurfSpots: SurfSpot[] = [
     availableFrom: "2026-10-10",
     availableTo: "2026-11-03",
     timeWindows: [
-      "05:00 AM-07:00 AM",
-      "07:00 AM-12:00 PM",
-      "12:00 PM-05:00 PM",
+      "04:00 AM-08:00 AM",
+      "08:00 AM-11:00 AM",
+      "11:00 AM-02:00 PM",
     ],
   },
   {
@@ -55,7 +54,7 @@ export const demoSurfSpots: SurfSpot[] = [
     image: "/home/latest/latest2.jpg",
     availableFrom: "2026-10-05",
     availableTo: "2026-10-26",
-    timeWindows: ["07:00 AM-12:00 PM", "12:00 PM-05:00 PM", "05:00 PM-08:00 PM"],
+    timeWindows: ["08:00 AM-11:00 AM", "11:00 AM-02:00 PM", "02:00 PM-07:00 PM"],
   },
   {
     id: "snapper-rocks",
@@ -69,9 +68,9 @@ export const demoSurfSpots: SurfSpot[] = [
     availableFrom: "2026-10-08",
     availableTo: "2026-11-04",
     timeWindows: [
-      "05:00 AM-07:00 AM",
-      "07:00 AM-12:00 PM",
-      "08:00 PM-05:00 AM",
+      "04:00 AM-08:00 AM",
+      "08:00 AM-11:00 AM",
+      "11:00 AM-02:00 PM",
     ],
   },
   {
@@ -85,7 +84,11 @@ export const demoSurfSpots: SurfSpot[] = [
     image: "/home/latest/latest4.jpg",
     availableFrom: "2026-10-11",
     availableTo: "2026-10-30",
-    timeWindows: ["07:00 AM-12:00 PM", "12:00 PM-05:00 PM", "05:00 PM-08:00 PM"],
+    timeWindows: [
+      "08:00 AM-11:00 AM",
+      "11:00 AM-02:00 PM",
+      "02:00 PM-07:00 PM"
+    ],
   },
   {
     id: "bells-beach",
@@ -98,7 +101,11 @@ export const demoSurfSpots: SurfSpot[] = [
     image: "/home/latest/latest5.jpg",
     availableFrom: "2026-10-15",
     availableTo: "2026-11-05",
-    timeWindows: ["05:00 AM-07:00 AM", "07:00 AM-12:00 PM", "12:00 PM-05:00 PM"],
+    timeWindows: [
+      "04:00 AM-08:00 AM",
+      "11:00 AM-02:00 PM",
+      "02:00 PM-07:00 PM",
+    ],
   },
   {
     id: "margaret-river",
@@ -111,6 +118,10 @@ export const demoSurfSpots: SurfSpot[] = [
     image: "/home/latest/latest6.jpg",
     availableFrom: "2026-10-09",
     availableTo: "2026-10-24",
-    timeWindows: ["05:00 AM-07:00 AM", "07:00 AM-12:00 PM", "08:00 PM-05:00 AM"],
+    timeWindows: [
+      "04:00 AM-08:00 AM",
+      "11:00 AM-02:00 PM",
+      "02:00 PM-07:00 PM",
+    ],
   },
 ];
