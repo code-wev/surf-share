@@ -10,17 +10,25 @@ export default function AboutStorySection() {
               Our Story
             </h2>
 
-            <div className="text-text-weak mt-8 space-y-4 text-sm leading-6 sm:mt-10 sm:space-y-6 sm:text-base sm:leading-7 lg:space-y-8 lg:text-[28px] lg:leading-tight xl:mt-45">
+            <div className="text-text-weak mt-3 sm:mt-4 md:mt-5 lg:mt-6 space-y-4 text-sm leading-6 sm:space-y-6 sm:text-base sm:leading-7 lg:space-y-8 lg:text-[24px] lg:leading-tight">
               <p>
-                Every surfer knows the thrill of catching the perfect wave and wondering if it was
-                captured. At the same time, photographers create amazing shots but struggle to
-                connect with the surfers in them.
+                SurfShare began in 2012 with a simple frustration and no real way to solve it. After years in the water, the same problem kept showing up: you&apos;d have a great session, maybe your best wave in weeks, and wonder if anyone caught it. Then came the awkward part trying to find the photographer, swap details, and hope the shot existed. Most of the time, it didn&apos;t go anywhere.
               </p>
 
               <p>
-                SURFSHARE bridges that gap, making it easy to find surf photos by location, date,
-                and time. For photographers, we handle everything from hosting to payments so you
-                can upload, set your price, and earn from every sale.
+                Photographers faced their own challenge: hundreds of images, dozens of surfers, and everyone looking identical once they&apos;re in black wetsuits and white boards.
+              </p>
+
+              <p>
+                Years later — with more experience, better tools, and a clearer vision — SurfShare returned with a purpose: one place where surfers can find their waves, and photographers can share their craft without the hassle.
+              </p>
+
+              <p>
+                We built a platform that removes the friction on both sides. Surfers can search by location, date, and time. Photographers can upload, price, and get paid — no chasing, no guessing, no lost moments.
+              </p>
+              
+              <p>
+                SurfShare exists to make the connection effortless.
               </p>
             </div>
           </div>
