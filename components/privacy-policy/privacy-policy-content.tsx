@@ -1,7 +1,7 @@
 export default function PrivacyPolicyContent() {
   return (
-    <section className="mx-auto max-w-480 px-4 py-12 font-sans text-[#4B5563] sm:px-6 lg:px-24">
-      <div className="prose prose-gray max-w-none text-base font-medium md:text-2xl">
+    <section className="mx-auto max-w-480 px-4 py-10 font-sans text-[#4B5563] sm:px-6 lg:px-24 lg:py-25">
+      <div className="prose prose-gray max-w-none text-base font-medium md:text-xl lg:text-2xl">
         <p>
           SurfShare is committed to protecting your privacy and handling your personal information
           in accordance with applicable Australian privacy laws, including the {""}
@@ -72,9 +72,7 @@ export default function PrivacyPolicyContent() {
 
         {/* How We Use Your Information */}
         <div>
-          <h2 className="mt-8 mb-3 font-bold text-[#0D1420]">
-            How We Use Your Information
-          </h2>
+          <h2 className="mt-8 mb-3 font-bold text-[#0D1420]">How We Use Your Information</h2>
           <p className="mb-6">We use your information to:</p>
           <ul className="mb-6 list-disc pl-10">
             <li>Provide and operate the SurfShare platform</li>
@@ -122,9 +120,7 @@ export default function PrivacyPolicyContent() {
 
         {/* 6. Cookies and Tracking Technologies */}
         <div>
-          <h2 className="mt-8 mb-2 font-bold text-[#0D1420]">
-            Cookies and Tracking Technologies
-          </h2>
+          <h2 className="mt-8 mb-2 font-bold text-[#0D1420]">Cookies and Tracking Technologies</h2>
           <p className="mb-6">SurfShare uses cookies to:</p>
           <ul className="mb-4 list-disc space-y-1 pl-10">
             <li>Maintain user sessions</li>
