@@ -66,7 +66,7 @@ const HomeBanner = () => {
           <div className="max-w-5xl">
             <PageTitle
               as="h1"
-              title="Find Your Waves, Captured Forever."
+              title="Your wave, Your shot"
               titleClassName="text-(--color-text-inverse-strong)! text-[62px]! lg:text-[96px] xl:text-[122px]! max-w-[1300px]!"
             />
             {/* Buttons */}
