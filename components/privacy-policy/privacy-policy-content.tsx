@@ -1,7 +1,7 @@
 export default function PrivacyPolicyContent() {
   return (
     <section className="mx-auto max-w-480 px-4 py-12 font-sans text-[#4B5563] sm:px-6 lg:px-24">
-      <div className="prose prose-gray max-w-none text-2xl font-medium">
+      <div className="prose prose-gray max-w-none text-base font-medium md:text-2xl">
         <p>
           SurfShare is committed to protecting your privacy and handling your personal information
           in accordance with applicable Australian privacy laws, including the {""}
@@ -72,7 +72,7 @@ export default function PrivacyPolicyContent() {
 
         {/* How We Use Your Information */}
         <div>
-          <h2 className="mt-8 mb-3 text-2xl font-bold text-[#0D1420]">
+          <h2 className="mt-8 mb-3 font-bold text-[#0D1420]">
             How We Use Your Information
           </h2>
           <p className="mb-6">We use your information to:</p>
@@ -90,7 +90,7 @@ export default function PrivacyPolicyContent() {
 
         {/* Sharing of Information */}
         <div>
-          <h2 className="mt-8 mb-3 text-2xl font-bold text-[#0D1420]">Sharing of Information</h2>
+          <h2 className="mt-8 mb-3 font-bold text-[#0D1420]">Sharing of Information</h2>
           <p className="">
             We do <strong className="text-[#0D1420]">not sell or rent</strong> your personal
             information.
@@ -122,7 +122,7 @@ export default function PrivacyPolicyContent() {
 
         {/* 6. Cookies and Tracking Technologies */}
         <div>
-          <h2 className="mt-8 mb-2 text-2xl font-bold text-[#0D1420]">
+          <h2 className="mt-8 mb-2 font-bold text-[#0D1420]">
             Cookies and Tracking Technologies
           </h2>
           <p className="mb-6">SurfShare uses cookies to:</p>
@@ -144,7 +144,7 @@ export default function PrivacyPolicyContent() {
 
         {/* 7. Data Security */}
         <div>
-          <h2 className="mt-8 mb-3 text-2xl font-bold text-[#0D1420]">Data Security</h2>
+          <h2 className="mt-8 mb-3 font-bold text-[#0D1420]">Data Security</h2>
           <p className="mb-6">
             We take reasonable steps to protect your personal information from misuse, loss,
             unauthorised access, modification, or disclosure. These measures include:
@@ -161,7 +161,7 @@ export default function PrivacyPolicyContent() {
 
         {/* 8. Access and Correction */}
         <div>
-          <h2 className="mt-8 mb-3 text-2xl font-bold text-[#0D1420]">Access and Correction</h2>
+          <h2 className="mt-8 mb-3 font-bold text-[#0D1420]">Access and Correction</h2>
           <p className="mb-6">You may:</p>
           <ul className="mb-6 list-disc space-y-1 pl-10">
             <li>Access and update your personal information through your account settings</li>
@@ -178,7 +178,7 @@ export default function PrivacyPolicyContent() {
 
         {/* 9. Deleting Your Information */}
         <div>
-          <h2 className="mt-8 text-2xl font-bold text-[#0D1420]">Deleting Your Information</h2>
+          <h2 className="mt-8 font-bold text-[#0D1420]">Deleting Your Information</h2>
           <p className="mb-6">
             You may request deletion of your account and personal data by contacting us at{" "}
             <a href="mailto:admin@surfshare.com.au" className="text-[#0C3173] underline">
@@ -195,7 +195,7 @@ export default function PrivacyPolicyContent() {
 
         {/* 10. Third-Party Links */}
         <div>
-          <h2 className="mt-8 text-2xl font-bold text-[#0D1420]">Third-Party Links</h2>
+          <h2 className="mt-8 font-bold text-[#0D1420]">Third-Party Links</h2>
           <p className="mb-6">
             SurfShare may contain links to external websites. We are not responsible for the privacy
             practices or content of those sites.
@@ -204,7 +204,7 @@ export default function PrivacyPolicyContent() {
 
         {/* 11. International Data Transfers */}
         <div>
-          <h2 className="mt-8 text-2xl font-bold text-[#0D1420]">International Data Transfers</h2>
+          <h2 className="mt-8 font-bold text-[#0D1420]">International Data Transfers</h2>
           <p className="mb-6">
             Some of our service providers may store or process data outside Australia. By using
             SurfShare, you consent to the transfer of your information to these providers where
@@ -214,7 +214,7 @@ export default function PrivacyPolicyContent() {
 
         {/* 12. Changes to This Policy */}
         <div>
-          <h2 className="mt-8 text-2xl font-bold text-[#0D1420]">Changes to This Policy</h2>
+          <h2 className="mt-8 font-bold text-[#0D1420]">Changes to This Policy</h2>
           <p className="mb-6">
             We may update this Privacy Policy from time to time. Any changes will be posted on this
             page with an updated effective date.
@@ -223,7 +223,7 @@ export default function PrivacyPolicyContent() {
 
         {/* 13. Contact Us */}
         <div>
-          <h2 className="mt-8 text-2xl font-bold text-[#0D1420]">Contact Us</h2>
+          <h2 className="mt-8 font-bold text-[#0D1420]">Contact Us</h2>
           <p className="mb-3">
             For any questions, requests, or complaints regarding this Privacy Policy, please
             contact:
