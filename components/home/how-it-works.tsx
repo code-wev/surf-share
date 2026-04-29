@@ -8,7 +8,7 @@ export default function HowItWorks() {
       icon: <MapPin className="h-5 w-5 text-(--color-text-inverse-strong)" />,
       title: "Find your spot",
       description:
-        "Explore our interactive map of Australia's best surf breaks. Filter by location, date, or region to find exactly where you scored.",
+        "Explore our interactive map of Australia's best surf breaks. Filter by time, date and location to find the wave you scored.",
     },
     {
       icon: <GalleryHorizontalEnd className="h-5 w-5 text-(--color-text-inverse-strong)" />,
