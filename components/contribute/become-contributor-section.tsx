@@ -17,7 +17,7 @@ const contributorPlans = [
     title: "Silver Status",
     description: "Lorem Lorem LoremLorem LoremLorem LoremLoremLoremLorem Lorem Lorem Lorem",
     tone: "silver",
-    highlighted: true,
+    // highlighted: true,
     features: [
       { label: "Payment Split", value: "20% (Platform) / 80% (You)" },
       { label: "Max Photo Price", value: "Unlimited" },
@@ -59,7 +59,7 @@ export default function BecomeContributorSection() {
               description={plan.description}
               features={plan.features}
               tone={plan.tone}
-              highlighted={"highlighted" in plan ? plan.highlighted : false}
+              // highlighted={"highlighted" in plan ? plan.highlighted : false}
             />
           ))}
         </div>
