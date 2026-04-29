@@ -66,7 +66,7 @@ const HomeBanner = () => {
           <div className="max-w-5xl">
             <PageTitle
               as="h1"
-              title="Find Your Waves, Captured Forever."
+              title="Your wave, Your shot"
               titleClassName="text-(--color-text-inverse-strong)! text-[62px]! lg:text-[96px] xl:text-[122px]! max-w-[1300px]!"
             />
             {/* Buttons */}
@@ -83,7 +83,7 @@ const HomeBanner = () => {
                 href="/services"
                 className="inline-flex min-w-10 items-center justify-center gap-x-2 rounded-lg border border-(--color-line-brand-strong) bg-(--color-fill-inverse-weak) px-5 py-2.5 text-sm text-(--color-line-brand-strong) transition-colors duration-200 hover:bg-white/30"
               >
-                Explore Location
+                Explore Locations
                 <ArrowRight className="h-5 w-5" color="#0C3173" />
               </Link>
             </div>

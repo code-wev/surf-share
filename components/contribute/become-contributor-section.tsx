@@ -6,24 +6,22 @@ const contributorPlans = [
     description: "Lorem Lorem LoremLorem LoremLorem LoremLoremLoremLorem Lorem Lorem Lorem",
     tone: "bronze",
     features: [
-      { label: "Payment Split", value: "30% (Platform) / 70% (You)" },
+      { label: "Payment Split", value: "70% (You) / 30% (Platform)" },
       { label: "Max Photo Price", value: "$20" },
       { label: "Max Uploads", value: "10 per day" },
       { label: "Upload Limit", value: "First 10 upload" },
-      { label: "Best for", value: "Beginners getting started" },
     ],
   },
   {
     title: "Silver Status",
     description: "Lorem Lorem LoremLorem LoremLorem LoremLoremLoremLorem Lorem Lorem Lorem",
     tone: "silver",
-    highlighted: true,
+    // highlighted: true,
     features: [
-      { label: "Payment Split", value: "20% (Platform) / 80% (You)" },
+      { label: "Payment Split", value: "80% (You) / 20% (Platform)" },
       { label: "Max Photo Price", value: "Unlimited" },
       { label: "Max Uploads", value: "No daily limit" },
       { label: "Upload Limit", value: "No limit" },
-      { label: "Best for", value: "Growing photographers" },
     ],
   },
   {
@@ -31,11 +29,10 @@ const contributorPlans = [
     description: "Lorem Lorem LoremLorem LoremLorem LoremLoremLoremLorem Lorem Lorem Lorem",
     tone: "gold",
     features: [
-      { label: "Payment Split", value: "10% (Platform) / 90% (You)" },
+      { label: "Payment Split", value: "90% (You) / 10% (Platform)" },
       { label: "Max Photo Price", value: "Unlimited" },
       { label: "Max Uploads", value: "No restrictions" },
       { label: "Upload Limit", value: "No limit" },
-      { label: "Best for", value: "Professional photographers" },
     ],
   },
 ] as const;
@@ -59,7 +56,7 @@ export default function BecomeContributorSection() {
               description={plan.description}
               features={plan.features}
               tone={plan.tone}
-              highlighted={"highlighted" in plan ? plan.highlighted : false}
+              // highlighted={"highlighted" in plan ? plan.highlighted : false}
             />
           ))}
         </div>

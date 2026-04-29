@@ -85,7 +85,7 @@ export default function ContactContent() {
             name="message"
             value={form.message}
             onChange={handleChange}
-            placeholder="Tell us more about your inquiry..."
+            placeholder="Tell us more about your enquiry..."
             rows={4}
             className="w-full resize-none rounded-md border border-(--color-line-weak) px-3 py-2.5 text-sm text-(--color-text-strong) outline-none placeholder:text-(--color-text-weak)"
           />

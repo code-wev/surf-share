@@ -7,9 +7,7 @@ export default function AboutMissionSection() {
         </h2>
 
         <p className="mx-auto mt-4 max-w-350 text-sm leading-6 text-text-weak sm:mt-6 sm:text-base sm:leading-7 lg:mt-9 lg:text-[28px] lg:leading-tight">
-          SURFSHARE was born from a simple idea: every surfer deserves to find and own photos of
-          their best waves. We created a platform that makes it easy for surf photographers to
-          share their work and for surfers to discover those epic moments they&apos;ll treasure forever.
+          Every surfer should be able to find and own the photos of their best rides. SurfShare makes that effortless giving photographers a place to showcase their work and giving surfers a place to discover and relive the moments that matter.
         </p>
       </div>
     </section>

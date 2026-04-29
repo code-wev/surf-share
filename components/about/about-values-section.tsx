@@ -2,23 +2,23 @@ import { Camera, Heart, Target, Users } from "lucide-react";
 
 const valueCards = [
   {
-    title: "Quality Photography",
-    description: "We showcase only the best surf photography from talented photographers worldwide.",
+    title: "Exceptional Imagery",
+    description: "Only the best surf moments — captured by Australia's most talented photographers.",
     Icon: Camera,
   },
   {
-    title: "Community First",
-    description: "Building connections between surfers and photographers to celebrate surf culture.",
+    title: "Built for the Community",
+    description: "A platform shaped by surfers and creators, celebrating the culture that brings us together.",
     Icon: Users,
   },
   {
-    title: "Fair Compensation",
-    description: "Ensuring photographers receive fair payment for their incredible work.",
+    title: "Creator Powered, Creator Paid",
+    description: "Fair, transparent earnings that respect the craft and sustain the people behind the lens.",
     Icon: Heart,
   },
   {
-    title: "Easy to Use",
-    description: "Simple, intuitive platform designed for both buyers and contributors.",
+    title: "Simple by Design",
+    description: "Clean, intuitive tools that make uploading, browsing, and buying feel effortless.",
     Icon: Target,
   },
 ] as const;

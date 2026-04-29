@@ -8,13 +8,13 @@ export default function HowItWorks() {
       icon: <MapPin className="h-5 w-5 text-(--color-text-inverse-strong)" />,
       title: "Find your spot",
       description:
-        "Explore our interactive map of Australia's best surf breaks. Filter by location, date, or region to find exactly where you scored.",
+        "Explore our interactive map of Australia's best surf breaks. Filter by time, date and location to find the wave you scored.",
     },
     {
       icon: <GalleryHorizontalEnd className="h-5 w-5 text-(--color-text-inverse-strong)" />,
       title: "Pick your shot",
       description:
-        "Browse stunning watermarked previews from talented local photographers. Shaka the ones you love and add your favorites to cart.",
+        "Browse quality watermarked previews from talented local photographers. Favourite your waves and add to cart.",
     },
     {
       icon: <Download className="h-5 w-5 text-(--color-text-inverse-strong)" />,
