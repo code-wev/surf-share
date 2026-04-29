@@ -4,21 +4,19 @@ import Image from "next/image";
 import Link from "next/link";
 
 const platformLinks = [
-  { label: "Locations", href: "/locations" },
+  { label: "Map", href: "/map" },
+  { label: "Gallery", href: "/gallery" },
   { label: "Contribute", href: "/contribute" },
-  { label: "Support", href: "/support" },
 ];
 
 const companyLinks = [
-  { label: "Our Story", href: "/story" },
-  { label: "Ambassadors", href: "/ambassadors" },
+  { label: "Our Story", href: "/about" },
   { label: "Partners", href: "/partners" },
 ];
 
 const legalLinks = [
   { label: "Privacy Policy", href: "/privacy" },
-  { label: "Terms of Service", href: "/terms" },
-  { label: "Cookie Settings", href: "/cookies" },
+  { label: "Terms and Conditions", href: "/terms" },
 ];
 
 const Footer = () => {
