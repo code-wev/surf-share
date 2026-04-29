@@ -131,12 +131,10 @@ const Footer = () => {
         <div className="mt-10 mb-10 h-px w-full bg-(--color-line-weak) md:mt-25" />
 
         {/* BOTTOM */}
-        <div className="flex flex-row justify-between text-center text-[14px]">
+        <div className="flex flex-row justify-center text-center text-[14px]">
           <p className="text-medium text-xl text-(--color-text-strong) lg:text-2xl">
             © 2026 SURFSHARE.
           </p>
-
-          <Image src="/home/footer/hand.png" alt="SurfShare" width={28} height={28} />
         </div>
       </div>
     </footer>
