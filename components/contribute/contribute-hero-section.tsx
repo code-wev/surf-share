@@ -10,9 +10,7 @@ export default function ContributeHeroSection() {
         </h1>
 
         <p className="mx-auto mt-3 max-w-360 text-sm leading-6 text-text-weak sm:mt-4 sm:text-base sm:leading-7 lg:mt-6 lg:text-[28px] lg:leading-tight">
-          Join our community of professional surf photographers.
-          <br className="hidden sm:block" />
-          Upload your shots, earn money, and help surfers find their perfect moments.
+          Upload your shots, earn money and help share the stoke.
         </p>
 
         <Link
