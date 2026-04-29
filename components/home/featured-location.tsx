@@ -110,7 +110,7 @@ export default function FeaturedLocation() {
     <section className="mx-auto mb-24 max-w-480 px-4 sm:px-6 md:px-12.5">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <PageTitle
-          subtitle="Destinations"
+          subtitle="Surf Spots"
           subtitlePosition="top"
           title="Featured Locations"
           titleClassName="mt-2 text-2xl! md:text-[64px]! text-(--color-text-strong)"
