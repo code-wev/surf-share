@@ -323,3 +323,20 @@ canvas {
     border-width: 2.5px;
   }
 }
+
+.surf-map .custom-map-popup .leaflet-popup-content-wrapper {
+  padding: 0;
+  border-radius: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.surf-map .custom-map-popup .leaflet-popup-content {
+  margin: 0;
+  width: auto !important;
+}
+
+.surf-map .custom-map-popup .leaflet-popup-tip-container {
+  display: none;
+}

@@ -2,8 +2,6 @@
 
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import Image from "next/image";
-import { MapPin } from "lucide-react";
 
 import {
 	defaultFromDate,
@@ -183,41 +181,13 @@ export default function MapScreen() {
 					onActiveSpotChange={setActiveSpotId}
 				/>
 
-				{activeSpot ? (
-					<article className="absolute top-3 left-1/2 z-600 w-[calc(100%-1.5rem)] max-w-[320px] -translate-x-1/2 overflow-hidden rounded-sm border border-line-weaker bg-surface-muted-100 shadow-[0_14px_30px_rgba(15,23,42,0.14)] sm:top-6 sm:w-[320px] md:left-4 md:w-75 md:max-w-none md:translate-x-0 lg:left-6 lg:top-7 lg:w-[320px] xl:left-[38%]">
-						<div className="relative h-36 w-full sm:h-44">
-							<Image src={activeSpot.image} alt={activeSpot.name} fill className="object-cover" />
-						</div>
-
-						<div className="space-y-3 p-4">
-							<div>
-								<h3 className="text-2xl leading-tight font-semibold text-text-strong sm:text-[30px]">
-									{activeSpot.name}
-								</h3>
-								<p className="mt-1 inline-flex items-center gap-1.5 text-xs text-text-weak">
-									<MapPin size={12} />
-									{activeSpot.state}, {activeSpot.country}
-								</p>
-							</div>
-
-							<div className="flex items-center justify-between border-t border-line-weaker pt-3">
-								<p className="text-xs text-text-weak">{activeSpot.photoCount}+ Photos Available</p>
-								<button
-									type="button"
-									className="inline-flex items-center rounded-sm bg-brand-default px-3 py-1.5 text-xs font-semibold text-text-inverse-strong transition-colors hover:bg-brand-hover"
-								>
-									View Gallery
-								</button>
-							</div>
-						</div>
-					</article>
-				) : (
+				{!activeSpot ? (
 					<div className="pointer-events-none absolute inset-0 z-600 flex items-center justify-center">
 						<p className="rounded-md bg-surface-muted-100/95 px-4 py-2 text-sm font-medium text-text-weak shadow-sm">
 							No map locations match the selected filters.
 						</p>
 					</div>
-				)}
+				) : null}
 			</div>
 
 			<p className="mt-3 text-xs leading-relaxed text-text-weaker sm:text-sm">

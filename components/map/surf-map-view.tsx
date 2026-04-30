@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import L from "leaflet";
-import { MapContainer, Marker, Pane, TileLayer, useMap, ZoomControl } from "react-leaflet";
+import { MapContainer, Marker, Pane, TileLayer, useMap, ZoomControl, Popup } from "react-leaflet";
+import Image from "next/image";
+import { MapPin } from "lucide-react";
 
 import type { SurfSpot } from "@/components/map/map-demo-data";
 
@@ -47,20 +49,11 @@ function FitToSpots({ spots }: { spots: SurfSpot[] }) {
   return null;
 }
 
-function getActiveSpotOffset(width: number) {
-  if (width < 768) {
-    return L.point(0, 180);
-  }
-
-  if (width < 1280) {
-    return L.point(165, 40);
-  }
-
-  if (width < 1500) {
-    return L.point(240, 30);
-  }
-
-  return L.point(0, 0);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function getActiveSpotOffset(_width: number) {
+  // Return a fixed vertical offset so that the map centers slightly below the pin, 
+  // keeping the marker and its popup attached perfectly within the visible screen area.
+  return L.point(0, 160);
 }
 
 function KeepActiveSpotVisible({ activeSpot }: { activeSpot: SurfSpot | null }) {
@@ -100,6 +93,64 @@ function KeepActiveSpotVisible({ activeSpot }: { activeSpot: SurfSpot | null }) 
   }, [map, activeSpot]);
 
   return null;
+}
+
+function ActiveMarker({ spot, icon, onClick }: { spot: SurfSpot; icon: L.DivIcon; onClick: () => void }) {
+  const markerRef = useRef<L.Marker>(null);
+
+  useEffect(() => {
+    if (markerRef.current) {
+      markerRef.current.openPopup();
+    }
+  }, [spot.id]);
+
+  return (
+    <Marker
+      ref={markerRef}
+      key={`active-${spot.id}`}
+      position={spot.coordinates}
+      icon={icon}
+      zIndexOffset={600}
+      eventHandlers={{
+        click: onClick,
+      }}
+    >
+      <Popup
+        autoPan={false}
+        closeButton={false}
+        className="custom-map-popup"
+        offset={[0, -12]}
+      >
+        <article className="w-70 overflow-hidden rounded-sm border border-line-weaker bg-surface-muted-100 shadow-[0_14px_30px_rgba(15,23,42,0.14)] sm:w-[320px]">
+          <div className="relative h-36 w-full sm:h-44">
+            <Image src={spot.image} alt={spot.name} fill className="object-cover" />
+          </div>
+
+          <div className="space-y-3 p-4">
+            <div>
+              <h3 className="text-2xl leading-tight font-semibold text-text-strong sm:text-[30px]">
+                {spot.name}
+              </h3>
+              <p className="mt-1 inline-flex items-center gap-1.5 text-xs text-text-weak">
+                <MapPin size={12} />
+                {spot.state}, {spot.country}
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between border-t border-line-weaker pt-3">
+              <p className="text-xs text-text-weak">{spot.photoCount}+ Photos Available</p>
+              <button
+                type="button"
+                className="inline-flex items-center rounded-sm bg-brand-default px-3 py-1.5 text-xs font-semibold text-text-inverse-strong transition-colors hover:bg-brand-hover"
+              >
+                View Gallery
+              </button>
+            </div>
+          </div>
+        </article>
+      </Popup>
+    </Marker>
+  );
 }
 
 export default function SurfMapView({ spots, activeSpotId, onActiveSpotChange }: SurfMapViewProps) {
@@ -149,14 +200,10 @@ export default function SurfMapView({ spots, activeSpotId, onActiveSpotChange }:
 
         {activeSpot ? (
           <Pane name="active-pin" style={{ zIndex: 710 }}>
-            <Marker
-              key={`active-${activeSpot.id}`}
-              position={activeSpot.coordinates}
-              icon={activePinIcon}
-              zIndexOffset={600}
-              eventHandlers={{
-                click: () => onActiveSpotChange(activeSpot.id),
-              }}
+            <ActiveMarker 
+              spot={activeSpot} 
+              icon={activePinIcon} 
+              onClick={() => onActiveSpotChange(activeSpot.id)} 
             />
           </Pane>
         ) : null}
