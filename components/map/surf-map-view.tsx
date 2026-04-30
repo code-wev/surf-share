@@ -99,8 +99,14 @@ function ActiveMarker({ spot, icon, onClick }: { spot: SurfSpot; icon: L.DivIcon
   const markerRef = useRef<L.Marker>(null);
 
   useEffect(() => {
-    if (markerRef.current) {
-      markerRef.current.openPopup();
+    const marker = markerRef.current;
+    if (marker) {
+      // Small timeout ensures Leaflet has finished attaching the popup
+      // to the marker layer before we try to open it programmatically.
+      const timer = setTimeout(() => {
+        marker.openPopup();
+      }, 10);
+      return () => clearTimeout(timer);
     }
   }, [spot.id]);
 
