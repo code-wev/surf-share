@@ -73,7 +73,13 @@ function KeepActiveSpotVisible({ activeSpot }: { activeSpot: SurfSpot | null }) 
       const { x } = map.getSize();
       const offset = getActiveSpotOffset(x);
 
-      if (offset.x === 0 && offset.y === 0) return;
+      if (offset.x === 0 && offset.y === 0) {
+        map.panTo(activeSpot.coordinates, {
+          animate: true,
+          duration: 0.35,
+        });
+        return;
+      }
 
       const projectedSpotPoint = map.project(activeSpot.coordinates, map.getZoom());
       const adjustedCenterPoint = projectedSpotPoint.subtract(offset);
@@ -115,7 +121,7 @@ export default function SurfMapView({ spots, activeSpotId, onActiveSpotChange }:
         zoom={defaultZoom}
         className="h-full w-full"
         dragging
-        scrollWheelZoom={false}
+        scrollWheelZoom={true}
         zoomControl={false}
         attributionControl={false}
       >
@@ -144,6 +150,7 @@ export default function SurfMapView({ spots, activeSpotId, onActiveSpotChange }:
         {activeSpot ? (
           <Pane name="active-pin" style={{ zIndex: 710 }}>
             <Marker
+              key={`active-${activeSpot.id}`}
               position={activeSpot.coordinates}
               icon={activePinIcon}
               zIndexOffset={600}
