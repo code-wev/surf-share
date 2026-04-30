@@ -2,15 +2,17 @@ export default function PrivacyPolicyContent() {
   return (
     <section className="mx-auto max-w-480 px-4 py-10 font-sans text-[#4B5563] sm:px-6 lg:px-24 lg:py-25">
       <div className="prose prose-gray max-w-none text-base font-medium md:text-xl lg:text-2xl">
-        <p>
-          SurfShare is committed to protecting your privacy and handling your personal information
-          in accordance with applicable Australian privacy laws, including the {""}
-          <em>Privacy Act 1988 (Cth)</em>.
-        </p>
-        <p className="mb-6">
-          This Privacy Policy explains how we collect, use, store and disclose your personal
-          information when you use the SurfShare website and services.
-        </p>
+        <div>
+          <p>
+            SurfShare is committed to protecting your privacy and handling your personal information
+            in accordance with applicable Australian privacy laws, including the {""}
+            <em>Privacy Act 1988 (Cth)</em>.
+          </p>
+          <p className="mb-6">
+            This Privacy Policy explains how we collect, use, store and disclose your personal
+            information when you use the SurfShare website and services.
+          </p>
+        </div>
 
         {/* What Information We Collect */}
         <div>
