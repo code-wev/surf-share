@@ -11,7 +11,7 @@ export default function PrivacyPolicyBanner() {
           <span className="text-brand-default underline">admin@surfshare.com.au</span>
         </p>
 
-        <p className="mt-6 inline-flex items-center gap-2 rounded-sm px-5 py-2.5 text-sm font-medium text-[#4B5563] transition-colors sm:mt-10 lg:mt-12">
+        <p className="mt-3 inline-flex items-center gap-2 rounded-sm px-5 py-2.5 text-sm font-medium text-[#4B5563] transition-colors">
           Last updated: [26 April 2026]
         </p>
       </div>
