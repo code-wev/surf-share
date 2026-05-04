@@ -3,12 +3,12 @@
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
-import { getRoleHomePath, isDashboardRole, useDemoAuth } from "@/lib/demo-auth";
+import { getRoleHomePath, isDashboardRole, useAuth } from "@/lib/auth";
 
 export default function AuthRouteGuard() {
   const pathname = usePathname();
   const router = useRouter();
-  const { session, isHydrated } = useDemoAuth();
+  const { session, isHydrated } = useAuth();
 
   useEffect(() => {
     if (!isHydrated) {
@@ -49,7 +49,7 @@ export default function AuthRouteGuard() {
       return;
     }
 
-    if (isAdminOnlyDashboardRoute && session.role !== "admin") {
+    if (isAdminOnlyDashboardRoute && session.role !== "ADMIN") {
       router.replace("/dashboard");
       return;
     }

@@ -6,7 +6,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 
-import { DemoAuthProvider } from "@/lib/demo-auth";
+import { AuthProvider } from "@/lib/auth";
 import { makeQueryClient } from "@/lib/query/query-client";
 import AuthRouteGuard from "@/components/shared/auth-route-guard";
 import ContentProtectionGuard from "@/components/shared/content-protection-guard";
@@ -20,14 +20,14 @@ export function Providers({ children }: ProvidersProps) {
 
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-      <DemoAuthProvider>
+      <AuthProvider>
         <QueryClientProvider client={queryClient}>
           <ContentProtectionGuard />
           <AuthRouteGuard />
           {children}
           <Toaster richColors position="top-right" closeButton />
         </QueryClientProvider>
-      </DemoAuthProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
