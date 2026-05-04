@@ -6,7 +6,7 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 
-import { getRoleHomePath, useDemoAuth } from "@/lib/demo-auth";
+import { getRoleHomePath, useAuth } from "@/lib/auth";
 
 const navItems = [
   { label: "Map", href: "/map" },
@@ -19,7 +19,7 @@ const navItems = [
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-  const { session, isHydrated } = useDemoAuth();
+  const { session, isHydrated } = useAuth();
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
   const isDashboardRoute = pathname === "/dashboard" || pathname.startsWith("/dashboard/");

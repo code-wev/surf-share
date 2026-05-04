@@ -7,7 +7,7 @@ import { useState } from "react";
 import ProfileInfoField from "@/components/profile/profile-info-field";
 import ProfilePasswordField from "@/components/profile/profile-password-field";
 import { Input } from "@/components/ui/input";
-import { getDemoUserProfile, useDemoAuth } from "@/lib/demo-auth";
+import { getDemoUserProfile, useAuth } from "@/lib/auth";
 
 type SocialAccountType = "facebook" | "instagram" | "twitter" | "x";
 
@@ -25,13 +25,13 @@ const SOCIAL_ACCOUNT_TYPES: { value: SocialAccountType; label: string }[] = [
 ];
 
 export default function ProfileSettingsContent() {
-  const { session } = useDemoAuth();
+  const { session } = useAuth();
   const profile = getDemoUserProfile(session);
   const [socialType, setSocialType] = useState<SocialAccountType | "">("");
   const [socialUrl, setSocialUrl] = useState("");
   const [socialLinks, setSocialLinks] = useState<SocialAccountLink[]>([]);
 
-  const isContributor = session?.role === "contributor";
+  const isContributor = session?.role === "PHOTOGRAPHER";
 
   const addSocialLink = () => {
     const trimmedUrl = socialUrl.trim();

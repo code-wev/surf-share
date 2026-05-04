@@ -15,7 +15,7 @@ import {
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import { useDemoAuth } from "@/lib/demo-auth";
+import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 type ProfileSidebarProps = {
@@ -26,7 +26,7 @@ type ProfileSidebarProps = {
 export default function ProfileSidebar({ className, onNavigate }: ProfileSidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { session, isHydrated, logout } = useDemoAuth();
+  const { session, isHydrated, logout } = useAuth();
 
   const handleLogout = () => {
     logout();
@@ -52,7 +52,7 @@ export default function ProfileSidebar({ className, onNavigate }: ProfileSidebar
   }
 
   // Define navigation items based on role
-  const isContributor = session?.role === "contributor";
+  const isContributor = session?.role === "PHOTOGRAPHER";
 
   const navItems = isContributor
     ? [
@@ -72,7 +72,7 @@ export default function ProfileSidebar({ className, onNavigate }: ProfileSidebar
   return (
     <aside
       className={cn(
-        "border-line-weaker bg-surface-muted-100 flex h-full min-h-0 w-full flex-col rounded-[4px] border",
+        "border-line-weaker bg-surface-muted-100 flex h-full min-h-0 w-full flex-col rounded-sm border",
         className,
       )}
     >

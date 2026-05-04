@@ -16,11 +16,11 @@ import DashboardOverviewStatsGrid from "@/components/dashboard/overview/dashboar
 import DashboardOverviewTopContributors from "@/components/dashboard/overview/dashboard-overview-top-contributors";
 import DashboardOverviewTopLocations from "@/components/dashboard/overview/dashboard-overview-top-locations";
 import DashboardOverviewWeeklyUploadActivity from "@/components/dashboard/overview/dashboard-overview-weekly-upload-activity";
-import { useDemoAuth } from "@/lib/demo-auth";
+import { useAuth } from "@/lib/auth";
 
 export default function DashboardOverviewContent() {
-  const { session } = useDemoAuth();
-  const dashboardRole = session?.role === "admin" ? "admin" : "moderator";
+  const { session } = useAuth();
+  const dashboardRole = session?.role === "ADMIN" ? "admin" : "moderator";
   const isAdmin = dashboardRole === "admin";
   const overviewStats = getOverviewStatsByRole(dashboardRole);
 

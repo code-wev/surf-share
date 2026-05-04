@@ -15,7 +15,7 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import { useDemoAuth } from "@/lib/demo-auth";
+import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 type DashboardNavItem = {
@@ -61,8 +61,8 @@ export default function DashboardSidebar({
 }: DashboardSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { logout, session } = useDemoAuth();
-  const isAdmin = session?.role === "admin";
+  const { logout, session } = useAuth();
+  const isAdmin = session?.role === "ADMIN";
   const dashboardNavItems = isAdmin ? adminDashboardNavItems : moderatorDashboardNavItems;
 
   const roleLabel = session?.role

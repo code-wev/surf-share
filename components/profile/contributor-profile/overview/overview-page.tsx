@@ -11,7 +11,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-import { useDemoAuth } from "@/lib/demo-auth";
+import { useAuth } from "@/lib/auth";
 
 const overviewStats = [
   {
@@ -53,7 +53,7 @@ const chartData = chartLabels.map((label, index) => ({
 }));
 
 export default function ContributorOverviewPage() {
-  const { session } = useDemoAuth();
+  const { session } = useAuth();
 
   return (
     <section className="h-full">

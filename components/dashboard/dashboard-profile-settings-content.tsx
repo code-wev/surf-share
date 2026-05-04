@@ -7,11 +7,11 @@ import DashboardProfileHeader from "@/components/dashboard/profile/dashboard-pro
 import DashboardProfilePasswordSection from "@/components/dashboard/profile/dashboard-profile-password-section";
 import Image from "next/image";
 
-import { getDemoUserProfile, useDemoAuth } from "@/lib/demo-auth";
+import { getDemoUserProfile, useAuth } from "@/lib/auth";
 import DashboardProfileInfoField from "./profile/dashboard-profile-info-field";
 
 export default function DashboardProfileSettingsContent() {
-  const { session } = useDemoAuth();
+  const { session } = useAuth();
   const profile = getDemoUserProfile(session);
 
   if (!profile) {
