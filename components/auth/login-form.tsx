@@ -5,28 +5,44 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import { useMutation } from "@tanstack/react-query";
 
 import { Input } from "@/components/ui/input";
-import { DEMO_CREDENTIALS, getRoleHomePath, useDemoAuth } from "@/lib/demo-auth";
+import { getRoleHomePath, useAuth } from "@/lib/auth";
+import { apiClient } from "@/lib/api/client";
 
 export function LoginForm() {
   const router = useRouter();
-  const { login } = useDemoAuth();
+  const { setSessionData } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  const loginMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiClient.post("/users/login", { email, password });
+      return response.data;
+    },
+    onSuccess: (data) => {
+      // The backend returns `{ success: true, message: "...", data: { accessToken, user } }`
+      const { accessToken, user } = data.data;
+      setSessionData(user, accessToken);
+      toast.success(`Logged in successfully.`);
+      router.push(getRoleHomePath(user.role));
+    },
+    onError: (error: any) => {
+      const errorMessage = error.response?.data?.message || "Invalid email or password.";
+      toast.error(errorMessage);
+    }
+  });
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    const session = login(email, password);
-    if (!session) {
-      toast.error("Invalid demo email or password.");
+    if (!email || !password) {
+      toast.error("Please fill in all fields.");
       return;
     }
-
-    toast.success(`Logged in as ${session.role}.`);
-    router.push(getRoleHomePath(session.role));
+    loginMutation.mutate();
   };
 
   return (
@@ -45,6 +61,7 @@ export function LoginForm() {
           placeholder="Enter your email address"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
+          disabled={loginMutation.isPending}
         />
       </div>
 
@@ -60,12 +77,14 @@ export function LoginForm() {
             className="pr-10"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
+            disabled={loginMutation.isPending}
           />
           <button
             type="button"
             onClick={() => setShowPassword((previousValue) => !previousValue)}
             className="text-icon-weaker absolute top-1/2 right-3 -translate-y-1/2"
             aria-label="Toggle password visibility"
+            disabled={loginMutation.isPending}
           >
             <EyeOff size={16} />
           </button>
@@ -87,22 +106,12 @@ export function LoginForm() {
         </p>
         <button
           type="submit"
-          className="bg-brand-default text-text-inverse-strong hover:bg-brand-hover order-1 inline-flex w-full items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors md:order-2 md:w-auto"
+          disabled={loginMutation.isPending}
+          className="bg-brand-default text-text-inverse-strong hover:bg-brand-hover disabled:opacity-50 order-1 inline-flex w-full items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors md:order-2 md:w-auto"
         >
-          Login
+          {loginMutation.isPending ? "Logging in..." : "Login"}
           <ArrowRight size={18} />
         </button>
-      </div>
-
-      <div className="border-line-weaker bg-surface-muted-100 text-text-weak rounded-md border p-3 text-xs">
-        <p className="text-text-strong font-semibold">Demo credentials</p>
-        <ul className="mt-2 space-y-1">
-          {DEMO_CREDENTIALS.map((credential) => (
-            <li key={credential.email}>
-              {credential.role}: {credential.email} / {credential.password}
-            </li>
-          ))}
-        </ul>
       </div>
     </form>
   );
