@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 
 import { Input } from "@/components/ui/input";
 import { getRoleHomePath, useAuth } from "@/lib/auth";
@@ -30,8 +31,11 @@ export function LoginForm() {
       toast.success(`Logged in successfully.`);
       router.push(getRoleHomePath(user.role));
     },
-    onError: (error: any) => {
-      const errorMessage = error.response?.data?.message || "Invalid email or password.";
+    onError: (error: unknown) => {
+      const errorMessage =
+        isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : "Invalid email or password.";
       toast.error(errorMessage);
     }
   });
