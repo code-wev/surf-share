@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { AlertCircle, ArrowLeft, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
@@ -12,7 +11,6 @@ import { Input } from "@/components/ui/input";
 import { apiClient } from "@/lib/api/client";
 
 export function SignUpForm() {
-  const router = useRouter();
   const [accountType, setAccountType] = useState<"surfer" | "photographer">("surfer");
   const [step, setStep] = useState<1 | 2>(1);
 
@@ -38,17 +36,15 @@ export function SignUpForm() {
       if (isPhotographer) {
         payload.paypalEmail = paypalEmail;
       }
-      
-      const endpoint = isPhotographer 
-        ? "/users/register/photographer" 
-        : "/users/register/surfer";
+
+      const endpoint = isPhotographer ? "/users/register/photographer" : "/users/register/surfer";
 
       const response = await apiClient.post(endpoint, payload);
       return response.data;
     },
     onSuccess: () => {
       toast.success("Account created successfully! Please log in.");
-      router.push("/login");
+      window.location.assign("/login");
     },
     onError: (error: unknown) => {
       const errorMessage =
@@ -56,12 +52,12 @@ export function SignUpForm() {
           ? error.response.data.message
           : "An error occurred during registration.";
       toast.error(errorMessage);
-    }
+    },
   });
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    
+
     if (step === 1 && isPhotographer) {
       if (!name || !email || !password || !confirmPassword) {
         toast.error("Please fill in all fields.");
@@ -112,14 +108,14 @@ export function SignUpForm() {
 
   return (
     <form
-      className="mt-8 space-y-5 sm:mt-10 md:mt-12 [font-family:var(--font-sf-pro)]"
+      className="mt-8 space-y-5 [font-family:var(--font-sf-pro)] sm:mt-10 md:mt-12"
       noValidate
       onSubmit={onSubmit}
     >
       <fieldset className="space-y-2">
-        <legend className="text-sm font-medium text-text-strong">Account Type</legend>
+        <legend className="text-text-strong text-sm font-medium">Account Type</legend>
         <div className="flex flex-wrap items-center gap-3 sm:gap-5">
-          <label className="inline-flex items-center gap-2 text-sm text-text-strong">
+          <label className="text-text-strong inline-flex items-center gap-2 text-sm">
             <input
               type="radio"
               name="accountType"
@@ -127,11 +123,11 @@ export function SignUpForm() {
               checked={accountType === "surfer"}
               onChange={() => onChangeAccountType("surfer")}
               disabled={registerMutation.isPending}
-              className="size-3.5 border-line-weak text-brand-default focus:ring-brand-default"
+              className="border-line-weak text-brand-default focus:ring-brand-default size-3.5"
             />
             Surfer
           </label>
-          <label className="inline-flex items-center gap-2 text-sm text-text-strong">
+          <label className="text-text-strong inline-flex items-center gap-2 text-sm">
             <input
               type="radio"
               name="accountType"
@@ -139,7 +135,7 @@ export function SignUpForm() {
               checked={accountType === "photographer"}
               onChange={() => onChangeAccountType("photographer")}
               disabled={registerMutation.isPending}
-              className="size-3.5 border-line-weak text-brand-default focus:ring-brand-default"
+              className="border-line-weak text-brand-default focus:ring-brand-default size-3.5"
             />
             Photographer
           </label>
@@ -149,27 +145,27 @@ export function SignUpForm() {
       {step === 2 && isPhotographer ? (
         <div className="space-y-5 p-4 sm:p-5">
           <div className="space-y-3">
-            <div className="flex items-center justify-between text-[10px] font-semibold tracking-[0.14em] text-text-weaker uppercase">
+            <div className="text-text-weaker flex items-center justify-between text-[10px] font-semibold tracking-[0.14em] uppercase">
               <span>Step 2 of 2</span>
               <span className="tracking-normal normal-case">Payment Setup</span>
             </div>
-            <div className="h-0.5 w-full bg-line-weaker">
-              <div className="h-full w-full bg-brand-default" />
+            <div className="bg-line-weaker h-0.5 w-full">
+              <div className="bg-brand-default h-full w-full" />
             </div>
           </div>
 
-          <p className="text-xs leading-5 text-text-weak sm:text-sm">
-            Enter your PayPal email to receive payments. Payouts are processed
-            automatically when your photos sell.
+          <p className="text-text-weak text-xs leading-5 sm:text-sm">
+            Enter your PayPal email to receive payments. Payouts are processed automatically when
+            your photos sell.
           </p>
 
           <div className="space-y-2">
-            <label htmlFor="paypal-email" className="text-base font-medium text-text-strong">
+            <label htmlFor="paypal-email" className="text-text-strong text-base font-medium">
               PayPal Email
             </label>
-            <Input 
-              id="paypal-email" 
-              type="email" 
+            <Input
+              id="paypal-email"
+              type="email"
               placeholder="Enter your PayPal Email"
               value={paypalEmail}
               onChange={(e) => setPaypalEmail(e.target.value)}
@@ -177,30 +173,29 @@ export function SignUpForm() {
             />
           </div>
 
-          <p className="inline-flex items-start gap-1.5 text-xs text-alert-strong">
+          <p className="text-alert-strong inline-flex items-start gap-1.5 text-xs">
             <AlertCircle size={14} className="mt-0.5 shrink-0" />
             <span>
-              Note: Ensure this email matches your active PayPal account. Platform
-              commission is deducted automatically before payout.
+              Note: Ensure this email matches your active PayPal account. Platform commission is
+              deducted automatically before payout.
             </span>
           </p>
 
           <div className="space-y-2">
-            <label className="inline-flex items-start gap-2 text-xs text-text-weak">
+            <label className="text-text-weak inline-flex items-start gap-2 text-xs">
               <input
                 type="checkbox"
                 defaultChecked
-                className="mt-0.5 size-3.5 rounded border-line-weak text-brand-default focus:ring-brand-default"
+                className="border-line-weak text-brand-default focus:ring-brand-default mt-0.5 size-3.5 rounded"
               />
-              I understand that my first 10 uploads will require approval before going
-              live.
+              I understand that my first 10 uploads will require approval before going live.
             </label>
 
-            <label className="inline-flex items-start gap-2 text-xs text-text-weak">
+            <label className="text-text-weak inline-flex items-start gap-2 text-xs">
               <input
                 type="checkbox"
                 defaultChecked
-                className="mt-0.5 size-3.5 rounded border-line-weak text-brand-default focus:ring-brand-default"
+                className="border-line-weak text-brand-default focus:ring-brand-default mt-0.5 size-3.5 rounded"
               />
               I agree to the{" "}
               <Link href="#" className="text-brand-default underline-offset-2 hover:underline">
@@ -219,7 +214,7 @@ export function SignUpForm() {
               type="button"
               onClick={() => setStep(1)}
               disabled={registerMutation.isPending}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-line-weaker px-4 py-2 text-sm font-medium text-text-weak transition-colors hover:bg-fill-weak disabled:opacity-50 sm:w-auto"
+              className="border-line-weaker text-text-weak hover:bg-fill-weak inline-flex w-full items-center justify-center gap-2 rounded-md border px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 sm:w-auto"
             >
               <ArrowLeft size={16} />
               Back
@@ -228,7 +223,7 @@ export function SignUpForm() {
             <button
               type="submit"
               disabled={registerMutation.isPending}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-brand-default px-4 py-2 text-sm font-medium text-text-inverse-strong transition-colors hover:bg-brand-hover disabled:opacity-50 sm:w-auto"
+              className="bg-brand-default text-text-inverse-strong hover:bg-brand-hover inline-flex w-full items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 sm:w-auto"
             >
               {registerMutation.isPending ? "Signing up..." : "Sign up"}
               <ArrowRight size={18} />
@@ -240,13 +235,13 @@ export function SignUpForm() {
       {step === 1 ? (
         <>
           <div className="space-y-2">
-            <label htmlFor="full-name" className="text-base font-medium text-text-strong">
+            <label htmlFor="full-name" className="text-text-strong text-base font-medium">
               Full name
             </label>
-            <Input 
-              id="full-name" 
-              type="text" 
-              placeholder="Enter your full name" 
+            <Input
+              id="full-name"
+              type="text"
+              placeholder="Enter your full name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={registerMutation.isPending}
@@ -254,13 +249,13 @@ export function SignUpForm() {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="signup-email" className="text-base font-medium text-text-strong">
+            <label htmlFor="signup-email" className="text-text-strong text-base font-medium">
               Email
             </label>
-            <Input 
-              id="signup-email" 
-              type="email" 
-              placeholder="Enter your email address" 
+            <Input
+              id="signup-email"
+              type="email"
+              placeholder="Enter your email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={registerMutation.isPending}
@@ -268,7 +263,7 @@ export function SignUpForm() {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="signup-password" className="text-base font-medium text-text-strong">
+            <label htmlFor="signup-password" className="text-text-strong text-base font-medium">
               Password
             </label>
             <div className="relative">
@@ -284,18 +279,18 @@ export function SignUpForm() {
               <button
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-icon-weaker"
+                className="text-icon-weaker absolute top-1/2 right-3 -translate-y-1/2"
                 aria-label="Toggle password visibility"
                 disabled={registerMutation.isPending}
               >
                 {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
               </button>
             </div>
-            <p className="text-xs text-text-weaker">Atleast 8 characters</p>
+            <p className="text-text-weaker text-xs">Atleast 8 characters</p>
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="confirm-password" className="text-base font-medium text-text-strong">
+            <label htmlFor="confirm-password" className="text-text-strong text-base font-medium">
               Confirm password
             </label>
             <div className="relative">
@@ -311,7 +306,7 @@ export function SignUpForm() {
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword((prev) => !prev)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-icon-weaker"
+                className="text-icon-weaker absolute top-1/2 right-3 -translate-y-1/2"
                 aria-label="Toggle confirm password visibility"
                 disabled={registerMutation.isPending}
               >
@@ -320,11 +315,11 @@ export function SignUpForm() {
             </div>
           </div>
 
-          <label className="inline-flex items-center gap-2 text-xs text-text-weak">
+          <label className="text-text-weak inline-flex items-center gap-2 text-xs">
             <input
               type="checkbox"
               defaultChecked
-              className="size-3.5 rounded border-line-weak text-brand-default focus:ring-brand-default"
+              className="border-line-weak text-brand-default focus:ring-brand-default size-3.5 rounded"
             />
             Allow promotions and updates to be sent via email.
           </label>
@@ -333,16 +328,16 @@ export function SignUpForm() {
 
       {step === 1 ? (
         <div className="flex flex-col gap-4 pt-8 sm:pt-10 md:flex-row md:items-center md:justify-between">
-          <p className="order-2 text-sm text-text-weak md:order-1">
+          <p className="text-text-weak order-2 text-sm md:order-1">
             Already have an account?{" "}
-            <Link href="/login" className="font-medium text-brand-default hover:underline">
+            <Link href="/login" className="text-brand-default font-medium hover:underline">
               Log in
             </Link>
           </p>
           <button
             type="submit"
             disabled={registerMutation.isPending}
-            className="order-1 inline-flex w-full items-center justify-center gap-2 rounded-md bg-brand-default px-4 py-2 text-sm font-medium text-text-inverse-strong transition-colors hover:bg-brand-hover disabled:opacity-50 md:order-2 md:w-auto"
+            className="bg-brand-default text-text-inverse-strong hover:bg-brand-hover order-1 inline-flex w-full items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 md:order-2 md:w-auto"
           >
             {registerMutation.isPending && !isPhotographer ? "Signing up..." : ctaLabel}
             <ArrowRight size={18} />
