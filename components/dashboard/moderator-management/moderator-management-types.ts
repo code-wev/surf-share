@@ -2,7 +2,7 @@ export type ModeratorStatus = "Active" | "Suspended";
 export type AssignedPermission = "Approve Photo" | "Add Location" | "All Access";
 
 export type ModeratorRow = {
-  id: number;
+  id: string;
   photo: string;
   name: string;
   email: string;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import UserDetailsModal from "@/components/dashboard/user-management/user-details-modal";
@@ -97,21 +97,23 @@ export default function DashboardUserManagementContent() {
     return "Surfer";
   };
 
-  const mappedRows: UserRow[] = data?.data?.map((user: ApiUser) => ({
-    id: user.id,
-    photo: "/home/latest/latest15.jpg", // Default photo as requested
-    name: user.name,
-    email: user.email,
-    phone: user.phoneNumber || "-",
-    role: mapRoleToFrontend(user.role),
-    contributedPhotos: "-", // Specific requested defaults
-    plan: "-",
-    platformCommission: "-",
-    purchasePhoto: "-",
-    status: "Active", // Default
-    country: user.countryName,
-    address: user.address,
-  })) || [];
+  const mappedRows: UserRow[] = useMemo(() => {
+    return data?.data?.map((user: ApiUser) => ({
+      id: user.id,
+      photo: "/home/latest/latest15.jpg", // Default photo as requested
+      name: user.name,
+      email: user.email,
+      phone: user.phoneNumber || "-",
+      role: mapRoleToFrontend(user.role),
+      contributedPhotos: "-", // Specific requested defaults
+      plan: "-",
+      platformCommission: "-",
+      purchasePhoto: "-",
+      status: "Active", // Default
+      country: user.countryName,
+      address: user.address,
+    })) || [];
+  }, [data?.data]);
 
   const totalPages = data?.meta?.totalPages || 1;
 

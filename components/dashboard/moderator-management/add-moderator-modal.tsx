@@ -1,7 +1,8 @@
 "use client";
 
-import { ArrowRight, Check, ChevronDown } from "lucide-react";
+import { ArrowRight, Check, ChevronDown, Eye, EyeOff } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { toast } from "sonner";
 
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -10,12 +11,14 @@ import type { AssignedPermission } from "@/components/dashboard/moderator-manage
 export type AddModeratorModalPayload = {
   name: string;
   email: string;
+  password?: string;
   assignedPermissions: AssignedPermission[];
 };
 
 type AddModeratorModalProps = {
   onClose: () => void;
   onSubmit: (payload: AddModeratorModalPayload) => void;
+  isPending?: boolean;
 };
 
 const permissionOptions: ReadonlyArray<AssignedPermission> = [
@@ -24,12 +27,14 @@ const permissionOptions: ReadonlyArray<AssignedPermission> = [
   "All Access",
 ];
 
-export default function AddModeratorModal({ onClose, onSubmit }: AddModeratorModalProps) {
-  const [name, setName] = useState("MAkibul Hossain Tamim");
-  const [email, setEmail] = useState("email@example.com");
-  const [assignedPermissions, setAssignedPermissions] = useState<AssignedPermission[]>([
-    "Approve Photo",
-  ]);
+export default function AddModeratorModal({ onClose, onSubmit, isPending }: AddModeratorModalProps) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [assignedPermissions, setAssignedPermissions] = useState<AssignedPermission[]>([]);
   const [isPermissionMenuOpen, setIsPermissionMenuOpen] = useState(false);
   const permissionMenuRef = useRef<HTMLDivElement | null>(null);
 
@@ -98,13 +103,30 @@ export default function AddModeratorModal({ onClose, onSubmit }: AddModeratorMod
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!name.trim() || !email.trim()) {
+    if (!name.trim() || !email.trim() || !password) {
+      toast.error("Please fill in all fields.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match.");
+      return;
+    }
+    
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters long.");
+      return;
+    }
+
+    if (assignedPermissions.length === 0) {
+      toast.error("Please select at least one permission.");
       return;
     }
 
     onSubmit({
       name: name.trim(),
       email: email.trim(),
+      password,
       assignedPermissions,
     });
   };
@@ -121,13 +143,14 @@ export default function AddModeratorModal({ onClose, onSubmit }: AddModeratorMod
         <form onSubmit={handleSubmit} className="px-4 py-3.5 sm:px-5 sm:py-4">
           <h2 className="text-[13px] font-medium text-[#1F2937] sm:text-[14px]">Add Moderator</h2>
 
-          <div className="mt-7 space-y-4">
+          <div className="mt-5 space-y-4">
             <label className="block">
               <span className="mb-2 block text-[13px] font-medium text-[#1F2937]">Name</span>
               <Input
                 value={name}
                 onChange={(event) => setName(event.target.value)}
-                placeholder="MAkibul Hossain Tamim"
+                placeholder="Enter moderator name"
+                disabled={isPending}
                 className="h-8 rounded-sm border-[#E5EAF2] bg-white px-3 text-[12px] text-[#667085] placeholder:text-[#98A2B3] focus-visible:ring-[#1D4ED8]/20"
               />
             </label>
@@ -139,9 +162,54 @@ export default function AddModeratorModal({ onClose, onSubmit }: AddModeratorMod
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="email@example.com"
+                disabled={isPending}
                 className="h-8 rounded-sm border-[#E5EAF2] bg-white px-3 text-[12px] text-[#667085] placeholder:text-[#98A2B3] focus-visible:ring-[#1D4ED8]/20"
               />
             </label>
+
+            <div className="block">
+              <span className="mb-2 block text-[13px] font-medium text-[#1F2937]">Password</span>
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="Type your password"
+                  disabled={isPending}
+                  className="h-8 rounded-sm border-[#E5EAF2] bg-white px-3 pr-8 text-[12px] text-[#667085] placeholder:text-[#98A2B3] focus-visible:ring-[#1D4ED8]/20"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[#98A2B3] hover:text-[#667085]"
+                  disabled={isPending}
+                >
+                  {showPassword ? <Eye size={14} /> : <EyeOff size={14} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="block">
+              <span className="mb-2 block text-[13px] font-medium text-[#1F2937]">Confirm Password</span>
+              <div className="relative">
+                <Input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(event) => setConfirmPassword(event.target.value)}
+                  placeholder="Retype your password"
+                  disabled={isPending}
+                  className="h-8 rounded-sm border-[#E5EAF2] bg-white px-3 pr-8 text-[12px] text-[#667085] placeholder:text-[#98A2B3] focus-visible:ring-[#1D4ED8]/20"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[#98A2B3] hover:text-[#667085]"
+                  disabled={isPending}
+                >
+                  {showConfirmPassword ? <Eye size={14} /> : <EyeOff size={14} />}
+                </button>
+              </div>
+            </div>
 
             <div className="block">
               <span className="mb-2 block text-[13px] font-medium text-[#1F2937]">
@@ -152,7 +220,8 @@ export default function AddModeratorModal({ onClose, onSubmit }: AddModeratorMod
                 <button
                   type="button"
                   onClick={() => setIsPermissionMenuOpen((previous) => !previous)}
-                  className="flex h-8 w-full items-center justify-between rounded-sm border border-[#E5EAF2] bg-white px-3 text-left text-[12px] text-[#98A2B3]"
+                  disabled={isPending}
+                  className="flex h-8 w-full items-center justify-between rounded-sm border border-[#E5EAF2] bg-white px-3 text-left text-[12px] text-[#98A2B3] disabled:opacity-50"
                 >
                   <span
                     className={cn(selectedPermissionsLabel ? "text-[#667085]" : "text-[#98A2B3]")}
@@ -162,8 +231,8 @@ export default function AddModeratorModal({ onClose, onSubmit }: AddModeratorMod
                   <ChevronDown size={14} className="text-[#98A2B3]" />
                 </button>
 
-                {isPermissionMenuOpen ? (
-                  <div className="absolute top-0 left-full z-30 ml-0.5 w-36.25 overflow-hidden rounded-sm border border-[#E5EAF2] bg-white shadow-[0_10px_30px_rgba(15,23,42,0.1)]">
+                {isPermissionMenuOpen && !isPending ? (
+                  <div className="absolute top-full mt-1 left-0 z-30 w-full overflow-hidden rounded-sm border border-[#E5EAF2] bg-white shadow-[0_10px_30px_rgba(15,23,42,0.1)]">
                     <div className="border-b border-[#EEF2F6] px-2.5 py-2 text-[11px] font-medium text-[#2753A3]">
                       Assigned Permissions
                     </div>
@@ -206,12 +275,13 @@ export default function AddModeratorModal({ onClose, onSubmit }: AddModeratorMod
             </div>
           </div>
 
-          <div className="mt-4 flex justify-end">
+          <div className="mt-6 flex justify-end">
             <button
               type="submit"
-              className="inline-flex h-7 items-center gap-2 rounded-sm bg-[#163C86] px-4 text-[11px] font-medium text-white transition-colors hover:bg-[#123372]"
+              disabled={isPending}
+              className="inline-flex h-8 items-center gap-2 rounded-sm bg-[#163C86] px-4 text-[12px] font-medium text-white transition-colors hover:bg-[#123372] disabled:opacity-50"
             >
-              Send Email
+              {isPending ? "Registering..." : "Register Moderator"}
               <ArrowRight size={14} />
             </button>
           </div>
