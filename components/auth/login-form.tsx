@@ -2,43 +2,18 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { ArrowRight, EyeOff } from "lucide-react";
 import { toast } from "sonner";
-import { useMutation } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 
 import { Input } from "@/components/ui/input";
-import { getRoleHomePath, useAuth } from "@/lib/auth";
-import { apiClient } from "@/lib/api/client";
+import { useLoginMutation } from "@/hooks/api/useAuth";
 
 export function LoginForm() {
-  const router = useRouter();
-  const { setSessionData } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const loginMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiClient.post("/auth/login", { email, password });
-      return response.data;
-    },
-    onSuccess: (data) => {
-      // The backend returns `{ success: true, message: "...", data: { accessToken, user } }`
-      const { accessToken, user } = data.data;
-      setSessionData(user, accessToken);
-      toast.success(`Logged in successfully.`);
-      router.push(getRoleHomePath(user.role));
-    },
-    onError: (error: unknown) => {
-      const errorMessage =
-        isAxiosError(error) && error.response?.data?.message
-          ? error.response.data.message
-          : "Invalid email or password.";
-      toast.error(errorMessage);
-    }
-  });
+  const loginMutation = useLoginMutation();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -46,7 +21,7 @@ export function LoginForm() {
       toast.error("Please fill in all fields.");
       return;
     }
-    loginMutation.mutate();
+    loginMutation.mutate({ email, password });
   };
 
   return (

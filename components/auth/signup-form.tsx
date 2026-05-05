@@ -4,11 +4,9 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { AlertCircle, ArrowLeft, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
-import { useMutation } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 
 import { Input } from "@/components/ui/input";
-import { apiClient } from "@/lib/api/client";
+import { useRegisterSurferMutation, useRegisterPhotographerMutation } from "@/hooks/api/useAuth";
 
 export function SignUpForm() {
   const [accountType, setAccountType] = useState<"surfer" | "photographer">("surfer");
@@ -25,37 +23,15 @@ export function SignUpForm() {
 
   const isPhotographer = accountType === "photographer";
 
+  const surferMutation = useRegisterSurferMutation();
+  const photographerMutation = useRegisterPhotographerMutation();
+
+  const isPending = isPhotographer ? photographerMutation.isPending : surferMutation.isPending;
+
   const ctaLabel = useMemo(() => {
     if (step === 1 && isPhotographer) return "Next";
     return "Sign up";
   }, [isPhotographer, step]);
-
-  const registerMutation = useMutation({
-    mutationFn: async () => {
-      const payload: Record<string, string> = { name, email, password };
-      if (isPhotographer) {
-        payload.paypalEmail = paypalEmail;
-      }
-
-      const endpoint = isPhotographer 
-        ? "/auth/register/photographer" 
-        : "/auth/register/surfer";
-
-      const response = await apiClient.post(endpoint, payload);
-      return response.data;
-    },
-    onSuccess: () => {
-      toast.success("Account created successfully! Please log in.");
-      window.location.assign("/login");
-    },
-    onError: (error: unknown) => {
-      const errorMessage =
-        isAxiosError(error) && error.response?.data?.message
-          ? error.response.data.message
-          : "An error occurred during registration.";
-      toast.error(errorMessage);
-    },
-  });
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -90,15 +66,15 @@ export function SignUpForm() {
         toast.error("Password must be at least 8 characters long.");
         return;
       }
+      surferMutation.mutate({ name, email, password });
     } else {
       // Step 2 Photographer
       if (!paypalEmail) {
         toast.error("PayPal email is required for photographers.");
         return;
       }
+      photographerMutation.mutate({ name, email, password, paypalEmail });
     }
-
-    registerMutation.mutate();
   };
 
   const onChangeAccountType = (value: "surfer" | "photographer") => {
@@ -124,7 +100,7 @@ export function SignUpForm() {
               value="surfer"
               checked={accountType === "surfer"}
               onChange={() => onChangeAccountType("surfer")}
-              disabled={registerMutation.isPending}
+              disabled={isPending}
               className="border-line-weak text-brand-default focus:ring-brand-default size-3.5"
             />
             Surfer
@@ -136,7 +112,7 @@ export function SignUpForm() {
               value="photographer"
               checked={accountType === "photographer"}
               onChange={() => onChangeAccountType("photographer")}
-              disabled={registerMutation.isPending}
+              disabled={isPending}
               className="border-line-weak text-brand-default focus:ring-brand-default size-3.5"
             />
             Photographer
@@ -171,7 +147,7 @@ export function SignUpForm() {
               placeholder="Enter your PayPal Email"
               value={paypalEmail}
               onChange={(e) => setPaypalEmail(e.target.value)}
-              disabled={registerMutation.isPending}
+              disabled={isPending}
             />
           </div>
 
@@ -215,7 +191,7 @@ export function SignUpForm() {
             <button
               type="button"
               onClick={() => setStep(1)}
-              disabled={registerMutation.isPending}
+              disabled={isPending}
               className="border-line-weaker text-text-weak hover:bg-fill-weak inline-flex w-full items-center justify-center gap-2 rounded-md border px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 sm:w-auto"
             >
               <ArrowLeft size={16} />
@@ -224,10 +200,10 @@ export function SignUpForm() {
 
             <button
               type="submit"
-              disabled={registerMutation.isPending}
+              disabled={isPending}
               className="bg-brand-default text-text-inverse-strong hover:bg-brand-hover inline-flex w-full items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 sm:w-auto"
             >
-              {registerMutation.isPending ? "Signing up..." : "Sign up"}
+              {isPending ? "Signing up..." : "Sign up"}
               <ArrowRight size={18} />
             </button>
           </div>
@@ -246,7 +222,7 @@ export function SignUpForm() {
               placeholder="Enter your full name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              disabled={registerMutation.isPending}
+              disabled={isPending}
             />
           </div>
 
@@ -260,7 +236,7 @@ export function SignUpForm() {
               placeholder="Enter your email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              disabled={registerMutation.isPending}
+              disabled={isPending}
             />
           </div>
 
@@ -276,14 +252,14 @@ export function SignUpForm() {
                 className="pr-10"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                disabled={registerMutation.isPending}
+                disabled={isPending}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
                 className="text-icon-weaker absolute top-1/2 right-3 -translate-y-1/2"
                 aria-label="Toggle password visibility"
-                disabled={registerMutation.isPending}
+                disabled={isPending}
               >
                 {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
               </button>
@@ -303,14 +279,14 @@ export function SignUpForm() {
                 className="pr-10"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                disabled={registerMutation.isPending}
+                disabled={isPending}
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword((prev) => !prev)}
                 className="text-icon-weaker absolute top-1/2 right-3 -translate-y-1/2"
                 aria-label="Toggle confirm password visibility"
-                disabled={registerMutation.isPending}
+                disabled={isPending}
               >
                 {showConfirmPassword ? <Eye size={16} /> : <EyeOff size={16} />}
               </button>
@@ -338,10 +314,10 @@ export function SignUpForm() {
           </p>
           <button
             type="submit"
-            disabled={registerMutation.isPending}
+            disabled={isPending}
             className="bg-brand-default text-text-inverse-strong hover:bg-brand-hover order-1 inline-flex w-full items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 md:order-2 md:w-auto"
           >
-            {registerMutation.isPending && !isPhotographer ? "Signing up..." : ctaLabel}
+            {isPending && !isPhotographer ? "Signing up..." : ctaLabel}
             <ArrowRight size={18} />
           </button>
         </div>
@@ -349,3 +325,4 @@ export function SignUpForm() {
     </form>
   );
 }
+
