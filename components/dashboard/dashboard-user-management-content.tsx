@@ -1,21 +1,33 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import UserDetailsModal from "@/components/dashboard/user-management/user-details-modal";
 import UserManagementHeader from "@/components/dashboard/user-management/user-management-header";
 import UserManagementPagination from "@/components/dashboard/user-management/user-management-pagination";
 import UserManagementTable from "@/components/dashboard/user-management/user-management-table";
+import { apiClient } from "@/lib/api/client";
 import {
-  filterOptions,
   planClassNameMap,
   statusClassNameMap,
-  userRows,
+  filterOptions,
 } from "@/components/dashboard/user-management/user-management-data";
 import type {
   FilterOption,
   UserRow,
+  UserRole,
 } from "@/components/dashboard/user-management/user-management-types";
+
+type ApiUser = {
+  id: string;
+  name: string;
+  email: string;
+  phoneNumber?: string;
+  role: string;
+  countryName?: string;
+  address?: string;
+};
 
 export default function DashboardUserManagementContent() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -23,6 +35,21 @@ export default function DashboardUserManagementContent() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUser, setSelectedUser] = useState<UserRow | null>(null);
   const filterDropdownRef = useRef<HTMLDivElement | null>(null);
+
+  // Fetch users from API
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["users", activeFilter, currentPage],
+    queryFn: async () => {
+      const response = await apiClient.get("/users", {
+        params: {
+          role: activeFilter,
+          page: currentPage,
+          limit: 10,
+        },
+      });
+      return response.data;
+    },
+  });
 
   useEffect(() => {
     if (!isFilterOpen) {
@@ -64,19 +91,29 @@ export default function DashboardUserManagementContent() {
     };
   }, [selectedUser]);
 
-  const filteredRows = useMemo(() => {
-    if (activeFilter === "Contributors") {
-      return userRows.filter((row) => row.role === "Contributor");
-    }
+  const mapRoleToFrontend = (backendRole: string): UserRole => {
+    if (backendRole === "SURFER") return "Surfer";
+    if (backendRole === "PHOTOGRAPHER") return "Photographer";
+    return "Surfer";
+  };
 
-    if (activeFilter === "Users") {
-      return userRows.filter((row) => row.role === "User");
-    }
+  const mappedRows: UserRow[] = data?.data?.map((user: ApiUser) => ({
+    id: user.id,
+    photo: "/home/latest/latest15.jpg", // Default photo as requested
+    name: user.name,
+    email: user.email,
+    phone: user.phoneNumber || "-",
+    role: mapRoleToFrontend(user.role),
+    contributedPhotos: "-", // Specific requested defaults
+    plan: "-",
+    platformCommission: "-",
+    purchasePhoto: "-",
+    status: "Active", // Default
+    country: user.countryName,
+    address: user.address,
+  })) || [];
 
-    return userRows;
-  }, [activeFilter]);
-
-  const totalPages = 4;
+  const totalPages = data?.meta?.totalPages || 1;
 
   return (
     <section className="px-3 pb-5 [font-family:var(--font-sf-pro)] sm:px-4 sm:pb-6 md:px-6 md:pb-8 lg:px-0 lg:pr-10 lg:pb-10 xl:pr-12.5 xl:pb-12.5">
@@ -89,22 +126,35 @@ export default function DashboardUserManagementContent() {
           onToggleFilter={() => setIsFilterOpen((previous) => !previous)}
           onSelectFilter={(option) => {
             setActiveFilter(option);
+            setCurrentPage(1); // Reset page on filter change
             setIsFilterOpen(false);
           }}
         />
 
-        <UserManagementTable
-          rows={filteredRows}
-          planClassNameMap={planClassNameMap}
-          statusClassNameMap={statusClassNameMap}
-          onViewDetails={(user) => setSelectedUser(user)}
-        />
+        {isLoading ? (
+          <div className="flex h-64 items-center justify-center">
+            <p className="text-text-weaker">Loading users...</p>
+          </div>
+        ) : isError ? (
+          <div className="flex h-64 items-center justify-center">
+            <p className="text-danger-strong">Failed to load users.</p>
+          </div>
+        ) : (
+          <UserManagementTable
+            rows={mappedRows}
+            planClassNameMap={planClassNameMap}
+            statusClassNameMap={statusClassNameMap}
+            onViewDetails={(user) => setSelectedUser(user)}
+          />
+        )}
 
-        <UserManagementPagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
+        {totalPages > 1 && (
+          <UserManagementPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        )}
 
         <UserDetailsModal
           user={selectedUser}

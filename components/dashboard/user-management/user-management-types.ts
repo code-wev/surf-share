@@ -1,22 +1,22 @@
-export type UserRole = "User" | "Contributor";
-export type UserPlan = "Gold" | "Silver" | "Bronze";
+export type UserRole = "Surfer" | "Photographer" | string;
+export type UserPlan = "Gold" | "Silver" | "Bronze" | "-";
 export type UserStatus = "Active" | "Suspended";
 
 export type UserRow = {
-  id: number;
+  id: string;
   photo: string;
   name: string;
   email: string;
   phone: string;
   role: UserRole;
-  contributedPhotos: number | null;
+  contributedPhotos: number | null | string;
   plan: UserPlan;
-  platformCommission: number | null;
+  platformCommission: number | null | string;
   showCommissionSortIcon?: boolean;
-  purchasePhoto: number | null;
+  purchasePhoto: number | null | string;
   status: UserStatus;
   country?: string;
   address?: string;
 };
 
-export type FilterOption = "All Users" | "Contributors" | "Users";
+export type FilterOption = "All Users" | "Surfers" | "Photographers" | string;
