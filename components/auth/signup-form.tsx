@@ -37,7 +37,9 @@ export function SignUpForm() {
         payload.paypalEmail = paypalEmail;
       }
 
-      const endpoint = isPhotographer ? "/users/register/photographer" : "/users/register/surfer";
+      const endpoint = isPhotographer 
+        ? "/auth/register/photographer" 
+        : "/auth/register/surfer";
 
       const response = await apiClient.post(endpoint, payload);
       return response.data;

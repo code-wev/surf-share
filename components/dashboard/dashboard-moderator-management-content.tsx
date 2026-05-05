@@ -57,7 +57,7 @@ export default function DashboardModeratorManagementContent() {
 
   const registerModeratorMutation = useMutation({
     mutationFn: async (payload: { name: string; email: string; password?: string; permissions: string[] }) => {
-      const response = await apiClient.post("/users/register/moderator", payload);
+      const response = await apiClient.post("/auth/register/moderator", payload);
       return response.data;
     },
     onSuccess: () => {
