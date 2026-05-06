@@ -103,27 +103,29 @@ export default function AdvertisementSettingsContent() {
     [addFile],
   );
 
-  // Remove photo
-  const removePhoto = () => {
-    if (adData?.data) {
-      deleteMutation.mutate(undefined, {
-        onSuccess: () => {
-          if (photo?.file) {
-            URL.revokeObjectURL(photo.preview);
-          }
-          setPhoto(null);
-          setAdvertisementURL("");
-        },
-      });
-    } else {
-      if (photo?.file) {
-        URL.revokeObjectURL(photo.preview);
-      }
-      setPhoto(null);
-      setAdvertisementURL("");
+  // Remove photo from local UI state so a new one can be uploaded
+  const clearLocalPhoto = () => {
+    if (photo?.file) {
+      URL.revokeObjectURL(photo.preview);
     }
+    setPhoto(null);
   };
-  // Publish button - uploads the photo
+
+  // Delete entire advertisement from the database
+  const handleDeleteAdvertisement = () => {
+    deleteMutation.mutate(undefined, {
+      onSuccess: () => {
+        if (photo?.file) {
+          URL.revokeObjectURL(photo.preview);
+        }
+        setPhoto(null);
+        setAdvertisementURL("");
+        toast.success("Advertisement deleted completely.");
+      },
+    });
+  };
+
+  // Publish button - uploads the photo or updates the URL
   const handlePublish = () => {
     if (!advertisementURL) {
       toast.error("Advertisement URL is required.");
@@ -143,7 +145,7 @@ export default function AdvertisementSettingsContent() {
 
     upsertMutation.mutate(body, {
       onSuccess: () => {
-        console.log("Advertisement updated successfully!");
+        toast.success("Advertisement updated successfully!");
       },
     });
   };
@@ -208,16 +210,12 @@ export default function AdvertisementSettingsContent() {
               {/* Remove button */}
               <button
                 type="button"
-                onClick={removePhoto}
+                onClick={clearLocalPhoto}
                 disabled={upsertMutation.isPending || deleteMutation.isPending}
                 aria-label="Remove photo"
                 className="absolute top-2.5 right-2.5 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/80 text-red-400 shadow backdrop-blur-sm transition hover:bg-white hover:text-red-600 disabled:opacity-50"
               >
-                {deleteMutation.isPending ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <X className="h-3.5 w-3.5" />
-                )}
+                <X className="h-3.5 w-3.5" />
               </button>
 
               {/* Preview */}
@@ -248,27 +246,47 @@ export default function AdvertisementSettingsContent() {
         />
       </div>
 
-      {/* Publish Button */}
-      <button
-        type="button"
-        onClick={handlePublish}
-        disabled={
-          upsertMutation.isPending || deleteMutation.isPending || !photo || !advertisementURL
-        }
-        className="mt-4 flex w-full items-center justify-center gap-2 rounded-md bg-[#0a2463] py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {upsertMutation.isPending ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Publishing..
-          </>
-        ) : (
-          <>
-            Publish Advertisement
-            <Upload className="h-4 w-4" />
-          </>
+      {/* Publish & Delete Buttons */}
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+        <button
+          type="button"
+          onClick={handlePublish}
+          disabled={
+            upsertMutation.isPending || deleteMutation.isPending || !photo || !advertisementURL
+          }
+          className="flex w-full items-center justify-center gap-2 rounded-md bg-[#0a2463] py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {upsertMutation.isPending ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Publishing..
+            </>
+          ) : (
+            <>
+              Publish Advertisement
+              <Upload className="h-4 w-4" />
+            </>
+          )}
+        </button>
+
+        {adData?.data && (
+          <button
+            type="button"
+            onClick={handleDeleteAdvertisement}
+            disabled={upsertMutation.isPending || deleteMutation.isPending}
+            className="flex w-full items-center justify-center gap-2 rounded-md bg-red-500 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-6"
+          >
+            {deleteMutation.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                Delete
+                <X className="h-4 w-4" />
+              </>
+            )}
+          </button>
         )}
-      </button>
+      </div>
     </section>
   );
 }

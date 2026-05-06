@@ -2,8 +2,9 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useState, useRef, type FormEvent } from "react";
-import { Upload } from "lucide-react";
+import { Upload, X } from "lucide-react";
 import { toast } from "sonner";
+import Image from "next/image";
 
 import { Input } from "@/components/ui/input";
 
@@ -53,7 +54,10 @@ export default function AddLocationModal({
   const [coordinates, setCoordinates] = useState<[number, number]>(initialCoordinates);
   const [latitudeInput, setLatitudeInput] = useState(formatCoordinate(initialCoordinates[0]));
   const [longitudeInput, setLongitudeInput] = useState(formatCoordinate(initialCoordinates[1]));
+  
   const [previewImage, setPreviewImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -81,10 +85,46 @@ export default function AddLocationModal({
     const file = e.target.files?.[0];
     if (file) {
       if (file.type.startsWith("image/")) {
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
         setPreviewImage(file);
+        setPreviewUrl(URL.createObjectURL(file));
       } else {
         toast.error("Only image files are allowed.");
       }
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      if (file.type.startsWith("image/")) {
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        setPreviewImage(file);
+        setPreviewUrl(URL.createObjectURL(file));
+      } else {
+        toast.error("Only image files are allowed.");
+      }
+    }
+  };
+
+  const removePhoto = () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewImage(null);
+    setPreviewUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -234,30 +274,71 @@ export default function AddLocationModal({
                 <span className="mb-1 block text-sm font-medium text-text-strong sm:text-base">
                   Preview Image
                 </span>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/jpeg, image/jpg, image/png, image/webp"
-                  className="hidden"
-                  onChange={handleFileSelect}
-                  disabled={isPending}
-                />
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isPending}
-                    className="inline-flex h-10 items-center justify-center gap-2 rounded-sm border border-[#d8deea] bg-white px-4 text-xs font-medium text-text-strong transition-colors hover:bg-gray-50 disabled:opacity-50"
+                
+                {!previewImage ? (
+                  <div
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    className={`mt-2 flex flex-col items-center justify-center rounded-lg border-2 border-dashed py-8 transition-colors ${
+                      isDragging ? "border-[#0a2463] bg-blue-50" : "border-line-weak bg-white"
+                    }`}
                   >
-                    <Upload size={16} />
-                    Choose Image
-                  </button>
-                  {previewImage && (
-                    <span className="text-xs text-text-weak truncate max-w-50 sm:max-w-75">
-                      {previewImage.name}
-                    </span>
-                  )}
-                </div>
+                    <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#eef1f8]">
+                      <Upload className="h-5 w-5 text-[#0a2463]" />
+                    </div>
+                    <p className="text-center text-xs font-medium text-gray-800">
+                      Drag & Drop Image Here
+                    </p>
+                    <p className="mt-1 text-[10px] text-gray-400">Or</p>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/jpeg, image/jpg, image/png, image/webp"
+                      className="hidden"
+                      onChange={handleFileSelect}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="mt-3 rounded-md bg-[#0a2463] px-4 py-2 text-xs font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                      disabled={isPending}
+                    >
+                      Upload From Computer
+                    </button>
+                    <p className="mt-3 text-[10px] text-gray-400">
+                      Supported formats: JPG, JPEG, PNG, WEBP (Max 10MB)
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mt-2">
+                    <div className="relative overflow-hidden rounded-xl border border-gray-100 bg-[#EFF6FF] shadow-sm">
+                      <button
+                        type="button"
+                        onClick={removePhoto}
+                        disabled={isPending}
+                        aria-label="Remove photo"
+                        className="absolute top-2 right-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-white/80 text-red-400 shadow backdrop-blur-sm transition hover:bg-white hover:text-red-600 disabled:opacity-50"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+
+                      <div className="relative h-40 w-full overflow-hidden bg-gray-100">
+                        <Image
+                          src={previewUrl!}
+                          alt={previewImage.name}
+                          fill
+                          unoptimized
+                          className="object-cover"
+                        />
+                      </div>
+                      
+                      <div className="p-3">
+                        <p className="truncate text-sm font-semibold text-gray-900">{previewImage.name}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
