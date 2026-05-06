@@ -1,4 +1,4 @@
-import { ImageIcon, MapPin, Plus, Search, SquarePen, Trash2 } from "lucide-react";
+import { ImageIcon, MapPin, Plus, Search, SquarePen, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 
 import type { LocationModerationItem } from "@/components/dashboard/locations-moderation/locations-moderation-types";
 
@@ -12,6 +12,9 @@ type LocationsModerationSidebarProps = {
   onEditLocation: (location: LocationModerationItem) => void;
   onDeleteLocation: (location: LocationModerationItem) => void;
   isPending?: boolean;
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
 };
 
 export default function LocationsModerationSidebar({
@@ -24,6 +27,9 @@ export default function LocationsModerationSidebar({
   onEditLocation,
   onDeleteLocation,
   isPending,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange,
 }: LocationsModerationSidebarProps) {
   return (
     <aside className="bg-surface-muted-100 flex min-h-0 w-full flex-col">
@@ -121,6 +127,35 @@ export default function LocationsModerationSidebar({
           <div className="px-4 py-6 text-sm text-text-weaker">No locations found.</div>
         ) : null}
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="mt-4 flex shrink-0 items-center justify-between border-t border-line-weaker pt-4">
+          <p className="text-xs text-text-weaker sm:text-sm">
+            Page {currentPage} of {totalPages}
+          </p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              disabled={currentPage <= 1 || isPending}
+              onClick={() => onPageChange?.(currentPage - 1)}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-sm border border-line-weaker bg-white text-text-strong transition-colors hover:bg-fill-hover disabled:opacity-50 sm:h-9 sm:w-9"
+              aria-label="Previous page"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <button
+              type="button"
+              disabled={currentPage >= totalPages || isPending}
+              onClick={() => onPageChange?.(currentPage + 1)}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-sm border border-line-weaker bg-white text-text-strong transition-colors hover:bg-fill-hover disabled:opacity-50 sm:h-9 sm:w-9"
+              aria-label="Next page"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }

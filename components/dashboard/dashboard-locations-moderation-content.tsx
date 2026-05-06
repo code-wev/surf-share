@@ -41,11 +41,13 @@ export default function DashboardLocationsModerationContent() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isAddLocationModalOpen, setIsAddLocationModalOpen] = useState(false);
   const [activeLocationId, setActiveLocationId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // Debounce search value
+  // Debounce search value and reset page
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchValue);
+      setCurrentPage(1); // Reset page on new search
     }, 500);
 
     return () => clearTimeout(timer);
@@ -53,8 +55,8 @@ export default function DashboardLocationsModerationContent() {
 
   const { data, isLoading } = useLocationsQuery({
     search: debouncedSearch,
-    page: 1,
-    limit: 100, // Fetch up to 100 locations for the map for now
+    page: currentPage,
+    limit: 5,
   });
 
   const createMutation = useCreateLocationMutation();
@@ -72,6 +74,8 @@ export default function DashboardLocationsModerationContent() {
       previewImage: loc.previewImage,
     })) || [];
   }, [data?.data]);
+
+  const totalPages = data?.meta?.totalPages || 1;
 
   const resolvedActiveLocationId = locations.some(
     (location) => location.id === activeLocationId,
@@ -135,7 +139,7 @@ export default function DashboardLocationsModerationContent() {
         </h1>
 
         <div className="mt-4 overflow-hidden bg-surface-muted-100 sm:mt-5 md:mt-9">
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.5fr_1fr] md:gap-6">
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-[3fr_1fr] md:gap-6">
             <div className="relative h-[52vh] min-h-90 w-full overflow-hidden sm:h-[56vh] sm:min-h-105 md:h-[60vh] md:min-h-130 lg:h-[64vh] lg:min-h-145 xl:h-[72vh] xl:min-h-160 2xl:h-[78vh] 2xl:min-h-190">
               <LocationsModerationMap
                 locations={locations}
@@ -166,7 +170,10 @@ export default function DashboardLocationsModerationContent() {
               onAddLocation={handleAddLocation}
               onEditLocation={handleEditLocation}
               onDeleteLocation={handleDeleteLocation}
-              isPending={deleteMutation.isPending}
+              isPending={deleteMutation.isPending || isLoading}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
             />
           </div>
         </div>

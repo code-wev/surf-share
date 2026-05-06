@@ -80,7 +80,7 @@ export default function AddLocationMapPicker({
         zoom={5}
         className="h-full w-full"
         dragging
-        scrollWheelZoom={false}
+        scrollWheelZoom={true}
         zoomControl={false}
         attributionControl={false}
       >

@@ -125,7 +125,7 @@ export default function LocationsModerationMap({
         zoom={defaultZoom}
         className="h-full w-full"
         dragging
-        scrollWheelZoom={false}
+        scrollWheelZoom={true}
         zoomControl={false}
         attributionControl={false}
       >
