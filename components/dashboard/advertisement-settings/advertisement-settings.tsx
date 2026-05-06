@@ -2,12 +2,12 @@
 
 import Image from "next/image";
 import { useCallback, useRef, useState, useEffect } from "react";
-import { Loader2, Upload,X } from "lucide-react";
+import { Loader2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
-import { 
-  useAdvertisementQuery, 
-  useUpsertAdvertisementMutation, 
-  useDeleteAdvertisementMutation 
+import {
+  useAdvertisementQuery,
+  useUpsertAdvertisementMutation,
+  useDeleteAdvertisementMutation,
 } from "@/hooks/api/useAdvertisement";
 
 export interface PhotoItem {
@@ -36,7 +36,6 @@ export default function AdvertisementSettingsContent() {
   const [photo, setPhoto] = useState<PhotoItem | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [advertisementURL, setAdvertisementURL] = useState("");
-  
 
   const { data: adData, isLoading: isFetchingAd } = useAdvertisementQuery();
   const upsertMutation = useUpsertAdvertisementMutation();
@@ -114,7 +113,7 @@ export default function AdvertisementSettingsContent() {
           }
           setPhoto(null);
           setAdvertisementURL("");
-        }
+        },
       });
     } else {
       if (photo?.file) {
@@ -124,7 +123,6 @@ export default function AdvertisementSettingsContent() {
       setAdvertisementURL("");
     }
   };
-
   // Publish button - uploads the photo
   const handlePublish = () => {
     if (!advertisementURL) {
@@ -132,18 +130,21 @@ export default function AdvertisementSettingsContent() {
       return;
     }
 
-    if (!photo?.file) {
-      toast.error("A new image file is required to publish/update.");
+    if (!photo) {
+      toast.error("An advertisement image is required.");
       return;
     }
 
     const body = new FormData();
-    body.append("photo", photo.file);
+    if (photo.file) {
+      body.append("photo", photo.file);
+    }
     body.append("advertisementURL", advertisementURL);
 
     upsertMutation.mutate(body, {
       onSuccess: () => {
-      }
+        console.log("Advertisement updated successfully!");
+      },
     });
   };
 
@@ -212,7 +213,11 @@ export default function AdvertisementSettingsContent() {
                 aria-label="Remove photo"
                 className="absolute top-2.5 right-2.5 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/80 text-red-400 shadow backdrop-blur-sm transition hover:bg-white hover:text-red-600 disabled:opacity-50"
               >
-                {deleteMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />}
+                {deleteMutation.isPending ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <X className="h-3.5 w-3.5" />
+                )}
               </button>
 
               {/* Preview */}
@@ -247,7 +252,9 @@ export default function AdvertisementSettingsContent() {
       <button
         type="button"
         onClick={handlePublish}
-        disabled={upsertMutation.isPending || deleteMutation.isPending || !photo || !advertisementURL}
+        disabled={
+          upsertMutation.isPending || deleteMutation.isPending || !photo || !advertisementURL
+        }
         className="mt-4 flex w-full items-center justify-center gap-2 rounded-md bg-[#0a2463] py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {upsertMutation.isPending ? (
