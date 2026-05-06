@@ -18,4 +18,12 @@ export const queryKeys = {
     all: ["advertisement"] as const,
     detail: () => [...queryKeys.advertisement.all, "detail"] as const,
   },
+  locations: {
+    all: ["locations"] as const,
+    lists: () => [...queryKeys.locations.all, "list"] as const,
+    list: (filters: { search?: string; page: number; limit?: number }) =>
+      [...queryKeys.locations.lists(), filters] as const,
+    details: () => [...queryKeys.locations.all, "detail"] as const,
+    detail: (id: string) => [...queryKeys.locations.details(), id] as const,
+  },
 };

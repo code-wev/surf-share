@@ -25,7 +25,7 @@ export default function LocationsModerationFeaturedCard({
 
         <p className="text-text-weak inline-flex items-center gap-2 text-sm sm:text-[16px] md:text-[18px] [font-family:var(--font-sf-pro)]">
           <MapPin size={16} className="sm:h-4.5 sm:w-4.5" />
-          {location.region}, {location.country}
+          {location.region}, {location.state}
         </p>
 
         <div className="mt-4 flex flex-col gap-3 sm:mt-5 sm:flex-row sm:items-center sm:justify-between lg:mt-6">

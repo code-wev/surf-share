@@ -1,7 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, useRef, type FormEvent } from "react";
+import { Upload } from "lucide-react";
+import { toast } from "sonner";
 
 import { Input } from "@/components/ui/input";
 
@@ -24,12 +26,14 @@ export type AddLocationModalPayload = {
   state: string;
   latitude: number;
   longitude: number;
+  previewImage: File;
 };
 
 type AddLocationModalProps = {
   initialCoordinates: [number, number];
   onClose: () => void;
   onSubmit: (payload: AddLocationModalPayload) => void;
+  isPending?: boolean;
 };
 
 function formatCoordinate(value: number) {
@@ -40,6 +44,7 @@ export default function AddLocationModal({
   initialCoordinates,
   onClose,
   onSubmit,
+  isPending,
 }: AddLocationModalProps) {
   const [name, setName] = useState("");
   const [parentSpot, setParentSpot] = useState("");
@@ -48,6 +53,9 @@ export default function AddLocationModal({
   const [coordinates, setCoordinates] = useState<[number, number]>(initialCoordinates);
   const [latitudeInput, setLatitudeInput] = useState(formatCoordinate(initialCoordinates[0]));
   const [longitudeInput, setLongitudeInput] = useState(formatCoordinate(initialCoordinates[1]));
+  const [previewImage, setPreviewImage] = useState<File | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
@@ -69,6 +77,17 @@ export default function AddLocationModal({
     setLongitudeInput(formatCoordinate(nextCoordinates[1]));
   };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type.startsWith("image/")) {
+        setPreviewImage(file);
+      } else {
+        toast.error("Only image files are allowed.");
+      }
+    }
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -76,6 +95,12 @@ export default function AddLocationModal({
     const longitude = Number.parseFloat(longitudeInput);
 
     if (!name.trim() || !Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      toast.error("Please provide valid spot name and coordinates.");
+      return;
+    }
+
+    if (!previewImage) {
+      toast.error("Preview image is mandatory.");
       return;
     }
 
@@ -86,6 +111,7 @@ export default function AddLocationModal({
       state: stateValue.trim(),
       latitude,
       longitude,
+      previewImage,
     });
   };
 
@@ -116,6 +142,7 @@ export default function AddLocationModal({
                   value={name}
                   onChange={(event) => setName(event.target.value)}
                   placeholder="Enter the spot name"
+                  disabled={isPending}
                   className="h-10 rounded-sm border-[#d8deea] bg-[#dde5ef] px-2.5 py-2 text-xs placeholder:text-[#98a4b7] sm:h-9"
                 />
               </label>
@@ -128,6 +155,7 @@ export default function AddLocationModal({
                   value={parentSpot}
                   onChange={(event) => setParentSpot(event.target.value)}
                   placeholder="Enter the parent spot name"
+                  disabled={isPending}
                   className="h-10 rounded-sm border-[#d8deea] bg-[#dde5ef] px-2.5 py-2 text-xs placeholder:text-[#98a4b7] sm:h-9"
                 />
               </label>
@@ -140,6 +168,7 @@ export default function AddLocationModal({
                   value={region}
                   onChange={(event) => setRegion(event.target.value)}
                   placeholder="Enter the region"
+                  disabled={isPending}
                   className="h-10 rounded-sm border-[#d8deea] bg-[#dde5ef] px-2.5 py-2 text-xs placeholder:text-[#98a4b7] sm:h-9"
                 />
               </label>
@@ -152,6 +181,7 @@ export default function AddLocationModal({
                   value={stateValue}
                   onChange={(event) => setStateValue(event.target.value)}
                   placeholder="Enter the state"
+                  disabled={isPending}
                   className="h-10 rounded-sm border-[#d8deea] bg-[#dde5ef] px-2.5 py-2 text-xs placeholder:text-[#98a4b7] sm:h-9"
                 />
               </label>
@@ -172,6 +202,7 @@ export default function AddLocationModal({
                       setCoordinates((previous) => [parsed, previous[1]]);
                     }
                   }}
+                  disabled={isPending}
                   placeholder="Enter the latitude"
                   className="h-10 rounded-sm border-[#d8deea] bg-[#dde5ef] px-2.5 py-2 text-xs placeholder:text-[#98a4b7] sm:h-9"
                 />
@@ -193,18 +224,58 @@ export default function AddLocationModal({
                       setCoordinates((previous) => [previous[0], parsed]);
                     }
                   }}
+                  disabled={isPending}
                   placeholder="Enter longitude"
                   className="h-10 rounded-sm border-[#d8deea] bg-[#dde5ef] px-2.5 py-2 text-xs placeholder:text-[#98a4b7] sm:h-9"
                 />
               </label>
+              
+              <div className="col-span-1 sm:col-span-2 mt-2">
+                <span className="mb-1 block text-sm font-medium text-text-strong sm:text-base">
+                  Preview Image
+                </span>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg, image/jpg, image/png, image/webp"
+                  className="hidden"
+                  onChange={handleFileSelect}
+                  disabled={isPending}
+                />
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isPending}
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-sm border border-[#d8deea] bg-white px-4 text-xs font-medium text-text-strong transition-colors hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    <Upload size={16} />
+                    Choose Image
+                  </button>
+                  {previewImage && (
+                    <span className="text-xs text-text-weak truncate max-w-50 sm:max-w-75">
+                      {previewImage.name}
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div className="mt-4 flex flex-col gap-3 sm:mt-5 sm:flex-row sm:items-center sm:justify-end">
               <button
-                type="submit"
-                className="inline-flex h-10 w-full items-center justify-center rounded-sm bg-brand-default px-4 text-sm font-medium text-text-inverse-strong transition-colors hover:bg-brand-hover sm:h-8 sm:w-auto sm:text-xs"
+                type="button"
+                onClick={onClose}
+                disabled={isPending}
+                className="inline-flex h-10 w-full items-center justify-center rounded-sm border border-[#d8deea] bg-white px-4 text-sm font-medium text-text-strong transition-colors hover:bg-gray-50 disabled:opacity-50 sm:h-8 sm:w-auto sm:text-xs"
               >
-                Add Location
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isPending}
+                className="inline-flex h-10 w-full items-center justify-center rounded-sm bg-brand-default px-4 text-sm font-medium text-text-inverse-strong transition-colors hover:bg-brand-hover disabled:opacity-50 sm:h-8 sm:w-auto sm:text-xs"
+              >
+                {isPending ? "Adding..." : "Add Location"}
               </button>
             </div>
           </form>

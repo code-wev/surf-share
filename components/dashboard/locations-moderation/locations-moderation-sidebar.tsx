@@ -11,6 +11,7 @@ type LocationsModerationSidebarProps = {
   onAddLocation: () => void;
   onEditLocation: (location: LocationModerationItem) => void;
   onDeleteLocation: (location: LocationModerationItem) => void;
+  isPending?: boolean;
 };
 
 export default function LocationsModerationSidebar({
@@ -22,6 +23,7 @@ export default function LocationsModerationSidebar({
   onAddLocation,
   onEditLocation,
   onDeleteLocation,
+  isPending,
 }: LocationsModerationSidebarProps) {
   return (
     <aside className="bg-surface-muted-100 flex min-h-0 w-full flex-col">
@@ -70,7 +72,7 @@ export default function LocationsModerationSidebar({
                   {location.name}
                 </p>
 
-                <div className="flex flex-shrink-0 items-center gap-3 sm:gap-4">
+                <div className="flex shrink-0 items-center gap-3 sm:gap-4">
                   <button
                     type="button"
                     onClick={(event) => {
@@ -88,7 +90,8 @@ export default function LocationsModerationSidebar({
                       event.stopPropagation();
                       onDeleteLocation(location);
                     }}
-                    className="text-[#f87171] transition-colors hover:text-[#ef4444]"
+                    disabled={isPending}
+                    className="text-[#f87171] transition-colors hover:text-[#ef4444] disabled:opacity-50"
                     aria-label={`Delete ${location.name}`}
                   >
                     <Trash2 size={18} color="red" />
@@ -98,16 +101,16 @@ export default function LocationsModerationSidebar({
 
               <p className="mt-1 inline-flex items-center gap-2 text-xs text-text-weaker sm:text-sm">
                 <MapPin size={13} />
-                {location.region}, {location.country}
+                {location.region}, {location.state}
               </p>
 
               <div className="mt-1 flex items-center justify-between">
                 <p className="inline-flex items-center gap-2 text-sm text-text-weak sm:text-lg [font-family:var(--font-sf-pro)]">
                   <ImageIcon size={16} className="sm:h-5 sm:w-5" />
-                  {location.region}, {location.country}
+                  {location.photosAvailable} Photos
                 </p>
                 <span className="inline-flex rounded-sm bg-success-disable px-2 py-0.5 text-[11px] font-medium text-success-strong">
-                  {location.status}
+                  Active
                 </span>
               </div>
             </article>

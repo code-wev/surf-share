@@ -1,16 +1,16 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { toast } from "sonner";
 
 import AddLocationModal, {
   type AddLocationModalPayload,
 } from "@/components/dashboard/locations-moderation/add-location-modal";
-import { locationsModerationItems } from "@/components/dashboard/locations-moderation/locations-moderation-data";
 import LocationsModerationFeaturedCard from "@/components/dashboard/locations-moderation/locations-moderation-featured-card";
 import LocationsModerationSidebar from "@/components/dashboard/locations-moderation/locations-moderation-sidebar";
 import type { LocationModerationItem } from "@/components/dashboard/locations-moderation/locations-moderation-types";
+import { useLocationsQuery, useCreateLocationMutation, useDeleteLocationMutation } from "@/hooks/api/useLocations";
 
 const LocationsModerationMap = dynamic(
   () => import("@/components/dashboard/locations-moderation/locations-moderation-map"),
@@ -24,39 +24,64 @@ const LocationsModerationMap = dynamic(
   },
 );
 
+type ApiLocation = {
+  id: string;
+  name: string;
+  parentSpot: string | null;
+  region: string;
+  state: string;
+  latitude: number;
+  longitude: number;
+  photosAvailable: number;
+  previewImage: string;
+};
+
 export default function DashboardLocationsModerationContent() {
-  const [locations, setLocations] = useState<LocationModerationItem[]>(locationsModerationItems);
   const [searchValue, setSearchValue] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isAddLocationModalOpen, setIsAddLocationModalOpen] = useState(false);
-  const [activeLocationId, setActiveLocationId] = useState<string | null>(
-    locationsModerationItems[0]?.id ?? null,
-  );
+  const [activeLocationId, setActiveLocationId] = useState<string | null>(null);
 
-  const filteredLocations = useMemo(() => {
-    const normalizedSearch = searchValue.trim().toLowerCase();
+  // Debounce search value
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchValue);
+    }, 500);
 
-    if (!normalizedSearch) {
-      return locations;
-    }
+    return () => clearTimeout(timer);
+  }, [searchValue]);
 
-    return locations.filter((location) => {
-      return (
-        location.name.toLowerCase().includes(normalizedSearch) ||
-        location.region.toLowerCase().includes(normalizedSearch) ||
-        location.country.toLowerCase().includes(normalizedSearch)
-      );
-    });
-  }, [locations, searchValue]);
+  const { data, isLoading } = useLocationsQuery({
+    search: debouncedSearch,
+    page: 1,
+    limit: 100, // Fetch up to 100 locations for the map for now
+  });
 
-  const resolvedActiveLocationId = filteredLocations.some(
+  const createMutation = useCreateLocationMutation();
+  const deleteMutation = useDeleteLocationMutation();
+
+  const locations: LocationModerationItem[] = useMemo(() => {
+    return data?.data?.map((loc: ApiLocation) => ({
+      id: loc.id,
+      name: loc.name,
+      parentSpot: loc.parentSpot,
+      region: loc.region,
+      state: loc.state,
+      coordinates: [loc.latitude, loc.longitude] as [number, number],
+      photosAvailable: loc.photosAvailable,
+      previewImage: loc.previewImage,
+    })) || [];
+  }, [data?.data]);
+
+  const resolvedActiveLocationId = locations.some(
     (location) => location.id === activeLocationId,
   )
     ? activeLocationId
-    : filteredLocations[0]?.id ?? null;
+    : locations[0]?.id ?? null;
 
   const activeLocation = useMemo(() => {
-    return filteredLocations.find((location) => location.id === resolvedActiveLocationId) ?? null;
-  }, [filteredLocations, resolvedActiveLocationId]);
+    return locations.find((location) => location.id === resolvedActiveLocationId) ?? null;
+  }, [locations, resolvedActiveLocationId]);
 
   const addLocationInitialCoordinates: [number, number] = activeLocation?.coordinates ?? [
     -19.2576,
@@ -68,24 +93,22 @@ export default function DashboardLocationsModerationContent() {
   };
 
   const handleCreateLocation = (payload: AddLocationModalPayload) => {
-    const resolvedRegion = payload.state || payload.region || "NSW";
+    const formData = new FormData();
+    formData.append("name", payload.name);
+    formData.append("parentSpot", payload.parentSpot);
+    formData.append("region", payload.region);
+    formData.append("state", payload.state);
+    formData.append("latitude", payload.latitude.toString());
+    formData.append("longitude", payload.longitude.toString());
+    if (payload.previewImage) {
+      formData.append("previewImage", payload.previewImage);
+    }
 
-    const newLocation: LocationModerationItem = {
-      id: `location-${Date.now()}`,
-      name: payload.name,
-      region: resolvedRegion,
-      country: "Australia",
-      coordinates: [payload.latitude, payload.longitude],
-      photosAvailable: 0,
-      previewImage: "/home/latest/latest4.jpg",
-      status: "Active",
-    };
-
-    setLocations((previous) => [newLocation, ...previous]);
-    setActiveLocationId(newLocation.id);
-    setSearchValue("");
-    setIsAddLocationModalOpen(false);
-    toast.success("Location added.");
+    createMutation.mutate(formData, {
+      onSuccess: () => {
+        setIsAddLocationModalOpen(false);
+      }
+    });
   };
 
   const handleEditLocation = (location: LocationModerationItem) => {
@@ -93,8 +116,7 @@ export default function DashboardLocationsModerationContent() {
   };
 
   const handleDeleteLocation = (location: LocationModerationItem) => {
-    setLocations((previous) => previous.filter((item) => item.id !== location.id));
-    toast.success(`${location.name} removed.`);
+    deleteMutation.mutate(location.id);
   };
 
   const handleViewGallery = () => {
@@ -116,7 +138,7 @@ export default function DashboardLocationsModerationContent() {
           <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.5fr_1fr] md:gap-6">
             <div className="relative h-[52vh] min-h-90 w-full overflow-hidden sm:h-[56vh] sm:min-h-105 md:h-[60vh] md:min-h-130 lg:h-[64vh] lg:min-h-145 xl:h-[72vh] xl:min-h-160 2xl:h-[78vh] 2xl:min-h-190">
               <LocationsModerationMap
-                locations={filteredLocations}
+                locations={locations}
                 activeLocationId={resolvedActiveLocationId}
                 onActiveLocationChange={setActiveLocationId}
               />
@@ -129,14 +151,14 @@ export default function DashboardLocationsModerationContent() {
               ) : (
                 <div className="pointer-events-none absolute inset-0 z-600 flex items-center justify-center px-4">
                   <p className="rounded-sm bg-surface-muted-100/95 px-4 py-2 text-sm text-text-weak shadow-sm">
-                    No locations match the current search.
+                    {isLoading ? "Loading locations..." : "No locations match the current search."}
                   </p>
                 </div>
               )}
             </div>
 
             <LocationsModerationSidebar
-              locations={filteredLocations}
+              locations={locations}
               activeLocationId={resolvedActiveLocationId}
               searchValue={searchValue}
               onSearchChange={setSearchValue}
@@ -144,6 +166,7 @@ export default function DashboardLocationsModerationContent() {
               onAddLocation={handleAddLocation}
               onEditLocation={handleEditLocation}
               onDeleteLocation={handleDeleteLocation}
+              isPending={deleteMutation.isPending}
             />
           </div>
         </div>
@@ -154,6 +177,7 @@ export default function DashboardLocationsModerationContent() {
           initialCoordinates={addLocationInitialCoordinates}
           onClose={() => setIsAddLocationModalOpen(false)}
           onSubmit={handleCreateLocation}
+          isPending={createMutation.isPending}
         />
       ) : null}
     </section>

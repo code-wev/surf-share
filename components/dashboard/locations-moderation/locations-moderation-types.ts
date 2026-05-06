@@ -1,10 +1,10 @@
 export type LocationModerationItem = {
   id: string;
   name: string;
+  parentSpot?: string | null;
   region: string;
-  country: string;
+  state: string;
   coordinates: [number, number];
   photosAvailable: number;
   previewImage: string;
-  status: "Active" | "Pending";
 };
