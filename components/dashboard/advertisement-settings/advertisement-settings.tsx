@@ -1,12 +1,18 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 import { Loader2, Upload, ExternalLink, X } from "lucide-react";
+import { toast } from "sonner";
+import { 
+  useAdvertisementQuery, 
+  useUpsertAdvertisementMutation, 
+  useDeleteAdvertisementMutation 
+} from "@/hooks/api/useAdvertisement";
 
 export interface PhotoItem {
   id: string;
-  file: File;
+  file?: File;
   preview: string;
 }
 
@@ -30,19 +36,38 @@ export default function AdvertisementSettingsContent() {
   const [photo, setPhoto] = useState<PhotoItem | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [advertisementURL, setAdvertisementURL] = useState("");
-  const [isUploading, setIsUploading] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
+
+  const { data: adData, isLoading: isFetchingAd } = useAdvertisementQuery();
+  const upsertMutation = useUpsertAdvertisementMutation();
+  const deleteMutation = useDeleteAdvertisementMutation();
+
+  // Load existing ad
+  useEffect(() => {
+    if (adData?.data) {
+      setTimeout(() => {
+        setPhoto({
+          id: adData.data.id,
+          preview: adData.data.imageUrl,
+        });
+        setAdvertisementURL(adData.data.linkUrl);
+        setIsPublished(true);
+      }, 0);
+    }
+  }, [adData]);
 
   // Add single file
   const addFile = useCallback(
     (file: File) => {
       if (file.type.startsWith("image/")) {
         // Clean up old preview if exists
-        if (photo) {
+        if (photo && photo.file) {
           URL.revokeObjectURL(photo.preview);
         }
         setPhoto(toPhotoItem(file));
         setIsPublished(false); // Reset published state when new image is uploaded
+      } else {
+        toast.error("Only image files are allowed.");
       }
     },
     [photo],
@@ -83,8 +108,21 @@ export default function AdvertisementSettingsContent() {
 
   // Remove photo
   const removePhoto = () => {
-    if (photo) {
-      URL.revokeObjectURL(photo.preview);
+    if (adData?.data) {
+      deleteMutation.mutate(undefined, {
+        onSuccess: () => {
+          if (photo?.file) {
+            URL.revokeObjectURL(photo.preview);
+          }
+          setPhoto(null);
+          setAdvertisementURL("");
+          setIsPublished(false);
+        }
+      });
+    } else {
+      if (photo?.file) {
+        URL.revokeObjectURL(photo.preview);
+      }
       setPhoto(null);
       setAdvertisementURL("");
       setIsPublished(false);
@@ -92,26 +130,35 @@ export default function AdvertisementSettingsContent() {
   };
 
   // Publish button - uploads the photo
-  const handlePublish = async () => {
-    if (!photo || !advertisementURL) return;
-    setIsUploading(true);
-    try {
-      const body = new FormData();
-      body.append("photo", photo.file);
-      body.append("advertisementURL", advertisementURL);
-
-      // TODO: replace with your actual endpoint
-      // const res = await fetch("/api/advertisement/upload", { method: "POST", body });
-
-      await new Promise((r) => setTimeout(r, 1400));
-
-      setIsPublished(true);
-    } catch (err) {
-      console.error("Upload failed:", err);
-    } finally {
-      setIsUploading(false);
+  const handlePublish = () => {
+    if (!advertisementURL) {
+      toast.error("Advertisement URL is required.");
+      return;
     }
+
+    if (!photo?.file) {
+      toast.error("A new image file is required to publish/update.");
+      return;
+    }
+
+    const body = new FormData();
+    body.append("photo", photo.file);
+    body.append("advertisementURL", advertisementURL);
+
+    upsertMutation.mutate(body, {
+      onSuccess: () => {
+        setIsPublished(true);
+      }
+    });
   };
+
+  if (isFetchingAd) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-[#0a2463]" />
+      </div>
+    );
+  }
 
   return (
     <section className="px-4 py-6 sm:px-6 lg:px-8">
@@ -141,19 +188,20 @@ export default function AdvertisementSettingsContent() {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg, image/jpg, image/png, image/webp"
             className="hidden"
             onChange={handleFileSelect}
           />
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="mt-4 rounded-md bg-[#0a2463] px-6 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+            className="mt-4 rounded-md bg-[#0a2463] px-6 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            disabled={upsertMutation.isPending || deleteMutation.isPending}
           >
             Upload From Computer
           </button>
           <p className="mt-4 text-xs text-gray-400">
-            Supported formats: PDF, DOC, DOCX, JPG, PNG (Max 10MB)
+            Supported formats: JPG, JPEG, PNG, WEBP (Max 10MB)
           </p>
         </div>
       ) : (
@@ -165,17 +213,18 @@ export default function AdvertisementSettingsContent() {
               <button
                 type="button"
                 onClick={removePhoto}
+                disabled={upsertMutation.isPending || deleteMutation.isPending}
                 aria-label="Remove photo"
-                className="absolute top-2.5 right-2.5 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/80 text-red-400 shadow backdrop-blur-sm transition hover:bg-white hover:text-red-600"
+                className="absolute top-2.5 right-2.5 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/80 text-red-400 shadow backdrop-blur-sm transition hover:bg-white hover:text-red-600 disabled:opacity-50"
               >
-                <X className="h-3.5 w-3.5" />
+                {deleteMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />}
               </button>
 
               {/* Preview */}
               <div className="relative h-53 w-full overflow-hidden bg-gray-100 md:h-92">
                 <Image
                   src={photo.preview}
-                  alt={photo.file.name}
+                  alt={photo.file?.name || "Advertisement"}
                   fill
                   unoptimized
                   className="object-cover"
@@ -184,7 +233,7 @@ export default function AdvertisementSettingsContent() {
 
               {/* Meta */}
               <div className="p-4">
-                <p className="truncate text-lg font-semibold text-gray-900">{photo.file.name}</p>
+                <p className="truncate text-lg font-semibold text-gray-900">{photo.file?.name || "Current Advertisement"}</p>
 
                 {/* Show URL after publish */}
                 {isPublished && (
@@ -217,7 +266,8 @@ export default function AdvertisementSettingsContent() {
           placeholder="Enter Advertisement URL"
           value={advertisementURL}
           onChange={(e) => setAdvertisementURL(e.target.value)}
-          className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-[#0a2463] focus:ring-1 focus:ring-[#0a2463] focus:outline-none"
+          disabled={upsertMutation.isPending || deleteMutation.isPending}
+          className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-[#0a2463] focus:ring-1 focus:ring-[#0a2463] focus:outline-none disabled:opacity-50"
         />
       </div>
 
@@ -225,10 +275,10 @@ export default function AdvertisementSettingsContent() {
       <button
         type="button"
         onClick={handlePublish}
-        disabled={isUploading || !photo || !advertisementURL}
+        disabled={upsertMutation.isPending || deleteMutation.isPending || !photo || !advertisementURL}
         className="mt-4 flex w-full items-center justify-center gap-2 rounded-md bg-[#0a2463] py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {isUploading ? (
+        {upsertMutation.isPending ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
             Publishing..

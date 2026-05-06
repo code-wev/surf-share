@@ -14,4 +14,8 @@ export const queryKeys = {
     all: ["auth"] as const,
     session: () => [...queryKeys.auth.all, "session"] as const,
   },
+  advertisement: {
+    all: ["advertisement"] as const,
+    detail: () => [...queryKeys.advertisement.all, "detail"] as const,
+  },
 };
