@@ -1,9 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import dynamic from "next/dynamic";
 
-import UserDetailsModal from "@/components/dashboard/user-management/user-details-modal";
+const UserDetailsModal = dynamic(
+  () => import("@/components/dashboard/user-management/user-details-modal"),
+  { ssr: false }
+);
+
 import UserManagementHeader from "@/components/dashboard/user-management/user-management-header";
 import UserManagementPagination from "@/components/dashboard/user-management/user-management-pagination";
 import UserManagementTable from "@/components/dashboard/user-management/user-management-table";
@@ -158,12 +163,14 @@ export default function DashboardUserManagementContent() {
           />
         )}
 
-        <UserDetailsModal
-          user={selectedUser}
-          planClassNameMap={planClassNameMap}
-          statusClassNameMap={statusClassNameMap}
-          onClose={() => setSelectedUser(null)}
-        />
+        {selectedUser ? (
+          <UserDetailsModal
+            user={selectedUser}
+            planClassNameMap={planClassNameMap}
+            statusClassNameMap={statusClassNameMap}
+            onClose={() => setSelectedUser(null)}
+          />
+        ) : null}
       </div>
     </section>
   );

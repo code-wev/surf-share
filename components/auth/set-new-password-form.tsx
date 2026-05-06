@@ -23,7 +23,8 @@ export function SetNewPasswordForm() {
     if (!token) {
       router.push("/forgot-password");
     } else {
-      setResetToken(token);
+      // Defer state update to avoid cascading renders
+      setTimeout(() => setResetToken(token), 0);
     }
   }, [router]);
 

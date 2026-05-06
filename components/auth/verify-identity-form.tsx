@@ -54,7 +54,7 @@ export function VerifyIdentityForm() {
     if (!storedEmail) {
       router.push("/forgot-password");
     } else {
-      setEmail(storedEmail);
+      setTimeout(() => setEmail(storedEmail), 0);
     }
   }, [router]);
 
