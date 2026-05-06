@@ -2,6 +2,17 @@ import { isAxiosError } from "axios";
 
 export function getErrorMessage(error: unknown, fallbackMessage = "An unexpected error occurred."): string {
   if (isAxiosError(error)) {
+    // Check if the backend sent validation error sources
+    if (
+      error.response?.data?.errorSources &&
+      Array.isArray(error.response.data.errorSources) &&
+      error.response.data.errorSources.length > 0
+    ) {
+      return error.response.data.errorSources
+        .map((err: { path: string; message: string }) => err.message)
+        .join(", ");
+    }
+
     // Check if the backend sent a specific message in the standard format
     if (error.response?.data?.message) {
       return error.response.data.message;

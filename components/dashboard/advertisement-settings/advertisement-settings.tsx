@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useCallback, useRef, useState, useEffect } from "react";
-import { Loader2, Upload, ExternalLink, X } from "lucide-react";
+import { Loader2, Upload,X } from "lucide-react";
 import { toast } from "sonner";
 import { 
   useAdvertisementQuery, 
@@ -36,7 +36,7 @@ export default function AdvertisementSettingsContent() {
   const [photo, setPhoto] = useState<PhotoItem | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [advertisementURL, setAdvertisementURL] = useState("");
-  const [isPublished, setIsPublished] = useState(false);
+  
 
   const { data: adData, isLoading: isFetchingAd } = useAdvertisementQuery();
   const upsertMutation = useUpsertAdvertisementMutation();
@@ -51,7 +51,6 @@ export default function AdvertisementSettingsContent() {
           preview: adData.data.imageUrl,
         });
         setAdvertisementURL(adData.data.linkUrl);
-        setIsPublished(true);
       }, 0);
     }
   }, [adData]);
@@ -65,7 +64,6 @@ export default function AdvertisementSettingsContent() {
           URL.revokeObjectURL(photo.preview);
         }
         setPhoto(toPhotoItem(file));
-        setIsPublished(false); // Reset published state when new image is uploaded
       } else {
         toast.error("Only image files are allowed.");
       }
@@ -116,7 +114,6 @@ export default function AdvertisementSettingsContent() {
           }
           setPhoto(null);
           setAdvertisementURL("");
-          setIsPublished(false);
         }
       });
     } else {
@@ -125,7 +122,6 @@ export default function AdvertisementSettingsContent() {
       }
       setPhoto(null);
       setAdvertisementURL("");
-      setIsPublished(false);
     }
   };
 
@@ -147,7 +143,6 @@ export default function AdvertisementSettingsContent() {
 
     upsertMutation.mutate(body, {
       onSuccess: () => {
-        setIsPublished(true);
       }
     });
   };
@@ -230,29 +225,6 @@ export default function AdvertisementSettingsContent() {
                   className="object-cover"
                 />
               </div>
-
-              {/* Meta */}
-              <div className="p-4">
-                <p className="truncate text-lg font-semibold text-gray-900">{photo.file?.name || "Current Advertisement"}</p>
-
-                {/* Show URL after publish */}
-                {isPublished && (
-                  <div className="mt-3">
-                    <label className="mb-1 block text-sm font-medium text-[#0D1420]">
-                      Advertisement URL
-                    </label>
-                    <a
-                      href={advertisementURL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-sm break-all text-[#0a2463] hover:underline"
-                    >
-                      {advertisementURL}
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                  </div>
-                )}
-              </div>
             </div>
           </div>
         </>
@@ -290,13 +262,6 @@ export default function AdvertisementSettingsContent() {
           </>
         )}
       </button>
-
-      {/* After Publish - Show success message */}
-      {isPublished && (
-        <div className="mt-4 rounded-md bg-green-50 p-3 text-center">
-          <p className="text-sm text-green-700">✓ Advertisement published successfully!</p>
-        </div>
-      )}
     </section>
   );
 }
