@@ -32,6 +32,15 @@ interface ResetPasswordResponse {
   };
 }
 
+interface ChangePasswordResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    success: boolean;
+    message: string;
+  };
+}
+
 interface ApiErrorResponse {
   message: string;
   data?: unknown;
@@ -152,6 +161,51 @@ export const resetPassword = async (
   } catch (error) {
     const errorMessage = getErrorMessage(error);
     console.error("Reset password error:", errorMessage);
+
+    return {
+      success: false,
+      message: errorMessage,
+    };
+  }
+};
+/**
+ * Change password for authenticated users
+ * @param currentPassword - User's current password
+ * @param newPassword - New password to set
+ * @returns Promise with success status and message
+ */
+export const changePassword = async (
+  currentPassword: string,
+  newPassword: string,
+): Promise<ChangePasswordResponse> => {
+  try {
+    if (!currentPassword) {
+      return {
+        success: false,
+        message: "Current password is required.",
+      };
+    }
+
+    if (!newPassword || newPassword.length < 8) {
+      return {
+        success: false,
+        message: "Password must be at least 8 characters long.",
+      };
+    }
+
+    const response = await apiClient.post<ChangePasswordResponse>("/auth/change-password", {
+      currentPassword,
+      newPassword,
+    });
+
+    return {
+      success: response.data.success,
+      message: response.data.message,
+      data: response.data.data,
+    };
+  } catch (error) {
+    const errorMessage = getErrorMessage(error);
+    console.error("Change password error:", errorMessage);
 
     return {
       success: false,

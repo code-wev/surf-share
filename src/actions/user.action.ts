@@ -97,3 +97,27 @@ export const getUserById = async (userId: string): Promise<UserGetByIdResponse> 
     };
   }
 };
+
+/**
+ * UPDATE(PATCH) user details by ID
+ * @param userId - ID of the user to update
+ * @param updateData - Data to update for the user
+ */
+export const updateUserById = async (
+  userId: string,
+  updateData: Record<string, unknown>,
+): Promise<UserGetByIdResponse> => {
+  try {
+    const response = await apiClient.patch<UserGetByIdResponse>(`/users/${userId}`, updateData);
+    return {
+      success: response.data.success,
+      message: response.data.message,
+      data: response.data.data,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: getErrorMessage(error),
+    };
+  }
+};
