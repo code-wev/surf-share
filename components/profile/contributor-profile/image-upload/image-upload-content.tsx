@@ -3,32 +3,20 @@
 import Image from "next/image";
 import { useCallback, useRef, useState } from "react";
 import PhotoCard, { PhotoItem } from "./photo-card";
-import { AlertCircle, ChevronDown, Loader2, Plus, Upload } from "lucide-react";
-
-// Locations
-
-const LOCATIONS = [
-  "Teahupo'o, Tahiti",
-  "Pipeline, Hawaii",
-  "Jeffreys Bay, South Africa",
-  "Uluwatu, Bali",
-  "Hossegor, France",
-  "New York, USA",
-  "Sydney, Australia",
-  "Tokyo, Japan",
-];
+import { AlertCircle, ChevronDown, Loader2, Plus, Upload, XIcon } from "lucide-react";
+import { useLocationsQuery } from "@/hooks/api/useLocations";
+import { useUploadPhotosMutation } from "@/hooks/api/usePhotos";
+import { toast } from "sonner";
 
 // Accepted MIME types for upload
 const ACCEPTED_MIME = [
-  "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "image/jpeg",
+  "image/jpg",
   "image/png",
+  "image/webp"
 ];
 
-// Unique ID generator for photo items (for demo purposes only)
-
+// Unique ID generator for photo items
 function uid() {
   return Math.random().toString(36).slice(2, 10);
 }
@@ -39,7 +27,7 @@ function toPhotoItem(file: File): PhotoItem {
     id: uid(),
     file,
     preview: URL.createObjectURL(file),
-    location: "",
+    locationId: "",
     price: "",
   };
 }
@@ -48,18 +36,25 @@ export default function ImageUploadContentPage() {
   const fileInputRef = useRef<HTMLInputElement>(null); // file input for "Browse" button
   const addMoreRef = useRef<HTMLInputElement>(null); // file input for "Add more" button in thumbnail strip
 
+  const { data: locationsData } = useLocationsQuery({ page: 1, limit: 1000 });
+  const uploadMutation = useUploadPhotosMutation();
+
+  const locations = locationsData?.data || [];
+
   const [pendingPhotos, setPendingPhotos] = useState<PhotoItem[]>([]); // Upper top strip photos for bulk apply
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
   const [isDragging, setIsDragging] = useState(false);
-  const [bulkLocation, setBulkLocation] = useState("");
+  const [bulkLocationId, setBulkLocationId] = useState("");
   const [bulkPrice, setBulkPrice] = useState("");
-  const [isUploading, setIsUploading] = useState(false);
 
   // ── File ingestion ────────────────────────────────────────────────────────
 
   // New files stay pending in the top strip until Apply is clicked.
   const addFiles = useCallback((files: FileList | File[]) => {
     const valid = Array.from(files).filter((f) => ACCEPTED_MIME.includes(f.type));
+    if (valid.length !== files.length) {
+      toast.error("Some files were skipped. Only JPG, PNG, and WEBP images are allowed.");
+    }
     setPendingPhotos((prev) => [...prev, ...valid.map((f) => toPhotoItem(f))]);
   }, []);
 
@@ -78,12 +73,20 @@ export default function ImageUploadContentPage() {
     (e: React.DragEvent) => {
       e.preventDefault();
       setIsDragging(false);
-      addFiles(e.dataTransfer.files);
+      if (e.dataTransfer.files) addFiles(e.dataTransfer.files);
     },
     [addFiles],
   );
 
   // ── Per-card operations ───────────────────────────────────────────────────
+
+  const removePendingPhoto = (id: string) => {
+    setPendingPhotos((prev) => {
+      const photo = prev.find((p) => p.id === id);
+      if (photo) URL.revokeObjectURL(photo.preview);
+      return prev.filter((p) => p.id !== id);
+    });
+  };
 
   const removePhoto = (id: string) => {
     setPhotos((prev) => {
@@ -93,61 +96,60 @@ export default function ImageUploadContentPage() {
     });
   };
 
-  const updatePhoto = (id: string, field: "location" | "price", value: string) => {
+  const updatePhoto = (id: string, field: "locationId" | "price", value: string) => {
     setPhotos((prev) => prev.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
   };
 
   // ── Bulk apply ──
 
   const applyToAllPhotos = () => {
-    if (!bulkLocation || !bulkPrice) return;
+    if (!bulkLocationId || !bulkPrice) return;
 
     if (pendingPhotos.length) {
       // Stage mode - APPLY TO ONLY PENDING PHOTOS
       setPhotos((prev) => [
         ...prev,
-        ...pendingPhotos.map((p) => ({ ...p, location: bulkLocation, price: bulkPrice })),
+        ...pendingPhotos.map((p) => ({ ...p, locationId: bulkLocationId, price: bulkPrice })),
       ]);
       setPendingPhotos([]);
     } else {
       // No pending files - APPLY TO ALL PHOTOS IN UPLOADED GRID
-      setPhotos((prev) => prev.map((p) => ({ ...p, location: bulkLocation, price: bulkPrice })));
+      setPhotos((prev) => prev.map((p) => ({ ...p, locationId: bulkLocationId, price: bulkPrice })));
     }
 
-    setBulkLocation("");
+    setBulkLocationId("");
     setBulkPrice("");
   };
 
   // ── Upload ──
 
-  const handleUpload = async () => {
+  const handleUpload = () => {
     if (!photos.length) return;
-    setIsUploading(true);
-    try {
-      const body = new FormData();
-      photos.forEach(({ file, location, price }) => {
-        body.append("photos", file);
-        body.append("locations", location);
-        body.append("prices", price);
-      });
 
-      // TODO: replace with your actual endpoint
-      // const res = await fetch("/api/photos/upload", { method: "POST", body });
-      // const data = await res.json();
-
-      await new Promise((r) => setTimeout(r, 1400));
-
-      photos.forEach((p) => URL.revokeObjectURL(p.preview));
-      pendingPhotos.forEach((p) => URL.revokeObjectURL(p.preview));
-      setPhotos([]);
-      setPendingPhotos([]);
-      setBulkLocation("");
-      setBulkPrice("");
-    } catch (err) {
-      console.error("Upload failed:", err);
-    } finally {
-      setIsUploading(false);
+    // Validation
+    const invalidPhotos = photos.filter(p => !p.locationId || !p.price);
+    if (invalidPhotos.length > 0) {
+      toast.error("Please ensure all photos have a location and a price before uploading.");
+      return;
     }
+
+    const body = new FormData();
+    photos.forEach(({ file, locationId, price }) => {
+      body.append("photos", file);
+      body.append("locations", locationId);
+      body.append("prices", price);
+    });
+
+    uploadMutation.mutate(body, {
+      onSuccess: () => {
+        photos.forEach((p) => URL.revokeObjectURL(p.preview));
+        pendingPhotos.forEach((p) => URL.revokeObjectURL(p.preview));
+        setPhotos([]);
+        setPendingPhotos([]);
+        setBulkLocationId("");
+        setBulkPrice("");
+      }
+    });
   };
 
   // ── Render ──
@@ -187,7 +189,7 @@ export default function ImageUploadContentPage() {
               ref={fileInputRef}
               type="file"
               multiple
-              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+              accept=".jpg,.jpeg,.png,.webp"
               className="hidden"
               onChange={(e) => {
                 if (e.target.files) addFiles(e.target.files);
@@ -202,7 +204,7 @@ export default function ImageUploadContentPage() {
               Browse Photos
             </button>
             <p className="mt-4 px-2 text-xs text-gray-400">
-              Supported formats: PDF, DOC, DOCX, JPG, PNG (Max 10MB)
+              Supported formats: JPG, JPEG, PNG, WEBP (Max 10MB)
             </p>
           </div>
 
@@ -211,14 +213,14 @@ export default function ImageUploadContentPage() {
               <label className="mb-1.5 block text-sm font-medium text-gray-800">Location</label>
               <div className="relative">
                 <select
-                  value={bulkLocation}
-                  onChange={(e) => setBulkLocation(e.target.value)}
+                  value={bulkLocationId}
+                  onChange={(e) => setBulkLocationId(e.target.value)}
                   className="w-full appearance-none rounded-md border border-gray-200 bg-white py-2.5 pr-8 pl-3 text-sm text-gray-500 focus:border-[#0a2463] focus:ring-1 focus:ring-[#0a2463] focus:outline-none"
                 >
                   <option value="">Select location</option>
-                  {LOCATIONS.map((loc) => (
-                    <option key={loc} value={loc}>
-                      {loc}
+                  {locations.map((loc: { id: string; name: string }) => (
+                    <option key={loc.id} value={loc.id}>
+                      {loc.name}
                     </option>
                   ))}
                 </select>
@@ -236,6 +238,11 @@ export default function ImageUploadContentPage() {
                 step="0.01"
                 placeholder="Enter Price"
                 value={bulkPrice}
+                onKeyDown={(e) => {
+                  if (e.key === "-" || e.key === "e") {
+                    e.preventDefault();
+                  }
+                }}
                 onChange={(e) => setBulkPrice(e.target.value)}
                 className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-[#0a2463] focus:ring-1 focus:ring-[#0a2463] focus:outline-none"
               />
@@ -262,7 +269,7 @@ export default function ImageUploadContentPage() {
             }`}
           >
             {pendingPhotos.map((p) => (
-              <div key={p.id} className="relative h-16 w-20 overflow-hidden rounded-md bg-gray-100">
+              <div key={p.id} className="relative group h-16 w-20 overflow-hidden rounded-md bg-gray-100">
                 <Image
                   src={p.preview}
                   alt={p.file.name}
@@ -271,6 +278,13 @@ export default function ImageUploadContentPage() {
                   sizes="80px"
                   className="object-cover"
                 />
+                <button
+                  type="button"
+                  onClick={() => removePendingPhoto(p.id)}
+                  className="absolute top-1 right-1 z-10 flex h-4 w-4 items-center justify-center rounded-full bg-white/80 text-red-500 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-white hover:text-red-600"
+                >
+                  <XIcon className="h-3 w-3" strokeWidth={3} />
+                </button>
               </div>
             ))}
 
@@ -279,7 +293,7 @@ export default function ImageUploadContentPage() {
               ref={addMoreRef}
               type="file"
               multiple
-              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+              accept=".jpg,.jpeg,.png,.webp"
               className="hidden"
               onChange={(e) => {
                 if (e.target.files) addFiles(e.target.files);
@@ -306,14 +320,14 @@ export default function ImageUploadContentPage() {
 
                 <div className="relative">
                   <select
-                    value={bulkLocation}
-                    onChange={(e) => setBulkLocation(e.target.value)}
+                    value={bulkLocationId}
+                    onChange={(e) => setBulkLocationId(e.target.value)}
                     className="w-full appearance-none rounded-md border border-gray-200 bg-white py-2.5 pr-8 pl-3 text-sm text-gray-500 focus:border-[#0a2463] focus:ring-1 focus:ring-[#0a2463] focus:outline-none"
                   >
                     <option value="">Country, City, or Landmark</option>
-                    {LOCATIONS.map((loc) => (
-                      <option key={loc} value={loc}>
-                        {loc}
+                    {locations.map((loc: { id: string; name: string }) => (
+                      <option key={loc.id} value={loc.id}>
+                        {loc.name}
                       </option>
                     ))}
                   </select>
@@ -334,13 +348,18 @@ export default function ImageUploadContentPage() {
                     step="0.01"
                     placeholder="Enter Price"
                     value={bulkPrice}
+                    onKeyDown={(e) => {
+                      if (e.key === "-" || e.key === "e") {
+                        e.preventDefault();
+                      }
+                    }}
                     onChange={(e) => setBulkPrice(e.target.value)}
                     className="flex-1 rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-[#0a2463] focus:ring-1 focus:ring-[#0a2463] focus:outline-none"
                   />
                   <button
                     type="button"
                     onClick={applyToAllPhotos}
-                    disabled={!bulkLocation || !bulkPrice}
+                    disabled={!bulkLocationId || !bulkPrice}
                     className="rounded-md bg-[#0a2463] px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-40"
                   >
                     Apply
@@ -362,7 +381,7 @@ export default function ImageUploadContentPage() {
                   <PhotoCard
                     key={photo.id}
                     photo={photo}
-                    locations={LOCATIONS}
+                    locations={locations}
                     onRemove={removePhoto}
                     onChange={updatePhoto}
                   />
@@ -389,10 +408,10 @@ export default function ImageUploadContentPage() {
         <button
           type="button"
           onClick={handleUpload}
-          disabled={isUploading}
+          disabled={uploadMutation.isPending}
           className="mt-6 flex w-full items-center justify-center gap-2 rounded-md bg-[#0a2463] py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isUploading ? (
+          {uploadMutation.isPending ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
               Uploading…

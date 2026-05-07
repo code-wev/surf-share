@@ -7,15 +7,20 @@ export interface PhotoItem {
   id: string;
   file: File;
   preview: string;
-  location: string;
+  locationId: string;
   price: string;
+}
+
+interface LocationOption {
+  id: string;
+  name: string;
 }
 
 interface PhotoCardProps {
   photo: PhotoItem;
-  locations: string[];
+  locations: LocationOption[];
   onRemove: (id: string) => void;
-  onChange: (id: string, field: "location" | "price", value: string) => void;
+  onChange: (id: string, field: "locationId" | "price", value: string) => void;
 }
 
 function formatBytes(bytes: number): string {
@@ -90,14 +95,14 @@ export default function PhotoCard({ photo, locations, onRemove, onChange }: Phot
           <label className="mb-1 block text-base font-medium text-[#0D1420]">Location</label>
           <div className="relative">
             <select
-              value={photo.location}
-              onChange={(e) => onChange(photo.id, "location", e.target.value)}
+              value={photo.locationId}
+              onChange={(e) => onChange(photo.id, "locationId", e.target.value)}
               className="w-full appearance-none rounded-md border border-gray-200 bg-[#EFF6FF] py-2 pr-7 pl-3 text-sm text-gray-700 focus:border-[#0a2463] focus:ring-1 focus:ring-[#0a2463] focus:outline-none"
             >
               <option value="">Select location</option>
               {locations.map((loc) => (
-                <option key={loc} value={loc}>
-                  {loc}
+                <option key={loc.id} value={loc.id}>
+                  {loc.name}
                 </option>
               ))}
             </select>
@@ -120,6 +125,11 @@ export default function PhotoCard({ photo, locations, onRemove, onChange }: Phot
               step="0.01"
               placeholder="0.00"
               value={photo.price}
+              onKeyDown={(e) => {
+                if (e.key === "-" || e.key === "e") {
+                  e.preventDefault();
+                }
+              }}
               onChange={(e) => onChange(photo.id, "price", e.target.value)}
               className="w-full rounded-md border border-gray-200 bg-[#EFF6FF] py-2 pr-3 pl-6 text-sm text-gray-700 placeholder-[#9CA3AF] focus:border-[#0a2463] focus:ring-1 focus:ring-[#0a2463] focus:outline-none"
             />

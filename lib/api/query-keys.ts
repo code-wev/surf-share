@@ -26,4 +26,7 @@ export const queryKeys = {
     details: () => [...queryKeys.locations.all, "detail"] as const,
     detail: (id: string) => [...queryKeys.locations.details(), id] as const,
   },
+  photos: {
+    all: ["photos"] as const,
+  },
 };
