@@ -1,13 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { ChevronDown, Plus } from "lucide-react";
+import { Pencil, ChevronDown, Plus } from "lucide-react";
 import { useState } from "react";
+import React from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import ProfileInfoField from "@/components/profile/profile-info-field";
 import ProfilePasswordField from "@/components/profile/profile-password-field";
 import { Input } from "@/components/ui/input";
 import { getDemoUserProfile, useAuth } from "@/lib/auth";
+import { getUserById, updateUserById } from "@/src/actions/user.action";
+import { changePassword } from "@/src/actions/auth.action";
 
 type SocialAccountType = "facebook" | "instagram" | "twitter" | "x";
 
@@ -20,16 +24,39 @@ type SocialAccountLink = {
 const SOCIAL_ACCOUNT_TYPES: { value: SocialAccountType; label: string }[] = [
   { value: "facebook", label: "Facebook" },
   { value: "instagram", label: "Instagram" },
-  { value: "twitter", label: "Twitter" },
-  { value: "x", label: "X" },
+  { value: "twitter", label: "Twitter / X" },
 ];
 
 export default function ProfileSettingsContent() {
   const { session } = useAuth();
   const profile = getDemoUserProfile(session);
-  const [socialType, setSocialType] = useState<SocialAccountType | "">("");
+  const queryClient = useQueryClient();
+  const [socialType, setSocialType] = useState<SocialAccountType | "">();
   const [socialUrl, setSocialUrl] = useState("");
   const [socialLinks, setSocialLinks] = useState<SocialAccountLink[]>([]);
+
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [editValues, setEditValues] = useState<{
+    fullName: string;
+    country: string;
+    phone: string;
+    email: string;
+    address: string;
+  } | null>(null);
+
+  // Password change form state (separate from profile edit)
+  const [passwordFormValues, setPasswordFormValues] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   const isContributor = session?.role === "PHOTOGRAPHER";
 
@@ -50,9 +77,43 @@ export default function ProfileSettingsContent() {
     setSocialUrl("");
   };
 
-  if (!profile) {
-    return null;
+  // Fetch user from API to get real values (and social accounts)
+  const { data } = useQuery({
+    queryKey: ["profile", session?.id],
+    queryFn: async () => {
+      if (!session?.id) throw new Error("Missing session user id.");
+      return getUserById(session.id);
+    },
+    enabled: Boolean(session?.id),
+  });
+
+  const apiProfile = data?.data;
+  const displayProfile = profile
+    ? {
+        ...profile,
+        fullName: apiProfile?.name ?? profile.fullName,
+        country: apiProfile?.countryName ?? profile.country,
+        phone: apiProfile?.phoneNumber ?? profile.phone,
+        email: apiProfile?.email ?? profile.email,
+        address: apiProfile?.address ?? profile.address,
+      }
+    : profile;
+
+  // Prepare social links - show any added links or load from API
+  interface _ApiProfile {
+    socialAccounts?: { platform: string; url: string }[];
   }
+  const incoming = (apiProfile as unknown as _ApiProfile)?.socialAccounts || [];
+  const displaySocialLinks: SocialAccountLink[] =
+    socialLinks.length > 0
+      ? socialLinks
+      : (incoming || []).map((s, i) => ({
+          id: `${s.platform}-${i}`,
+          type: s.platform as SocialAccountType,
+          url: s.url,
+        }));
+
+  if (!displayProfile) return null;
 
   return (
     <div className="h-full px-4 py-4 sm:px-6 sm:py-6 md:px-0 md:py-0">
@@ -65,7 +126,7 @@ export default function ProfileSettingsContent() {
           <div className="relative">
             <div className="border-line-weaker bg-fill-hover h-25 w-25 overflow-hidden rounded-full border">
               <Image
-                src={profile.avatarSrc}
+                src={displayProfile.avatarSrc}
                 alt="Profile photo"
                 width={100}
                 height={100}
@@ -73,17 +134,179 @@ export default function ProfileSettingsContent() {
               />
             </div>
           </div>
-          <p className="text-text-strong mt-4 text-lg font-medium">{profile.fullName}</p>
+          <p className="text-text-strong mt-4 text-lg font-medium">{displayProfile.fullName}</p>
+        </div>
+        {/* Profile fields */}
+        <div className="mt-6 flex items-center justify-between md:mt-9">
+          <h2 className="text-text-strong text-[18px] font-semibold">Profile Details</h2>
+
+          {!isEditingProfile ? (
+            <button
+              type="button"
+              onClick={() => {
+                setEditValues({
+                  fullName: displayProfile.fullName,
+                  country: displayProfile.country,
+                  phone: displayProfile.phone,
+                  email: displayProfile.email,
+                  address: displayProfile.address,
+                });
+                setIsEditingProfile(true);
+              }}
+              className="border-line-weaker bg-fill-weak text-text-weak hover:bg-surface-muted-100 inline-flex h-9 cursor-pointer items-center gap-2 rounded-sm border px-4 text-sm font-medium transition-colors"
+            >
+              <Pencil size={14} />
+              Edit Profile
+            </button>
+          ) : (
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setEditValues(null);
+                  setIsEditingProfile(false);
+                  setMessage(null);
+                }}
+                disabled={isSaving}
+                className="border-line-weaker bg-fill-weak text-text-weak hover:bg-surface-muted-100 inline-flex h-9 items-center rounded-sm border px-4 text-sm font-medium transition-colors disabled:opacity-50"
+              >
+                Discard
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!session?.id || !editValues) return;
+
+                  // Validation
+                  if (!editValues.fullName.trim()) {
+                    setMessage({ type: "error", text: "Full name is required" });
+                    return;
+                  }
+                  if (editValues.fullName.trim().length < 2) {
+                    setMessage({ type: "error", text: "Full name must be at least 2 characters" });
+                    return;
+                  }
+
+                  // Validate social media URLs if any
+                  if (displaySocialLinks.length > 0) {
+                    const urlRegex = /^https?:\/\/.+/i;
+                    for (const link of displaySocialLinks) {
+                      if (!urlRegex.test(link.url)) {
+                        setMessage({
+                          type: "error",
+                          text: `Invalid URL for ${link.type}: ${link.url}. URLs must start with http:// or https://`,
+                        });
+                        return;
+                      }
+                    }
+                  }
+
+                  setIsSaving(true);
+                  setMessage(null);
+                  try {
+                    const payload: Record<string, unknown> = {
+                      name: editValues.fullName.trim(),
+                      countryName: editValues.country?.trim() || undefined,
+                      phoneNumber: editValues.phone?.trim() || undefined,
+                      address: editValues.address?.trim() || undefined,
+                    };
+
+                    // Remove undefined values
+                    Object.keys(payload).forEach(
+                      (key) => payload[key] === undefined && delete payload[key],
+                    );
+
+                    if (isContributor && displaySocialLinks.length > 0) {
+                      payload.socialAccounts = displaySocialLinks.map((s) => ({
+                        platform: s.type,
+                        url: s.url,
+                      }));
+                    }
+
+                    const result = await updateUserById(session.id, payload);
+                    if (result.success) {
+                      setMessage({ type: "success", text: "Profile updated successfully!" });
+                      await queryClient.invalidateQueries({ queryKey: ["profile", session.id] });
+                      setIsEditingProfile(false);
+                      setEditValues(null);
+                    } else {
+                      setMessage({
+                        type: "error",
+                        text: result.message || "Failed to update profile",
+                      });
+                    }
+                  } catch (error) {
+                    const errorMessage =
+                      error instanceof Error
+                        ? error.message
+                        : "Failed to update profile. Please try again.";
+                    setMessage({
+                      type: "error",
+                      text: errorMessage,
+                    });
+                  } finally {
+                    setIsSaving(false);
+                  }
+                }}
+                disabled={isSaving}
+                className="bg-brand-default text-text-inverse-strong hover:bg-brand-hover inline-flex h-9 items-center rounded-sm px-4 text-sm font-medium transition-colors disabled:opacity-60"
+              >
+                {isSaving ? "Saving…" : "Save changes"}
+              </button>
+            </div>
+          )}
         </div>
 
-        <div className="mt-6 grid grid-cols-1 gap-4 md:mt-9 md:grid-cols-2 md:gap-x-6 md:gap-y-5">
-          <ProfileInfoField label="Full name" defaultValue={profile.fullName} />
-          <ProfileInfoField label="Country Name" defaultValue={profile.country} />
-          <ProfileInfoField label="Phone Number" defaultValue={profile.phone} />
-          <ProfileInfoField label="Email Address" defaultValue={profile.email} />
+        {message && (
+          <div
+            className={`mt-4 rounded-sm p-3 text-sm font-medium ${
+              message.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+            }`}
+          >
+            {message.text}
+          </div>
+        )}
+
+        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-x-6 md:gap-y-5">
+          <ProfileInfoField
+            label="Full name"
+            value={isEditingProfile && editValues ? editValues.fullName : displayProfile.fullName}
+            defaultValue={displayProfile.fullName}
+            isEditing={isEditingProfile}
+            onChange={(v: string) =>
+              setEditValues((prev) => (prev ? { ...prev, fullName: v } : prev))
+            }
+          />
+          <ProfileInfoField
+            label="Country Name"
+            value={isEditingProfile && editValues ? editValues.country : displayProfile.country}
+            defaultValue={displayProfile.country}
+            isEditing={isEditingProfile}
+            onChange={(v: string) =>
+              setEditValues((prev) => (prev ? { ...prev, country: v } : prev))
+            }
+          />
+          <ProfileInfoField
+            label="Phone Number"
+            value={isEditingProfile && editValues ? editValues.phone : displayProfile.phone}
+            defaultValue={displayProfile.phone}
+            isEditing={isEditingProfile}
+            onChange={(v: string) => setEditValues((prev) => (prev ? { ...prev, phone: v } : prev))}
+          />
+          <ProfileInfoField
+            label="Email Address"
+            value={displayProfile.email}
+            defaultValue={displayProfile.email}
+            isEditing={false}
+          />
           <ProfileInfoField
             label="Address"
-            defaultValue={profile.address}
+            value={isEditingProfile && editValues ? editValues.address : displayProfile.address}
+            defaultValue={displayProfile.address}
+            isEditing={isEditingProfile}
+            onChange={(v: string) =>
+              setEditValues((prev) => (prev ? { ...prev, address: v } : prev))
+            }
             className="md:col-span-2"
           />
 
@@ -130,13 +353,26 @@ export default function ProfileSettingsContent() {
                 </button>
               </div>
 
-              {socialLinks.length > 0 && (
+              {displaySocialLinks.length > 0 && (
                 <div className="mt-3 space-y-2">
-                  {socialLinks.map((link) => (
-                    <p key={link.id} className="text-text-brand-weak text-base">
-                      <span className="text-text-brand-strong font-medium">{link.type}:</span>{" "}
-                      {link.url}
-                    </p>
+                  {displaySocialLinks.map((link) => (
+                    <div key={link.id} className="flex items-center gap-3">
+                      <p className="text-text-brand-weak text-base">
+                        <span className="text-text-brand-strong font-medium">{link.type}:</span>{" "}
+                        {link.url}
+                      </p>
+                      {isEditingProfile && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setSocialLinks((prev) => prev.filter((p) => p.id !== link.id))
+                          }
+                          className="text-text-weak text-sm"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
                   ))}
                 </div>
               )}
@@ -146,35 +382,106 @@ export default function ProfileSettingsContent() {
 
         <div className="mt-8 md:mt-12">
           <h2 className="text-text-strong mb-6 text-[22px] font-semibold">Change Password</h2>
-          <div className="space-y-5">
-            <div>
-              <ProfilePasswordField label="Password" placeholder="Type your password" />
-            </div>
-            <div>
-              <ProfilePasswordField label="New Password" placeholder="Type new your password" />
-            </div>
-            <div>
-              <ProfilePasswordField
-                label="Confirm New Password"
-                placeholder="Confirm your password"
-              />
-            </div>
-          </div>
-        </div>
 
-        <div className="mt-6 flex items-center justify-end gap-3">
-          <button
-            type="button"
-            className="border-line-weaker bg-fill-weak text-text-weak hover:bg-surface-muted-100 inline-flex h-10 items-center rounded-sm border px-4 text-sm font-medium transition-colors"
+          {passwordMessage && (
+            <div
+              className={`mb-6 rounded-sm p-3 text-sm font-medium ${
+                passwordMessage.type === "success"
+                  ? "bg-green-100 text-green-800"
+                  : "bg-red-100 text-red-800"
+              }`}
+            >
+              {passwordMessage.text}
+            </div>
+          )}
+
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setPasswordMessage(null);
+
+              // Validation
+              if (!passwordFormValues.currentPassword) {
+                setPasswordMessage({ type: "error", text: "Current password is required." });
+                return;
+              }
+
+              if (!passwordFormValues.newPassword) {
+                setPasswordMessage({ type: "error", text: "New password is required." });
+                return;
+              }
+
+              if (passwordFormValues.newPassword.length < 8) {
+                setPasswordMessage({
+                  type: "error",
+                  text: "Password must be at least 8 characters long.",
+                });
+                return;
+              }
+
+              if (passwordFormValues.newPassword !== passwordFormValues.confirmPassword) {
+                setPasswordMessage({ type: "error", text: "Passwords do not match." });
+                return;
+              }
+
+              setPasswordLoading(true);
+              try {
+                const result = await changePassword(
+                  passwordFormValues.currentPassword,
+                  passwordFormValues.newPassword,
+                );
+
+                if (result.success) {
+                  setPasswordMessage({ type: "success", text: result.message });
+                  setPasswordFormValues({
+                    currentPassword: "",
+                    newPassword: "",
+                    confirmPassword: "",
+                  });
+                  await queryClient.invalidateQueries({ queryKey: ["profile", session?.id] });
+                } else {
+                  setPasswordMessage({ type: "error", text: result.message });
+                }
+              } catch {
+                setPasswordMessage({
+                  type: "error",
+                  text: "Failed to change password. Please try again.",
+                });
+              } finally {
+                setPasswordLoading(false);
+              }
+            }}
+            className="space-y-5"
           >
-            Discard
-          </button>
-          <button
-            type="button"
-            className="bg-brand-default text-text-inverse-strong hover:bg-brand-hover inline-flex h-10 items-center rounded-sm px-4 text-sm font-medium transition-colors"
-          >
-            Save changes
-          </button>
+            <ProfilePasswordField
+              label="Current Password"
+              placeholder="Enter your current password"
+              value={passwordFormValues.currentPassword}
+              onChange={(v) => setPasswordFormValues((prev) => ({ ...prev, currentPassword: v }))}
+            />
+            <ProfilePasswordField
+              label="New Password"
+              placeholder="Enter your new password"
+              value={passwordFormValues.newPassword}
+              onChange={(v) => setPasswordFormValues((prev) => ({ ...prev, newPassword: v }))}
+            />
+            <ProfilePasswordField
+              label="Confirm Password"
+              placeholder="Confirm your new password"
+              value={passwordFormValues.confirmPassword}
+              onChange={(v) => setPasswordFormValues((prev) => ({ ...prev, confirmPassword: v }))}
+            />
+
+            <div className="mb-10 pt-4">
+              <button
+                type="submit"
+                disabled={passwordLoading}
+                className="bg-brand-default text-text-inverse-strong hover:bg-brand-hover inline-flex h-9 items-center rounded-sm px-6 text-sm font-medium transition-colors disabled:opacity-60"
+              >
+                {passwordLoading ? "Updating..." : "Update Password"}
+              </button>
+            </div>
+          </form>
         </div>
       </section>
     </div>
