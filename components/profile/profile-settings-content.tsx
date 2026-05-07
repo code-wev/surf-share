@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { ChevronDown, Plus, Pencil } from "lucide-react";
+import { Pencil, ChevronDown, Plus } from "lucide-react";
 import { useState } from "react";
+import React from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import ProfileInfoField from "@/components/profile/profile-info-field";
@@ -23,15 +24,14 @@ type SocialAccountLink = {
 const SOCIAL_ACCOUNT_TYPES: { value: SocialAccountType; label: string }[] = [
   { value: "facebook", label: "Facebook" },
   { value: "instagram", label: "Instagram" },
-  { value: "twitter", label: "Twitter" },
-  { value: "x", label: "X" },
+  { value: "twitter", label: "Twitter / X" },
 ];
 
 export default function ProfileSettingsContent() {
   const { session } = useAuth();
   const profile = getDemoUserProfile(session);
   const queryClient = useQueryClient();
-  const [socialType, setSocialType] = useState<SocialAccountType | "">("");
+  const [socialType, setSocialType] = useState<SocialAccountType | "">();
   const [socialUrl, setSocialUrl] = useState("");
   const [socialLinks, setSocialLinks] = useState<SocialAccountLink[]>([]);
 
@@ -99,16 +99,16 @@ export default function ProfileSettingsContent() {
       }
     : profile;
 
-  // Prepare social links from API (do not call setState during render/effect)
+  // Prepare social links - show any added links or load from API
   interface _ApiProfile {
     socialAccounts?: { platform: string; url: string }[];
   }
-  const incoming = (apiProfile as unknown as _ApiProfile)?.socialAccounts;
-  const mergedSocialLinks: SocialAccountLink[] =
+  const incoming = (apiProfile as unknown as _ApiProfile)?.socialAccounts || [];
+  const displaySocialLinks: SocialAccountLink[] =
     socialLinks.length > 0
       ? socialLinks
-      : (incoming || []).map((s) => ({
-          id: `${s.platform}-${s.url}`,
+      : (incoming || []).map((s, i) => ({
+          id: `${s.platform}-${i}`,
           type: s.platform as SocialAccountType,
           url: s.url,
         }));
@@ -176,18 +176,48 @@ export default function ProfileSettingsContent() {
                 type="button"
                 onClick={async () => {
                   if (!session?.id || !editValues) return;
+
+                  // Validation
+                  if (!editValues.fullName.trim()) {
+                    setMessage({ type: "error", text: "Full name is required" });
+                    return;
+                  }
+                  if (editValues.fullName.trim().length < 2) {
+                    setMessage({ type: "error", text: "Full name must be at least 2 characters" });
+                    return;
+                  }
+
+                  // Validate social media URLs if any
+                  if (displaySocialLinks.length > 0) {
+                    const urlRegex = /^https?:\/\/.+/i;
+                    for (const link of displaySocialLinks) {
+                      if (!urlRegex.test(link.url)) {
+                        setMessage({
+                          type: "error",
+                          text: `Invalid URL for ${link.type}: ${link.url}. URLs must start with http:// or https://`,
+                        });
+                        return;
+                      }
+                    }
+                  }
+
                   setIsSaving(true);
                   setMessage(null);
                   try {
                     const payload: Record<string, unknown> = {
-                      name: editValues.fullName,
-                      countryName: editValues.country,
-                      phoneNumber: editValues.phone,
-                      address: editValues.address,
+                      name: editValues.fullName.trim(),
+                      countryName: editValues.country?.trim() || undefined,
+                      phoneNumber: editValues.phone?.trim() || undefined,
+                      address: editValues.address?.trim() || undefined,
                     };
 
-                    if (isContributor && mergedSocialLinks.length > 0) {
-                      payload.socialAccounts = mergedSocialLinks.map((s) => ({
+                    // Remove undefined values
+                    Object.keys(payload).forEach(
+                      (key) => payload[key] === undefined && delete payload[key],
+                    );
+
+                    if (isContributor && displaySocialLinks.length > 0) {
+                      payload.socialAccounts = displaySocialLinks.map((s) => ({
                         platform: s.type,
                         url: s.url,
                       }));
@@ -205,10 +235,14 @@ export default function ProfileSettingsContent() {
                         text: result.message || "Failed to update profile",
                       });
                     }
-                  } catch {
+                  } catch (error) {
+                    const errorMessage =
+                      error instanceof Error
+                        ? error.message
+                        : "Failed to update profile. Please try again.";
                     setMessage({
                       type: "error",
-                      text: "Failed to update profile. Please try again.",
+                      text: errorMessage,
                     });
                   } finally {
                     setIsSaving(false);
@@ -289,7 +323,6 @@ export default function ProfileSettingsContent() {
                       setSocialType(event.target.value as SocialAccountType | "")
                     }
                     className="border-line-weaker bg-surface-muted-100 text-text-weak focus-visible:ring-brand-default/30 h-11 w-full appearance-none rounded-md border px-3 pr-8 text-sm focus-visible:ring-2 focus-visible:outline-none"
-                    disabled={!isEditingProfile}
                   >
                     <option value="">Account</option>
                     {SOCIAL_ACCOUNT_TYPES.map((type) => (
@@ -307,23 +340,22 @@ export default function ProfileSettingsContent() {
                   value={socialUrl}
                   onChange={(event) => setSocialUrl(event.target.value)}
                   placeholder="Enter profile link"
-                  disabled={!isEditingProfile}
                 />
 
                 <button
                   type="button"
                   onClick={addSocialLink}
                   aria-label="Add social media link"
-                  disabled={!isEditingProfile || !socialType || !socialUrl.trim()}
+                  disabled={!socialType || !socialUrl.trim()}
                   className="text-text-weak hover:bg-surface-muted-100 inline-flex h-10 w-10 items-center justify-center gap-x-1 rounded-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <Plus className="h-5 w-5" /> <span className="text-[10px]">Add</span>
                 </button>
               </div>
 
-              {mergedSocialLinks.length > 0 && (
+              {displaySocialLinks.length > 0 && (
                 <div className="mt-3 space-y-2">
-                  {mergedSocialLinks.map((link) => (
+                  {displaySocialLinks.map((link) => (
                     <div key={link.id} className="flex items-center gap-3">
                       <p className="text-text-brand-weak text-base">
                         <span className="text-text-brand-strong font-medium">{link.type}:</span>{" "}
