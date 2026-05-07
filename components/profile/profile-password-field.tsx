@@ -8,9 +8,18 @@ import { Input } from "@/components/ui/input";
 type ProfilePasswordFieldProps = {
   label: string;
   placeholder: string;
+  value?: string;
+  onChange?: (value: string) => void;
+  disabled?: boolean;
 };
 
-export default function ProfilePasswordField({ label, placeholder }: ProfilePasswordFieldProps) {
+export default function ProfilePasswordField({
+  label,
+  placeholder,
+  value,
+  onChange,
+  disabled = false,
+}: ProfilePasswordFieldProps) {
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => {
@@ -24,6 +33,9 @@ export default function ProfilePasswordField({ label, placeholder }: ProfilePass
         <Input
           type={showPassword ? "text" : "password"}
           placeholder={placeholder}
+          value={value}
+          onChange={(e) => onChange?.(e.target.value)}
+          disabled={disabled}
           className="bg-surface-muted-100 text-text-weak h-10 pr-9 text-sm"
         />
         <button
