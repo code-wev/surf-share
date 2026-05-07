@@ -7,7 +7,6 @@ import UserDetailsModal from "@/components/dashboard/user-management/user-detail
 import UserManagementHeader from "@/components/dashboard/user-management/user-management-header";
 import UserManagementPagination from "@/components/dashboard/user-management/user-management-pagination";
 import UserManagementTable from "@/components/dashboard/user-management/user-management-table";
-import { apiClient } from "@/lib/api/client";
 import {
   planClassNameMap,
   statusClassNameMap,
@@ -18,16 +17,7 @@ import type {
   UserRow,
   UserRole,
 } from "@/components/dashboard/user-management/user-management-types";
-
-type ApiUser = {
-  id: string;
-  name: string;
-  email: string;
-  phoneNumber?: string;
-  role: string;
-  countryName?: string;
-  address?: string;
-};
+import { getUsers } from "@/src/actions/user.action";
 
 export default function DashboardUserManagementContent() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -40,14 +30,11 @@ export default function DashboardUserManagementContent() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["users", activeFilter, currentPage],
     queryFn: async () => {
-      const response = await apiClient.get("/users", {
-        params: {
-          role: activeFilter,
-          page: currentPage,
-          limit: 10,
-        },
+      return getUsers({
+        role: activeFilter,
+        page: currentPage,
+        limit: 10,
       });
-      return response.data;
     },
   });
 
@@ -98,21 +85,23 @@ export default function DashboardUserManagementContent() {
   };
 
   const mappedRows: UserRow[] = useMemo(() => {
-    return data?.data?.map((user: ApiUser) => ({
-      id: user.id,
-      photo: "/home/latest/latest15.jpg", // Default photo as requested
-      name: user.name,
-      email: user.email,
-      phone: user.phoneNumber || "-",
-      role: mapRoleToFrontend(user.role),
-      contributedPhotos: "-", // Specific requested defaults
-      plan: "-",
-      platformCommission: "-",
-      purchasePhoto: "-",
-      status: "Active", // Default
-      country: user.countryName,
-      address: user.address,
-    })) || [];
+    return (
+      data?.data?.map((user) => ({
+        id: user.id,
+        photo: "/home/latest/latest15.jpg", // Default photo as requested
+        name: user.name,
+        email: user.email,
+        phone: user.phoneNumber || "-",
+        role: mapRoleToFrontend(user.role),
+        contributedPhotos: "-", // Specific requested defaults
+        plan: "-",
+        platformCommission: "-",
+        purchasePhoto: "-",
+        status: "Active", // Default
+        country: user.countryName ?? undefined,
+        address: user.address ?? undefined,
+      })) || []
+    );
   }, [data?.data]);
 
   const totalPages = data?.meta?.totalPages || 1;
