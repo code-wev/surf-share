@@ -77,6 +77,21 @@ export const getUsers = async (query: Record<string, unknown>): Promise<UserGetR
   }
 };
 
+export const getUserPhotos = async (userId: string, limit: number = 10): Promise<{ success: boolean; data: Array<{ imageUrl: string }> }> => {
+  try {
+    const response = await apiClient.get(`/photos/${userId}`, { params: { limit } });
+    return {
+      success: true,
+      data: response.data.data,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      data: [],
+    };
+  }
+};
+
 /**
  * GET user details by ID
  * @param userId - ID of the user to retrieve

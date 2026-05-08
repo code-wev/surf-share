@@ -1,14 +1,15 @@
 import Image from "next/image";
-import { ChevronsRight, SquarePen } from "lucide-react";
+import { ChevronsRight, SquarePen, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { getUserById, getUserPhotos } from "@/src/actions/user.action";
 
 import type {
   UserPlan,
-  UserRow,
   UserStatus,
 } from "@/components/dashboard/user-management/user-management-types";
 
 type UserDetailsModalProps = {
-  user: UserRow | null;
+  userId: string | null;
   planClassNameMap: Record<UserPlan, string>;
   statusClassNameMap: Record<UserStatus, string>;
   onClose: () => void;
@@ -19,13 +20,6 @@ type UserDetailRowProps = {
   value: React.ReactNode;
 };
 
-const previewPhotoSources = [
-  "/home/latest/latest1.jpg",
-  "/home/latest/latest2.jpg",
-  "/home/latest/latest3.jpg",
-  "/home/latest/latest4.jpg",
-] as const;
-
 function UserDetailRow({ label, value }: UserDetailRowProps) {
   return (
     <div className="grid grid-cols-[92px_minmax(0,1fr)] gap-x-12 gap-y-1 text-xs leading-tight sm:grid-cols-[104px_minmax(0,1fr)] sm:text-sm [font-family:var(--font-sf-pro)] py-1">
@@ -35,37 +29,32 @@ function UserDetailRow({ label, value }: UserDetailRowProps) {
   );
 }
 
-function InlineBadge({
-  className,
-  children,
-}: {
-  className: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <span className={`inline-flex items-center rounded-sm px-2 py-0.5 text-[10px] ${className}`}>
-      {children}
-    </span>
-  );
-}
-
 export default function UserDetailsModal({
-  user,
+  userId,
   planClassNameMap,
   statusClassNameMap,
   onClose,
 }: UserDetailsModalProps) {
-  if (!user) {
+  const { data: userResponse, isLoading, isError } = useQuery({
+    queryKey: ["user", userId],
+    queryFn: () => (userId ? getUserById(userId) : Promise.reject("No user ID")),
+    enabled: !!userId,
+  });
+
+  const { data: photosData, isLoading: isLoadingPhotos } = useQuery({
+    queryKey: ["user-photos", userId],
+    queryFn: () => (userId ? getUserPhotos(userId, 100) : Promise.reject("No user ID")),
+    enabled: !!userId,
+  });
+
+  const user = userResponse?.data;
+  const photos = photosData?.data ?? [];
+  const displayPhotos = photos.slice(0, 4);
+  const remainingPhotos = Math.max(0, photos.length - 4);
+
+  if (!userId) {
     return null;
   }
-
-  const contributedPhotos = user.contributedPhotos ?? "--";
-  const platformCommission = user.platformCommission ?? "--";
-  const purchasePhoto = user.purchasePhoto ?? 45;
-  const amountEarn =
-    typeof user.platformCommission === "number" && typeof user.contributedPhotos === "number"
-      ? `$${user.platformCommission * 10}`
-      : "$00";
 
   return (
     <div className="fixed inset-0 z-100 bg-[#0d1420]/30" onClick={onClose}>
@@ -86,13 +75,6 @@ export default function UserDetailsModal({
             >
               <ChevronsRight size={24} />
             </button>
-            {/* <button
-              type="button"
-              aria-label="Expand user details"
-              className="inline-flex h-5 w-5 items-center justify-center rounded-sm transition-colors hover:bg-fill-hover"
-            >
-              <Expand size={12} />
-            </button> */}
           </div>
 
           <button
@@ -105,65 +87,68 @@ export default function UserDetailsModal({
         </div>
 
         <div className="no-scrollbar flex-1 overflow-y-auto pt-6 px-6 bg-[#FAFAFA]">
-          <div className="relative">
-              <div className="border-line-weaker h-10 w-10 overflow-hidden rounded-full border bg-fill-hover">
-                <Image
-                  src={user.photo}
-                  alt={`${user.name} thumbnail`}
-                  width={40}
-                  height={40}
-                  className="h-full w-full object-cover"
+          {isLoading ? (
+            <div className="flex h-full items-center justify-center">
+              <Loader2 className="animate-spin text-text-weak" />
+            </div>
+          ) : isError || !user ? (
+            <div className="flex h-full items-center justify-center">
+              <p className="text-danger-strong">Failed to load user details.</p>
+            </div>
+          ) : (
+            <>
+              <div className="relative">
+                <div className="border-line-weaker h-10 w-10 overflow-hidden rounded-full border bg-fill-hover">
+                  <Image
+                    src="/home/latest/latest15.jpg"
+                    alt={`${user.name} thumbnail`}
+                    width={40}
+                    height={40}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-6 space-y-3">
+                <UserDetailRow label="Name" value={user.name} />
+                <UserDetailRow label="Email" value={user.email} />
+                <UserDetailRow label="Phone Number" value={user.phoneNumber ?? "--"} />
+                <UserDetailRow label="Role" value={user.role} />
+                <UserDetailRow label="Country" value={user.countryName ?? "--"} />
+                <UserDetailRow label="Address" value={user.address ?? "--"} />
+                <UserDetailRow
+                  label="Photos"
+                  value={
+                    isLoadingPhotos ? (
+                      <Loader2 className="animate-spin text-text-weak" />
+                    ) : (
+                      <div className="flex items-center gap-3">
+                        {displayPhotos.map((photo, index) => (
+                          <div
+                            key={index}
+                            className="border-line-weaker h-10 w-14 overflow-hidden rounded-xs border bg-fill-hover"
+                          >
+                            <Image
+                              src={photo.imageUrl}
+                              alt={`Submitted photo ${index + 1}`}
+                              width={56}
+                              height={40}
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                        ))}
+                        {remainingPhotos > 0 && (
+                          <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-brand-default text-xs font-medium text-white">
+                            {remainingPhotos}+
+                          </span>
+                        )}
+                      </div>
+                    )
+                  }
                 />
               </div>
-          </div>
-
-          <div className="mt-6 space-y-3">
-            <UserDetailRow label="Name" value={user.name} />
-            <UserDetailRow label="Email" value={user.email} />
-            <UserDetailRow label="Phone Number" value={user.phone} />
-            <UserDetailRow label="Role" value={user.role} />
-            <UserDetailRow label="Contribute Photo" value={contributedPhotos} />
-            <UserDetailRow
-              label="Plan"
-              value={<InlineBadge className={planClassNameMap[user.plan]}>{user.plan}</InlineBadge>}
-            />
-            <UserDetailRow label="Platform Commission Fee" value={platformCommission} />
-            <UserDetailRow label="Purchase Photo" value={purchasePhoto} />
-            <UserDetailRow label="Amount Earn" value={amountEarn} />
-            <UserDetailRow
-              label="Status"
-              value={
-                <InlineBadge className={statusClassNameMap[user.status]}>
-                  {user.status === "Active" ? "✓ " : "✕ "}
-                  {user.status}
-                </InlineBadge>
-              }
-            />
-            <UserDetailRow
-              label="Photos"
-              value={
-                <div className="flex items-center gap-3">
-                  {previewPhotoSources.map((photoSrc, index) => (
-                    <div
-                      key={`${photoSrc}-${index}`}
-                      className="border-line-weaker h-10 w-14 overflow-hidden rounded-xs border bg-fill-hover"
-                    >
-                      <Image
-                        src={photoSrc}
-                        alt={`Submitted photo ${index + 1}`}
-                        width={56}
-                        height={40}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                  ))}
-                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-default text-xs font-medium text-white">
-                    24+
-                  </span>
-                </div>
-              }
-            />
-          </div>
+            </>
+          )}
         </div>
       </div>
     </div>

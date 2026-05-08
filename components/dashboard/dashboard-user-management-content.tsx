@@ -28,7 +28,7 @@ export default function DashboardUserManagementContent() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<FilterOption>("All Users");
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedUser, setSelectedUser] = useState<UserRow | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const filterDropdownRef = useRef<HTMLDivElement | null>(null);
 
   // Fetch users from API
@@ -66,13 +66,13 @@ export default function DashboardUserManagementContent() {
   }, [isFilterOpen]);
 
   useEffect(() => {
-    if (!selectedUser) {
+    if (!selectedUserId) {
       return;
     }
 
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setSelectedUser(null);
+        setSelectedUserId(null);
       }
     };
 
@@ -81,7 +81,7 @@ export default function DashboardUserManagementContent() {
     return () => {
       document.removeEventListener("keydown", handleEscape);
     };
-  }, [selectedUser]);
+  }, [selectedUserId]);
 
   const mapRoleToFrontend = (backendRole: string): UserRole => {
     if (backendRole === "SURFER") return "Surfer";
@@ -140,7 +140,7 @@ export default function DashboardUserManagementContent() {
             rows={mappedRows}
             planClassNameMap={planClassNameMap}
             statusClassNameMap={statusClassNameMap}
-            onViewDetails={(user) => setSelectedUser(user)}
+            onViewDetails={(user) => setSelectedUserId(user.id)}
           />
         )}
 
@@ -152,12 +152,12 @@ export default function DashboardUserManagementContent() {
           />
         )}
 
-        {selectedUser ? (
+        {selectedUserId ? (
           <UserDetailsModal
-            user={selectedUser}
+            userId={selectedUserId}
             planClassNameMap={planClassNameMap}
             statusClassNameMap={statusClassNameMap}
-            onClose={() => setSelectedUser(null)}
+            onClose={() => setSelectedUserId(null)}
           />
         ) : null}
       </div>
