@@ -28,5 +28,7 @@ export const queryKeys = {
   },
   photos: {
     all: ["photos"] as const,
+    myPhotos: (filters: { page: number; limit: number; status?: string; locationId?: string }) =>
+      [...queryKeys.photos.all, "my", filters] as const,
   },
 };

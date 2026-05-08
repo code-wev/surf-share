@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { photoService } from "../../lib/api/services/photo.service";
 import { queryKeys } from "../../lib/api/query-keys";
@@ -16,5 +16,12 @@ export const useUploadPhotosMutation = () => {
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error, "Failed to upload photos."));
     },
+  });
+};
+
+export const useMyPhotosQuery = (filters: { page: number; limit: number; status?: string; locationId?: string }) => {
+  return useQuery({
+    queryKey: queryKeys.photos.myPhotos(filters),
+    queryFn: () => photoService.getMyPhotos(filters),
   });
 };
