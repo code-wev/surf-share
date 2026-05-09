@@ -1,5 +1,5 @@
 export type PhotoModerationItem = {
-  id: number;
+  id: string;
   imageSrc: string;
   images: string[];
   title: string;
@@ -12,6 +12,8 @@ export type PhotoModerationItem = {
   format: string;
   size: string;
   submittedAt: string;
+  status: string;
+  relatedPhotos?: PhotoModerationItem[];
 };
 
 export type ModerationAction = "approve" | "reject";

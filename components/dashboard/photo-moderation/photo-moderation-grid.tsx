@@ -6,9 +6,9 @@ import type {
 
 type PhotoModerationGridProps = {
   items: PhotoModerationItem[];
-  selectedIds: Set<number>;
-  onToggleSelected: (id: number) => void;
-  onAction: (id: number, action: ModerationAction) => void;
+  selectedIds: Set<string>;
+  onToggleSelected: (id: string) => void;
+  onAction: (id: string, action: ModerationAction) => void;
   onOpenItem: (item: PhotoModerationItem) => void;
 };
 

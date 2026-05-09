@@ -9,8 +9,8 @@ import type {
 type PhotoModerationCardProps = {
   item: PhotoModerationItem;
   selected: boolean;
-  onToggleSelected: (id: number) => void;
-  onAction: (id: number, action: ModerationAction) => void;
+  onToggleSelected: (id: string) => void;
+  onAction: (id: string, action: ModerationAction) => void;
   onOpenItem: (item: PhotoModerationItem) => void;
 };
 
@@ -33,6 +33,10 @@ export default function PhotoModerationCard({
             aria-label={`Select ${item.photographer} submission`}
           />
         </label>
+
+        <div className="text-brand-default absolute top-1.5 right-1.5 z-10 rounded-sm bg-white/95 px-2 py-1 text-xs font-semibold shadow-sm sm:text-sm">
+          {item.priceLabel}
+        </div>
 
         <button
           type="button"

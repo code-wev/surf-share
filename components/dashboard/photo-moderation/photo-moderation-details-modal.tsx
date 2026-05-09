@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRef, useState } from "react";
-import { CalendarDays, Camera, Check, ChevronLeft, ChevronRight, MapPin, X } from "lucide-react";
+import { CalendarDays, Camera, Check, MapPin, X } from "lucide-react";
 
 import { PageTitle } from "@/components/shared/page-title";
 import type {
@@ -13,7 +13,8 @@ import type {
 type PhotoModerationDetailsModalProps = {
   item: PhotoModerationItem | null;
   onClose: () => void;
-  onAction: (id: number, action: ModerationAction) => void;
+  onAction: (id: string, action: ModerationAction) => void;
+  onSelectImage?: (item: PhotoModerationItem) => void;
 };
 
 type DetailRowProps = {
@@ -34,6 +35,7 @@ export default function PhotoModerationDetailsModal({
   item,
   onClose,
   onAction,
+  onSelectImage,
 }: PhotoModerationDetailsModalProps) {
   const thumbnailListRef = useRef<HTMLDivElement | null>(null);
   const [activeImage, setActiveImage] = useState(() => item?.images[0] ?? item?.imageSrc ?? "");
@@ -43,18 +45,6 @@ export default function PhotoModerationDetailsModal({
   }
 
   const currentImage = activeImage || item.images[0] || item.imageSrc;
-
-  const scrollThumbnails = (direction: "left" | "right") => {
-    const container = thumbnailListRef.current;
-
-    if (!container) {
-      return;
-    }
-
-    const offset =
-      direction === "left" ? -container.clientWidth * 0.75 : container.clientWidth * 0.75;
-    container.scrollBy({ left: offset, behavior: "smooth" });
-  };
 
   return (
     <div
@@ -80,7 +70,7 @@ export default function PhotoModerationDetailsModal({
         <div className="grid gap-4 p-3 pt-12 sm:gap-6 sm:p-5 sm:pt-14 lg:grid-cols-[1.1fr_0.9fr] lg:gap-8 lg:p-6 lg:pt-14 xl:gap-10">
           <div>
             <div className="bg-fill-hover border-line-weaker/60 relative overflow-hidden rounded-sm border">
-              <div className="relative aspect-[1.2/1] w-full sm:aspect-[1.35/1]">
+              <div className="relative h-100 w-full">
                 <Image
                   src={currentImage}
                   alt={item.title}
@@ -93,35 +83,19 @@ export default function PhotoModerationDetailsModal({
             </div>
 
             <div className="relative mt-3 sm:mt-4">
-              <button
-                type="button"
-                onClick={() => scrollThumbnails("left")}
-                className="text-text-strong absolute top-1/2 left-2 z-10 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-sm transition hover:bg-white"
-                aria-label="Scroll thumbnails left"
-              >
-                <ChevronLeft size={16} />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => scrollThumbnails("right")}
-                className="text-text-strong absolute top-1/2 right-2 z-10 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-sm transition hover:bg-white"
-                aria-label="Scroll thumbnails right"
-              >
-                <ChevronRight size={16} />
-              </button>
-
               <div
                 ref={thumbnailListRef}
-                className="no-scrollbar flex gap-1.5 overflow-x-auto scroll-smooth px-9 pb-1 sm:gap-2 sm:px-11"
+                className="no-scrollbar flex gap-2 overflow-x-auto scroll-smooth px-0"
               >
                 {item.images.map((imageSrc, index) => (
                   <button
-                    key={`${imageSrc}-${index}`}
+                    key={`item-${imageSrc}-${index}`}
                     type="button"
                     onClick={() => setActiveImage(imageSrc)}
-                    className={`relative h-14 w-16 shrink-0 overflow-hidden rounded-sm border transition sm:h-18 sm:w-20 ${
-                      currentImage === imageSrc ? "border-brand-default" : "border-transparent"
+                    className={`relative h-16 w-20 shrink-0 overflow-hidden rounded-sm border transition ${
+                      currentImage === imageSrc
+                        ? "border-brand-default border-2"
+                        : "border-line-weaker/40"
                     }`}
                     aria-label={`View image ${index + 1}`}
                   >
@@ -134,6 +108,30 @@ export default function PhotoModerationDetailsModal({
                     />
                   </button>
                 ))}
+
+                {item.relatedPhotos && item.relatedPhotos.length > 0 && (
+                  <>
+                    <div className="bg-line-weaker/30 my-1 w-px shrink-0" />
+                    {item.relatedPhotos.map((relatedItem) => (
+                      <button
+                        key={`related-${relatedItem.id}`}
+                        type="button"
+                        onClick={() => onSelectImage?.(relatedItem)}
+                        className="group border-line-weaker/40 hover:border-brand-default relative h-16 w-20 shrink-0 overflow-hidden rounded-sm border transition"
+                        aria-label={`View related image: ${relatedItem.title}`}
+                      >
+                        <Image
+                          src={relatedItem.imageSrc}
+                          alt={relatedItem.title}
+                          fill
+                          sizes="80px"
+                          className="object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/0 transition group-hover:bg-black/20" />
+                      </button>
+                    ))}
+                  </>
+                )}
               </div>
             </div>
           </div>

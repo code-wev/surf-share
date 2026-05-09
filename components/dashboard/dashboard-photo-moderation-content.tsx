@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { photoModerationItems } from "@/components/dashboard/photo-moderation/photo-moderation-data";
 import PhotoModerationGrid from "@/components/dashboard/photo-moderation/photo-moderation-grid";
 import PhotoModerationHeader from "@/components/dashboard/photo-moderation/photo-moderation-header";
 import type {
@@ -11,14 +11,99 @@ import type {
   PhotoModerationItem,
 } from "@/components/dashboard/photo-moderation/photo-moderation-types";
 import PhotoModerationDetailsModal from "./photo-moderation/photo-moderation-details-modal";
+import { getPhotos, updatePhotoStatus, bulkUpdatePhotoStatus } from "@/src/actions/photo.action";
+import { Loader2 } from "lucide-react";
+
+const getApiOrigin = () => {
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+  if (!baseUrl) {
+    return "";
+  }
+
+  try {
+    return new URL(baseUrl).origin;
+  } catch {
+    return "";
+  }
+};
+
+const toAbsoluteImageUrl = (value: string) => {
+  if (/^https?:\/\//i.test(value) || value.startsWith("data:")) {
+    return value;
+  }
+
+  const apiOrigin = getApiOrigin();
+
+  if (!apiOrigin) {
+    return value;
+  }
+
+  if (value.startsWith("/")) {
+    return `${apiOrigin}${value}`;
+  }
+
+  return `${apiOrigin}/${value}`;
+};
 
 export default function DashboardPhotoModerationContent() {
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const queryClient = useQueryClient();
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [activeItem, setActiveItem] = useState<PhotoModerationItem | null>(null);
 
+  // Fetch pending photos
+  const {
+    data: photosResponse,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["pending-photos"],
+    queryFn: () => getPhotos({ status: "PENDING" }),
+  });
+
+  const photoItems: PhotoModerationItem[] = useMemo(() => {
+    if (!photosResponse?.data) return [];
+
+    const items = photosResponse.data.map((photo: any) => {
+      const resolution = photo.width && photo.height ? `${photo.width}x${photo.height}` : "N/A";
+
+      const format = photo.format ? photo.format.toUpperCase() : "N/A";
+
+      const size = photo.fileSize ? `${(photo.fileSize / 1024 / 1024).toFixed(2)} MB` : "N/A";
+
+      return {
+        id: photo.id,
+        imageSrc: toAbsoluteImageUrl(photo.imageUrl),
+        images: [toAbsoluteImageUrl(photo.imageUrl)],
+        title: `${photo.photographer?.name || "Photographer"}'s upload`,
+        priceLabel: `$${photo.price}`,
+        photographer: photo.photographer?.name || "Unknown",
+        location: photo.location?.name || "Unknown Location",
+        imageCount: 1,
+        dateTaken: new Date(photo.createdAt).toLocaleDateString(),
+        resolution,
+        format,
+        size,
+        submittedAt: new Date(photo.createdAt).toLocaleDateString(),
+        status: photo.status,
+      };
+    });
+
+    // Add related photos from same photographer (max 5)
+    return items.map((item: PhotoModerationItem) => ({
+      ...item,
+      relatedPhotos: items
+        .filter(
+          (photo: PhotoModerationItem) =>
+            photo.photographer === item.photographer && photo.id !== item.id,
+        )
+        .slice(0, 5),
+    }));
+  }, [photosResponse]);
+
   const allSelected = useMemo(
-    () => photoModerationItems.length > 0 && selectedIds.size === photoModerationItems.length,
-    [selectedIds],
+    () => photoItems.length > 0 && selectedIds.size === photoItems.length,
+    [selectedIds, photoItems],
   );
 
   useEffect(() => {
@@ -45,10 +130,10 @@ export default function DashboardPhotoModerationContent() {
       return;
     }
 
-    setSelectedIds(new Set(photoModerationItems.map((item) => item.id)));
+    setSelectedIds(new Set(photoItems.map((item) => item.id)));
   };
 
-  const toggleSelected = (id: number) => {
+  const toggleSelected = (id: string) => {
     setSelectedIds((previous) => {
       const next = new Set(previous);
 
@@ -62,35 +147,42 @@ export default function DashboardPhotoModerationContent() {
     });
   };
 
-  const handleSingleAction = (id: number, action: ModerationAction) => {
-    const message = action === "approve" ? "Photo approved." : "Photo rejected.";
-    toast.success(message);
+  // Mutations for single and bulk actions
+  const singleActionMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) => updatePhotoStatus(id, status),
+    onSuccess: (_, { status }) => {
+      queryClient.invalidateQueries({ queryKey: ["pending-photos"] });
+      toast.success(`Photo ${status.toLowerCase()} successfully.`);
+      setActiveItem(null);
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to update photo status.");
+    },
+  });
 
-    setSelectedIds((previous) => {
-      if (!previous.has(id)) {
-        return previous;
-      }
+  const bulkActionMutation = useMutation({
+    mutationFn: ({ ids, status }: { ids: string[]; status: string }) =>
+      bulkUpdatePhotoStatus(ids, status),
+    onSuccess: (_, { ids, status }) => {
+      queryClient.invalidateQueries({ queryKey: ["pending-photos"] });
+      toast.success(`${ids.length} photos ${status.toLowerCase()} successfully.`);
+      setSelectedIds(new Set());
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to update bulk photo status.");
+    },
+  });
 
-      const next = new Set(previous);
-      next.delete(id);
-      return next;
-    });
+  const handleSingleAction = (id: string, action: ModerationAction) => {
+    const status = action === "approve" ? "APPROVED" : "REJECTED";
+    singleActionMutation.mutate({ id, status });
   };
 
   const handleBulkAction = (action: ModerationAction) => {
-    const count = selectedIds.size;
-
-    if (count === 0) {
-      return;
-    }
-
-    const message =
-      action === "approve"
-        ? `${count} submission${count > 1 ? "s" : ""} approved.`
-        : `${count} submission${count > 1 ? "s" : ""} rejected.`;
-
-    toast.success(message);
-    setSelectedIds(new Set());
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    const status = action === "approve" ? "APPROVED" : "REJECTED";
+    bulkActionMutation.mutate({ ids, status });
   };
 
   return (
@@ -104,13 +196,27 @@ export default function DashboardPhotoModerationContent() {
           onBulkReject={() => handleBulkAction("reject")}
         />
 
-        <PhotoModerationGrid
-          items={photoModerationItems}
-          selectedIds={selectedIds}
-          onToggleSelected={toggleSelected}
-          onAction={handleSingleAction}
-          onOpenItem={setActiveItem}
-        />
+        {isLoading ? (
+          <div className="flex h-64 items-center justify-center">
+            <Loader2 className="text-text-weak h-8 w-8 animate-spin" />
+          </div>
+        ) : isError ? (
+          <div className="flex h-64 items-center justify-center">
+            <p className="text-danger-strong text-lg">Failed to load pending photos.</p>
+          </div>
+        ) : photoItems.length === 0 ? (
+          <div className="flex h-64 items-center justify-center">
+            <p className="text-text-weak text-lg">No photos waiting for moderation.</p>
+          </div>
+        ) : (
+          <PhotoModerationGrid
+            items={photoItems}
+            selectedIds={selectedIds}
+            onToggleSelected={toggleSelected}
+            onAction={handleSingleAction}
+            onOpenItem={setActiveItem}
+          />
+        )}
       </div>
 
       <PhotoModerationDetailsModal
@@ -118,6 +224,7 @@ export default function DashboardPhotoModerationContent() {
         item={activeItem}
         onClose={() => setActiveItem(null)}
         onAction={handleSingleAction}
+        onSelectImage={(item) => setActiveItem(item)}
       />
     </section>
   );
