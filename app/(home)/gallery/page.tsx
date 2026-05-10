@@ -1,34 +1,37 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import GalleryContent from "@/components/home/gallery/gallery-content";
-import {
-  gallerySeedImages,
-  type GalleryLocation,
-  type GallerySort,
-  type GalleryTab,
-  type GalleryTime,
-} from "@/components/home/gallery/gallery-images";
 import GalleryPagination from "@/components/home/gallery/gallery-pagination";
 import GalleryTitle from "@/components/home/gallery/gallery-title";
+import { usePublicPhotosQuery } from "@/hooks/api/usePhotos";
+import { useLocationsQuery } from "@/hooks/api/useLocations";
+
+export type GalleryTab = "all" | "today" | "yesterday" | "last7days" | "last14days";
+export type GalleryTime = "all" | "FIRST_LIGHT" | "MORNING" | "LUNCH" | "AFTERNOON";
+export type GallerySort = "latest" | "priceLow" | "priceHigh";
 
 const PAGE_SIZE = 16;
 
 export default function GalleryPage() {
   const [activeTab, setActiveTab] = useState<GalleryTab>("all");
-  const [selectedLocation, setSelectedLocation] = useState<GalleryLocation>("all");
+  const [selectedLocation, setSelectedLocation] = useState<string>("all");
   const [selectedTime, setSelectedTime] = useState<GalleryTime>("all");
   const [selectedSort, setSelectedSort] = useState<GallerySort>("latest");
   const [currentPage, setCurrentPage] = useState(1);
+
+  const { data: locationsData } = useLocationsQuery({ page: 1, limit: 100 });
+  const liveLocations = locationsData?.data || [];
 
   const handleTabChange = (tab: GalleryTab) => {
     setActiveTab(tab);
     setCurrentPage(1);
   };
 
-  const handleLocationChange = (location: GalleryLocation) => {
-    setSelectedLocation(location);
+  const handleLocationChange = (locationId: string) => {
+    setSelectedLocation(locationId);
     setCurrentPage(1);
   };
 
@@ -42,36 +45,29 @@ export default function GalleryPage() {
     setCurrentPage(1);
   };
 
-  const filteredAndSortedImages = useMemo(() => {
-    const filtered = gallerySeedImages.filter((image) => {
-      const matchesTab = activeTab === "all" || image.tab === activeTab;
-      const matchesLocation = selectedLocation === "all" || image.locationKey === selectedLocation;
-      const matchesTime = selectedTime === "all" || image.timeKey === selectedTime;
+  const { data: photosData, isLoading } = usePublicPhotosQuery({
+    tab: activeTab,
+    locationId: selectedLocation,
+    timeKey: selectedTime,
+    sort: selectedSort,
+    page: currentPage,
+    limit: PAGE_SIZE,
+  });
 
-      return matchesTab && matchesLocation && matchesTime;
-    });
+  const photos = photosData?.data || [];
+  const meta = photosData?.meta || { total: 0, totalPages: 1 };
 
-    // Keep backend/data order by default so cards render in the same sequence as input.
-    const sorted = [...filtered];
-
-    if (selectedSort === "priceLow") {
-      sorted.sort((firstImage, secondImage) => firstImage.priceValue - secondImage.priceValue);
-    }
-
-    if (selectedSort === "priceHigh") {
-      sorted.sort((firstImage, secondImage) => secondImage.priceValue - firstImage.priceValue);
-    }
-
-    return sorted;
-  }, [activeTab, selectedLocation, selectedSort, selectedTime]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredAndSortedImages.length / PAGE_SIZE));
-  const safeCurrentPage = Math.min(currentPage, totalPages);
-
-  const pagedImages = useMemo(() => {
-    const startIndex = (safeCurrentPage - 1) * PAGE_SIZE;
-    return filteredAndSortedImages.slice(startIndex, startIndex + PAGE_SIZE);
-  }, [filteredAndSortedImages, safeCurrentPage]);
+  // Map backend photos to GallerySeedImage format for CardView
+  const mappedPhotos = photos.map((p: any) => ({
+    id: p.id,
+    slug: p.id,
+    src: p.imageUrl,
+    alt: `Photo by ${p.photographer?.name}`,
+    userName: p.photographer?.name || "Unknown",
+    location: p.location?.name || "Unknown Location",
+    price: `$${p.price.toFixed(2)}`,
+    avatarSrc: "/home/logo.png",
+  }));
 
   return (
     <>
@@ -84,13 +80,20 @@ export default function GalleryPage() {
         onTimeChange={handleTimeChange}
         selectedSort={selectedSort}
         onSortChange={handleSortChange}
-        totalCount={filteredAndSortedImages.length}
+        totalCount={meta.total}
+        liveLocations={liveLocations}
       />
-      <GalleryContent items={pagedImages} />
+      {isLoading ? (
+        <div className="flex h-64 items-center justify-center">
+          <p className="text-sm text-gray-500">Loading photos...</p>
+        </div>
+      ) : (
+        <GalleryContent items={mappedPhotos} />
+      )}
       <GalleryPagination
-        currentPage={safeCurrentPage}
-        totalPages={totalPages}
-        onPageChange={(page) => setCurrentPage(Math.min(Math.max(page, 1), totalPages))}
+        currentPage={currentPage}
+        totalPages={meta.totalPages}
+        onPageChange={(page) => setCurrentPage(Math.min(Math.max(page, 1), meta.totalPages))}
       />
     </>
   );

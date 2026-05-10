@@ -19,6 +19,13 @@ export const useUploadPhotosMutation = () => {
   });
 };
 
+export const usePublicPhotosQuery = (filters: any) => {
+  return useQuery({
+    queryKey: [...queryKeys.photos.all, filters],
+    queryFn: () => photoService.getAllPublic(filters),
+  });
+};
+
 export const useMyPhotosQuery = (filters: { page: number; limit: number; status?: string; locationId?: string }) => {
   return useQuery({
     queryKey: queryKeys.photos.myPhotos(filters),

@@ -138,6 +138,7 @@ export default function ImageUploadContentPage() {
       body.append("photos", file);
       body.append("locations", locationId);
       body.append("prices", price);
+      body.append("lastModifiedDates", file.lastModified.toString());
     });
 
     uploadMutation.mutate(body, {

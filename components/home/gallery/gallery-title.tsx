@@ -4,34 +4,45 @@ import { useMemo, useState } from "react";
 
 import { PageTitle } from "@/components/shared/page-title";
 import { Button } from "@/components/ui/button";
-import type {
-  GalleryLocation,
-  GallerySort,
-  GalleryTab,
-  GalleryTime,
-} from "@/components/home/gallery/gallery-images";
-import {
-  galleryLocations,
-  galleryLocationLabels,
-  gallerySortLabels,
-  gallerySorts,
-  galleryTabLabels,
-  galleryTabs,
-  galleryTimeLabels,
-  galleryTimes,
-} from "@/components/home/gallery/gallery-images";
 import { ChevronRight, Clock4, Funnel, MapPin, SlidersHorizontal } from "lucide-react";
+import type { GallerySort, GalleryTab, GalleryTime } from "@/app/(home)/gallery/page";
+
+export const galleryTabs: GalleryTab[] = ["all", "today", "yesterday", "last7days", "last14days"];
+export const galleryTabLabels: Record<GalleryTab, string> = {
+  all: "All",
+  today: "Today",
+  yesterday: "Yesterday",
+  last7days: "Last 7 Days",
+  last14days: "Last 14 Days",
+};
+
+export const galleryTimes: GalleryTime[] = ["all", "FIRST_LIGHT", "MORNING", "LUNCH", "AFTERNOON"];
+export const galleryTimeLabels: Record<GalleryTime, string> = {
+  all: "Any Time",
+  FIRST_LIGHT: "First Light (4-8 AM)",
+  MORNING: "Morning (8-11 AM)",
+  LUNCH: "Lunch (11 AM-2 PM)",
+  AFTERNOON: "Afternoon (2-7 PM)",
+};
+
+export const gallerySorts: GallerySort[] = ["latest", "priceLow", "priceHigh"];
+export const gallerySortLabels: Record<GallerySort, string> = {
+  latest: "Latest",
+  priceLow: "Price Low to High",
+  priceHigh: "Price High to Low",
+};
 
 type GalleryTitleProps = {
   activeTab: GalleryTab;
   onTabChange: (tab: GalleryTab) => void;
-  selectedLocation: GalleryLocation;
-  onLocationChange: (location: GalleryLocation) => void;
+  selectedLocation: string;
+  onLocationChange: (locationId: string) => void;
   selectedTime: GalleryTime;
   onTimeChange: (time: GalleryTime) => void;
   selectedSort: GallerySort;
   onSortChange: (sort: GallerySort) => void;
   totalCount: number;
+  liveLocations: any[];
 };
 
 type ActiveSubmenu = "location" | "time" | "sort" | null;
@@ -46,6 +57,7 @@ export default function GalleryTitle({
   selectedSort,
   onSortChange,
   totalCount,
+  liveLocations,
 }: GalleryTitleProps) {
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<ActiveSubmenu>(null);
@@ -56,7 +68,7 @@ export default function GalleryTitle({
     setActiveSubmenu((prev) => (prev === menu ? null : menu));
   };
 
-  const handleLocationSelect = (value: GalleryLocation) => {
+  const handleLocationSelect = (value: string) => {
     onLocationChange(value);
     setActiveSubmenu(null);
     setShowFilterPanel(false);
@@ -74,12 +86,16 @@ export default function GalleryTitle({
     setShowFilterPanel(false);
   };
 
+  const selectedLocationName = selectedLocation === "all" 
+    ? "All Locations" 
+    : liveLocations.find(l => l.id === selectedLocation)?.name || "Unknown Location";
+
   return (
     <section className="bg-(--color-surface-muted-100) px-4 pt-10 pb-6 sm:px-6 md:mx-12.5 md:px-6 md:pt-16">
       <div className="mx-auto flex max-w-480 flex-col items-center justify-between gap-6 lg:flex-row lg:items-start">
         <div>
           <PageTitle
-            subtitle="Trigg Beach, WA Photos"
+            subtitle={`${selectedLocationName} Photos`}
             subtitleClassName="mt-1 text-[22px]! text-(--color-text-weak)!"
           />
         </div>
@@ -118,7 +134,6 @@ export default function GalleryTitle({
             }}
           >
             Filter &amp; Sort
-            {/* Sliders icon */}
             <SlidersHorizontal size={16} className="text-(--color-text-weak)" color="#0C3173" />
           </Button>
 
@@ -130,18 +145,29 @@ export default function GalleryTitle({
                   <p className="px-4 pt-3 pb-1 text-xs font-semibold tracking-wide text-(--color-text-weak) uppercase">
                     Regions
                   </p>
-                  {galleryLocations.map((location) => (
+                  <button
+                    type="button"
+                    onClick={() => handleLocationSelect("all")}
+                    className={`w-full px-4 py-2 text-left text-sm hover:bg-(--color-surface-muted-100) ${
+                      selectedLocation === "all"
+                        ? "font-medium text-(--color-text-strong)"
+                        : "text-(--color-text-weak)"
+                    }`}
+                  >
+                    All States
+                  </button>
+                  {liveLocations.map((location) => (
                     <button
-                      key={location}
+                      key={location.id}
                       type="button"
-                      onClick={() => handleLocationSelect(location)}
+                      onClick={() => handleLocationSelect(location.id)}
                       className={`w-full px-4 py-2 text-left text-sm hover:bg-(--color-surface-muted-100) ${
-                        selectedLocation === location
+                        selectedLocation === location.id
                           ? "font-medium text-(--color-text-strong)"
                           : "text-(--color-text-weak)"
                       }`}
                     >
-                      {galleryLocationLabels[location]}
+                      {location.name}
                     </button>
                   ))}
                 </div>
@@ -189,20 +215,13 @@ export default function GalleryTitle({
 
               {/* Main filter panel */}
               <div className="w-full overflow-hidden rounded-md border border-(--color-line-weaker) bg-white shadow-lg md:w-56">
-                {/* Panel header */}
                 <div className="flex items-center justify-between border-b border-(--color-line-weaker) px-4 py-3">
                   <span className="text-sm font-medium text-(--color-text-brand-strong)">
                     Filter &amp; Sort
                   </span>
-                  {/* Sliders icon */}
-                  <SlidersHorizontal
-                    size={16}
-                    className="text-(--color-text-weak)"
-                    color="#0C3173"
-                  />
+                  <SlidersHorizontal size={16} className="text-(--color-text-weak)" color="#0C3173" />
                 </div>
 
-                {/* Location row */}
                 <button
                   type="button"
                   onClick={() => handleFilterRowClick("location")}
@@ -210,14 +229,11 @@ export default function GalleryTitle({
                     activeSubmenu === "location" ? "bg-(--color-surface-muted-100)" : ""
                   }`}
                 >
-                  {/* Location pin icon */}
                   <MapPin size={16} />
                   <span className="flex-1 text-left text-(--color-text-strong)">Location</span>
-                  {/* Chevron right */}
                   <ChevronRight size={16} />
                 </button>
 
-                {/* Time row */}
                 <button
                   type="button"
                   onClick={() => handleFilterRowClick("time")}
@@ -225,13 +241,11 @@ export default function GalleryTitle({
                     activeSubmenu === "time" ? "bg-(--color-surface-muted-100)" : ""
                   }`}
                 >
-                  {/* Clock icon */}
                   <Clock4 size={16} />
                   <span className="flex-1 text-left text-(--color-text-strong)">Time</span>
                   <ChevronRight size={16} />
                 </button>
 
-                {/* Sort row */}
                 <button
                   type="button"
                   onClick={() => handleFilterRowClick("sort")}
@@ -239,7 +253,6 @@ export default function GalleryTitle({
                     activeSubmenu === "sort" ? "bg-(--color-surface-muted-100)" : ""
                   }`}
                 >
-                  {/* Sort/filter icon */}
                   <Funnel size={16} />
                   <span className="flex-1 text-left text-(--color-text-strong)">Sort</span>
                   <ChevronRight size={16} />
