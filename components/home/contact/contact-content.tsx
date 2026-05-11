@@ -1,7 +1,9 @@
 "use client";
 
-import { ArrowRight, Mail, User } from "lucide-react";
+import { ArrowRight, Mail, User, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
+import { sendContactMessage } from "@/src/actions/contact.action";
 
 export default function ContactContent() {
   const [form, setForm] = useState({
@@ -10,13 +12,28 @@ export default function ContactContent() {
     subject: "",
     message: "",
   });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = () => {
-    console.log("Form submitted:", form);
+  const handleSubmit = async () => {
+    if (!form.name || !form.email || !form.message) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await sendContactMessage(form);
+      toast.success("Message sent successfully!");
+      setForm({ name: "", email: "", subject: "", message: "" });
+    } catch (error) {
+      toast.error("Failed to send message. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -94,10 +111,17 @@ export default function ContactContent() {
         {/* Submit Button */}
         <button
           onClick={handleSubmit}
-          className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-(--color-text-brand-strong) px-6 py-3.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          disabled={loading}
+          className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-(--color-text-brand-strong) px-6 py-3.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-70"
         >
-          Send Message
-          <ArrowRight className="h-4 w-4" />
+          {loading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <>
+              Send Message
+              <ArrowRight className="h-4 w-4" />
+            </>
+          )}
         </button>
       </div>
     </section>
