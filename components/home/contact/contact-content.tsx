@@ -30,6 +30,7 @@ export default function ContactContent() {
       toast.success("Message sent successfully!");
       setForm({ name: "", email: "", subject: "", message: "" });
     } catch (error) {
+      console.error("Error sending contact message:", error);
       toast.error("Failed to send message. Please try again later.");
     } finally {
       setLoading(false);
