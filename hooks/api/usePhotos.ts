@@ -19,7 +19,7 @@ export const useUploadPhotosMutation = () => {
   });
 };
 
-export const usePublicPhotosQuery = (filters: any) => {
+export const usePublicPhotosQuery = (filters: Record<string, unknown>) => {
   return useQuery({
     queryKey: [...queryKeys.photos.all, filters],
     queryFn: () => photoService.getAllPublic(filters),
@@ -30,5 +30,13 @@ export const useMyPhotosQuery = (filters: { page: number; limit: number; status?
   return useQuery({
     queryKey: queryKeys.photos.myPhotos(filters),
     queryFn: () => photoService.getMyPhotos(filters),
+  });
+};
+
+export const usePhotoDetailQuery = (id: string) => {
+  return useQuery({
+    queryKey: queryKeys.photos.detail(id),
+    queryFn: () => photoService.getById(id),
+    enabled: !!id,
   });
 };

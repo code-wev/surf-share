@@ -42,7 +42,7 @@ type GalleryTitleProps = {
   selectedSort: GallerySort;
   onSortChange: (sort: GallerySort) => void;
   totalCount: number;
-  liveLocations: any[];
+  liveLocations: { id: string; name: string }[];
 };
 
 type ActiveSubmenu = "location" | "time" | "sort" | null;

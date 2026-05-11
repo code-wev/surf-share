@@ -2,28 +2,21 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { use, useRef, useState } from "react";
+import { use, useState } from "react";
 import {
   Calendar,
   Camera,
-  ChevronLeft,
-  ChevronRight,
   ExternalLink,
   Heart,
   MapPin,
   ShoppingCart,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 
-import {
-  findGalleryDetailItemBySlugOrId,
-  getMoreGalleryImagesBySlugOrId,
-  getRelatedGalleryImagesBySlugOrId,
-  galleryDetailItems,
-} from "@/components/home/gallery/gallery-images";
 import RelatedImagesSection from "@/components/home/gallery/related-images-section";
 import { Button } from "@/components/ui/button";
 import { PageTitle } from "@/components/shared/page-title";
+import { usePhotoDetailQuery, usePublicPhotosQuery } from "@/hooks/api/usePhotos";
+import { useAdvertisementQuery } from "@/hooks/api/useAdvertisement";
 
 type GalleryDetailsPageProps = {
   params: Promise<{ slug: string }>;
@@ -31,36 +24,32 @@ type GalleryDetailsPageProps = {
 
 export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) {
   const { slug } = use(params);
-  const router = useRouter();
-  const thumbnailStripRef = useRef<HTMLDivElement | null>(null);
-  const detailItem = findGalleryDetailItemBySlugOrId(slug);
   const [favoriteActive, setFavoriteActive] = useState(false);
 
-  const handleThumbnailArrowClick = (direction: -1 | 1) => {
-    const strip = thumbnailStripRef.current;
-    if (!strip) return;
+  // The slug is the photo ID based on our mapping in gallery/page.tsx
+  const photoId = slug;
 
-    const maxScrollableLeft = strip.scrollWidth - strip.clientWidth;
+  const { data: photoResponse, isLoading, isError } = usePhotoDetailQuery(photoId);
+  const { data: adData } = useAdvertisementQuery();
+  
+  // Fetch related images by same location
+  const locationId = photoResponse?.data?.locationId;
+  const { data: relatedPhotosResponse } = usePublicPhotosQuery({
+    locationId,
+    limit: 8,
+  });
 
-    if (maxScrollableLeft <= 0) {
-      router.push(direction === 1 ? `/gallery/${nextItem.slug}` : `/gallery/${prevItem.slug}`);
-      return;
-    }
-
-    const firstThumbnail = strip.querySelector("a") as HTMLElement | null;
-    const step = firstThumbnail ? firstThumbnail.offsetWidth + 8 : 280;
-    const targetLeft = Math.min(
-      maxScrollableLeft,
-      Math.max(0, strip.scrollLeft + direction * step * 2),
+  if (isLoading) {
+    return (
+      <section className="mx-auto w-full max-w-480 py-10 lg:px-8 lg:py-16">
+        <div className="flex justify-center p-6">
+          <p className="text-sm text-(--color-text-weak)">Loading image details...</p>
+        </div>
+      </section>
     );
+  }
 
-    strip.scrollTo({
-      left: targetLeft,
-      behavior: "smooth",
-    });
-  };
-
-  if (!detailItem) {
+  if (isError || !photoResponse?.data) {
     return (
       <section className="mx-auto w-full max-w-400 py-10 lg:px-8 lg:py-16">
         <div className="rounded-md border border-(--color-line-weaker) bg-(--color-surface-base) p-6">
@@ -76,12 +65,39 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
     );
   }
 
-  const currentIndex = galleryDetailItems.findIndex((item) => item.id === detailItem.id);
-  const prevItem =
-    galleryDetailItems[(currentIndex - 1 + galleryDetailItems.length) % galleryDetailItems.length];
-  const nextItem = galleryDetailItems[(currentIndex + 1) % galleryDetailItems.length];
-  const moreImages = getMoreGalleryImagesBySlugOrId(slug, 8);
-  const relatedImages = getRelatedGalleryImagesBySlugOrId(slug, 8);
+  const detailItem = photoResponse.data;
+  
+  // Format sizes and dates
+  const fileSizeMB = detailItem.fileSize ? (detailItem.fileSize / (1024 * 1024)).toFixed(2) + " MB" : "N/A";
+  const resolution = detailItem.width && detailItem.height ? `${detailItem.width} x ${detailItem.height} px` : "Unknown";
+  const format = detailItem.format ? detailItem.format.toUpperCase() : "JPEG";
+  
+  const takenDate = new Date(detailItem.capturedAt || detailItem.createdAt);
+  const formattedDate = takenDate.toLocaleString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  const locationName = detailItem.location?.name || "Unknown Location";
+  const photographerName = detailItem.photographer?.name || "Unknown Photographer";
+
+  // Map related photos for RelatedImagesSection
+  const relatedImages = (relatedPhotosResponse?.data || [])
+    .filter((p: { id: string }) => p.id !== detailItem.id)
+    .map((p: { id: string; imageUrl: string; price: number; photographer?: { name?: string }; location?: { name?: string } }) => ({
+      id: p.id,
+      slug: p.id,
+      src: p.imageUrl,
+      alt: `Photo by ${p.photographer?.name}`,
+      userName: p.photographer?.name || "Unknown",
+      location: p.location?.name || "Unknown Location",
+      price: `$${p.price.toFixed(2)}`,
+      avatarSrc: "/home/logo.png",
+    }));
 
   return (
     <section className="mx-auto max-w-480 py-6 lg:py-10">
@@ -94,14 +110,15 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
       </div>
 
       <div className="mx-5 grid gap-9 md:mx-12.5 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
+        {/* Left Side Content (Image Only) */}
         <div className="mx-auto w-full max-w-80 sm:max-w-150 md:max-w-2xl lg:max-w-none">
           <div className="relative overflow-hidden rounded-md border border-(--color-line-weaker)">
             <Image
-              src={detailItem.src}
-              alt={detailItem.alt}
+              src={detailItem.imageUrl}
+              alt={`Photo at ${locationName}`}
               width={1800}
               height={1200}
-              className="h-56 w-full object-cover sm:h-80 lg:h-188"
+              className="h-56 w-full object-cover sm:h-80 lg:h-175"
               quality={100}
               sizes="(max-width: 640px) 100vw, (max-width: 1200px) 70vw, 1200px"
               unoptimized
@@ -122,96 +139,16 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
                 draggable={false}
               />
             </div>
-
-            <button
-              type="button"
-              aria-label="Previous image"
-              className="pointer-events-auto absolute top-1/2 left-2 z-30 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-(--color-text-strong) shadow sm:left-3 sm:h-9 sm:w-9"
-              onClick={() => router.push(`/gallery/${prevItem.slug}`)}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-
-            <button
-              type="button"
-              aria-label="Next image"
-              className="pointer-events-auto absolute top-1/2 right-2 z-30 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-(--color-text-strong) shadow sm:right-3 sm:h-9 sm:w-9"
-              onClick={() => router.push(`/gallery/${nextItem.slug}`)}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-
-          <div className="relative mt-3">
-            <button
-              type="button"
-              aria-label="Scroll thumbnails left"
-              className="pointer-events-auto absolute top-1/2 left-2 z-30 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-(--color-line-weaker) bg-white/95 text-(--color-text-strong) shadow sm:inline-flex"
-              onClick={() => handleThumbnailArrowClick(-1)}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-
-            <div
-              ref={thumbnailStripRef}
-              className="flex snap-x snap-mandatory items-center gap-2 overflow-x-auto scroll-smooth pb-2 [-ms-overflow-style:none] [scrollbar-width:none] sm:px-12 [&::-webkit-scrollbar]:hidden"
-            >
-              {moreImages.map((image) => (
-                <Link
-                  key={image.id}
-                  href={`/gallery/${image.slug}`}
-                  className={
-                    image.id === detailItem.id
-                      ? "relative h-18 w-24 shrink-0 snap-start overflow-hidden rounded-md ring-2 ring-(--color-line-brand) sm:h-20 sm:w-32"
-                      : "relative h-18 w-24 shrink-0 snap-start overflow-hidden rounded-md opacity-85 hover:opacity-100 sm:h-20 sm:w-32"
-                  }
-                >
-                  <Image
-                    src={image.src}
-                    alt={image.alt}
-                    width={320}
-                    height={220}
-                    className="h-full w-full object-cover"
-                    quality={100}
-                    sizes="(max-width: 640px) 96px, 128px"
-                    unoptimized
-                    draggable={false}
-                    onContextMenu={(event) => event.preventDefault()}
-                  />
-                  <div aria-hidden className="pointer-events-none absolute inset-0 bg-black/10" />
-
-                  <div className="pointer-events-none absolute inset-0 z-10 select-none">
-                    <Image
-                      src="/surfshare.png"
-                      alt="Surfshare watermark"
-                      width={220}
-                      height={54}
-                      className="absolute top-1 left-2 w-20 opacity-85 drop-shadow-[0_5px_12px_rgba(0,0,0,0.45)] sm:w-28"
-                      draggable={false}
-                    />
-                  </div>
-                </Link>
-              ))}
-            </div>
-
-            <button
-              type="button"
-              aria-label="Scroll thumbnails right"
-              className="pointer-events-auto absolute top-1/2 right-2 z-30 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-(--color-line-weaker) bg-white/95 text-(--color-text-strong) shadow sm:inline-flex"
-              onClick={() => handleThumbnailArrowClick(1)}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
           </div>
         </div>
 
-        {/* Right Side Content */}
+        {/* Right Side Content (Details) */}
         <div className="bg-(--color-surface-base)">
           <PageTitle
             subtitlePosition="top"
-            subtitle={detailItem.details.title}
+            subtitle={`Photo by ${photographerName}`}
             subtitleClassName="text-lg! leading-tight text-(--color-text-weak) sm:text-2xl! lg:text-[28px]!"
-            title={detailItem.price ?? `$${detailItem.priceValue.toFixed(2)}`}
+            title={`$${detailItem.price.toFixed(2)}`}
             titleClassName="text-(--color-text-brand-strong) text-[34px]! leading-none sm:text-[46px]! lg:text-[58px]!"
           />
 
@@ -220,7 +157,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
               beforeTitle={<MapPin className="h-5 w-5" color="#0C3173" />}
               subtitle="location"
               subtitlePosition="top"
-              title={detailItem.location}
+              title={locationName}
               titleClassName="text-base! text-(--color-text-strong) -mt-4 font-medium!"
               subtitleClassName="text-sm! text-(--color-text-weak)"
             />
@@ -228,7 +165,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
               beforeTitle={<Calendar className="h-5 w-5" color="#0C3173" />}
               subtitle="Date Taken"
               subtitlePosition="top"
-              title={detailItem.details.dateTaken}
+              title={formattedDate}
               titleClassName="text-base! text-(--color-text-strong) -mt-4 font-medium!"
               subtitleClassName="text-sm! text-(--color-text-weak)"
             />
@@ -236,7 +173,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
               beforeTitle={<Camera className="h-5 w-5" color="#0C3173" />}
               subtitle="Photographer"
               subtitlePosition="top"
-              title={detailItem.details.photographer}
+              title={photographerName}
               titleClassName="text-base! text-(--color-text-strong) -mt-4 font-medium!"
               subtitleClassName="text-sm! text-(--color-text-weak)"
             />
@@ -271,62 +208,54 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <dt className="text-sm text-(--color-text-weak) sm:text-base">Resolution</dt>
                 <dd className="text-right text-sm font-medium text-(--color-text-strong) sm:text-base">
-                  {detailItem.details.resolution}
+                  {resolution}
                 </dd>
               </div>
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <dt className="text-sm text-(--color-text-weak) sm:text-base">Format</dt>
                 <dd className="text-right text-sm font-medium text-(--color-text-strong) sm:text-base">
-                  {detailItem.details.format}
+                  {format}
                 </dd>
               </div>
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <dt className="text-sm text-(--color-text-weak) sm:text-base">Size</dt>
                 <dd className="text-right text-sm font-medium text-(--color-text-strong) sm:text-base">
-                  {detailItem.details.size}
+                  {fileSizeMB}
                 </dd>
               </div>
             </dl>
           </div>
 
-          <div className="relative mt-8 overflow-hidden rounded-md border border-(--color-line-weaker)">
-            <Image
-              src={detailItem.details.promoImageSrc}
-              alt={detailItem.details.promoImageAlt}
-              width={960}
-              height={280}
-              className="h-28 w-full object-cover sm:h-30"
-              quality={100}
-              sizes="(max-width: 640px) 100vw, 480px"
-              unoptimized
-              draggable={false}
-              onContextMenu={(event) => event.preventDefault()}
-            />
-
-            <div aria-hidden className="pointer-events-none absolute inset-0 z-10 bg-black/10" />
-
-            <div className="pointer-events-none absolute inset-0 z-20 select-none">
+          {/* Advertisement Section */}
+          {adData?.data && (
+            <div className="relative mt-8 overflow-hidden rounded-md border border-(--color-line-weaker)">
               <Image
-                src="/surfshare.png"
-                alt="Surfshare watermark"
-                width={320}
-                height={80}
-                className="absolute top-2 left-3 w-24 opacity-85 drop-shadow-[0_6px_16px_rgba(0,0,0,0.45)] sm:w-36"
+                src={adData.data.imageUrl}
+                alt="Advertisement"
+                width={960}
+                height={280}
+                className="h-28 w-full object-cover sm:h-34"
+                quality={100}
+                sizes="(max-width: 640px) 100vw, 480px"
+                unoptimized
                 draggable={false}
+                onContextMenu={(event) => event.preventDefault()}
               />
+              <Link
+                href={adData.data.linkUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Open advertisement"
+                className="absolute top-2 right-2 z-30 inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-(--color-text-brand-strong) sm:h-8 sm:w-8"
+              >
+                <ExternalLink className="h-4 w-4" />
+              </Link>
             </div>
-            <Link
-              href="/gallery"
-              aria-label="Open gallery"
-              className="absolute top-2 right-2 z-30 inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-(--color-text-brand-strong) sm:h-8 sm:w-8"
-            >
-              <ExternalLink className="h-4 w-4" />
-            </Link>
-          </div>
+          )}
         </div>
       </div>
 
-      <RelatedImagesSection items={relatedImages} />
+      {relatedImages.length > 0 && <RelatedImagesSection items={relatedImages} />}
     </section>
   );
 }

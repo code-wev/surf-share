@@ -31,8 +31,6 @@ function UserDetailRow({ label, value }: UserDetailRowProps) {
 
 export default function UserDetailsModal({
   userId,
-  planClassNameMap,
-  statusClassNameMap,
   onClose,
 }: UserDetailsModalProps) {
   const { data: userResponse, isLoading, isError } = useQuery({

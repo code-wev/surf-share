@@ -36,13 +36,18 @@ export const photoService = {
     return response.data;
   },
   
-  getAllPublic: async (params: any) => {
+  getAllPublic: async (params: Record<string, unknown>) => {
     const response = await apiClient.get("/photos", { params });
     return response.data;
   },
 
   getMyPhotos: async (params: IPhotosQuery) => {
     const response = await apiClient.get("/photos/my-uploads", { params });
+    return response.data;
+  },
+
+  getById: async (id: string) => {
+    const response = await apiClient.get(`/photos/detail/${id}`);
     return response.data;
   },
 };

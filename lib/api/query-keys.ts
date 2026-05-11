@@ -30,5 +30,7 @@ export const queryKeys = {
     all: ["photos"] as const,
     myPhotos: (filters: { page: number; limit: number; status?: string; locationId?: string }) =>
       [...queryKeys.photos.all, "my", filters] as const,
+    details: () => [...queryKeys.photos.all, "detail"] as const,
+    detail: (id: string) => [...queryKeys.photos.details(), id] as const,
   },
 };

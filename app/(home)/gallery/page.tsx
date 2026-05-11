@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 
 import GalleryContent from "@/components/home/gallery/gallery-content";
 import GalleryPagination from "@/components/home/gallery/gallery-pagination";
@@ -14,6 +13,14 @@ export type GalleryTime = "all" | "FIRST_LIGHT" | "MORNING" | "LUNCH" | "AFTERNO
 export type GallerySort = "latest" | "priceLow" | "priceHigh";
 
 const PAGE_SIZE = 16;
+
+type ApiPhoto = {
+  id: string;
+  imageUrl: string;
+  price: number;
+  photographer?: { name?: string };
+  location?: { name?: string };
+};
 
 export default function GalleryPage() {
   const [activeTab, setActiveTab] = useState<GalleryTab>("all");
@@ -58,7 +65,7 @@ export default function GalleryPage() {
   const meta = photosData?.meta || { total: 0, totalPages: 1 };
 
   // Map backend photos to GallerySeedImage format for CardView
-  const mappedPhotos = photos.map((p: any) => ({
+  const mappedPhotos = photos.map((p: ApiPhoto) => ({
     id: p.id,
     slug: p.id,
     src: p.imageUrl,
