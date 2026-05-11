@@ -33,4 +33,9 @@ export const queryKeys = {
     details: () => [...queryKeys.photos.all, "detail"] as const,
     detail: (id: string) => [...queryKeys.photos.details(), id] as const,
   },
+  favorites: {
+    all: ["favorites"] as const,
+    myFavorites: () => [...queryKeys.favorites.all, "list"] as const,
+    ids: () => [...queryKeys.favorites.all, "ids"] as const,
+  },
 };

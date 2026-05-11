@@ -1,8 +1,12 @@
+"use client";
+
 import Image from "next/image";
 import { Camera, ExternalLink, Heart, Plus } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import ImageCard from "./image-card";
+import { useAuth } from "@/lib/auth";
+import { useFavoriteIdsQuery, useToggleFavoriteMutation } from "@/hooks/api/useFavorites";
 
 export type CardViewItem = {
   id: string | number;
@@ -16,7 +20,7 @@ export type CardViewItem = {
   price?: string;
   avatarSrc?: string;
   size?: "tall" | "short";
-  favoriteActive?: boolean;
+  favoriteActive?: boolean; // Keep for backwards compatibility, but overridden by backend
   plusActive?: boolean;
   showInfoByDefault?: boolean;
 };
@@ -61,89 +65,114 @@ function getDetailsHref(item: CardViewItem) {
   return `/gallery/${item.slug ?? item.id}`;
 }
 
-function buildInfo(item: CardViewItem) {
-  const hasUserInfo = Boolean(item.userName && item.location && item.price);
+export default function CardView({ items, className, desktopColumns = 4 }: CardViewProps) {
+  const { session, isHydrated } = useAuth();
+  const { data: favoriteIdsData } = useFavoriteIdsQuery();
+  const toggleMutation = useToggleFavoriteMutation();
+  const favoriteIds = favoriteIdsData?.data || [];
 
-  if (hasUserInfo) {
-    return (
-      <div className="flex items-end justify-between gap-4">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            {item.avatarSrc ? (
-              <Image
-                src={item.avatarSrc}
-                alt={item.userName ?? "Uploader"}
-                width={30}
-                height={30}
-                className="h-7 w-7 rounded-full border border-white/50 object-cover"
-              />
-            ) : null}
-            <p className="truncate text-[20px] leading-none font-medium">{item.userName}</p>
+  const handleToggleFavorite = (e: React.MouseEvent, id: string | number) => {
+    e.preventDefault(); // Prevent navigating to image details
+    e.stopPropagation();
+    
+    if (!isHydrated || !session) {
+      // You could trigger a login modal or toast here
+      return;
+    }
+    
+    toggleMutation.mutate(String(id));
+  };
+
+  function buildInfo(item: CardViewItem) {
+    const hasUserInfo = Boolean(item.userName && item.location && item.price);
+
+    if (hasUserInfo) {
+      return (
+        <div className="flex items-end justify-between gap-4">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              {item.avatarSrc ? (
+                <Image
+                  src={item.avatarSrc}
+                  alt={item.userName ?? "Uploader"}
+                  width={30}
+                  height={30}
+                  className="h-7 w-7 rounded-full border border-white/50 object-cover"
+                />
+              ) : null}
+              <p className="truncate text-[20px] leading-none font-medium">{item.userName}</p>
+            </div>
+
+            <div className="mt-1 flex items-center gap-1 text-[13px] text-white/85">
+              <span>{item.location}</span>
+              <ExternalLink className="h-3 w-3" />
+            </div>
           </div>
 
-          <div className="mt-1 flex items-center gap-1 text-[13px] text-white/85">
-            <span>{item.location}</span>
-            <ExternalLink className="h-3 w-3" />
-          </div>
+          <p className="text-[48px] leading-none font-semibold">{item.price}</p>
         </div>
+      );
+    }
 
-        <p className="text-[48px] leading-none font-semibold">{item.price}</p>
+    if (!item.title && !item.photoCount) {
+      return undefined;
+    }
+
+    return (
+      <div className="space-y-1.5">
+        {item.title ? (
+          <p className="text-[26px] leading-none font-medium sm:text-[36px]">{item.title}</p>
+        ) : null}
+        {typeof item.photoCount === "number" ? (
+          <div className="flex items-center gap-1.5 text-sm text-white/90">
+            <Camera className="h-3.5 w-3.5" />
+            <span>{item.photoCount}</span>
+          </div>
+        ) : null}
       </div>
     );
   }
 
-  if (!item.title && !item.photoCount) {
-    return undefined;
+  function buildActions(item: CardViewItem) {
+    const isFavorited = favoriteIds.includes(String(item.id)) || item.favoriteActive;
+
+    return (
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          aria-label="Add to favorites"
+          onClick={(e) => handleToggleFavorite(e, item.id)}
+          disabled={toggleMutation.isPending}
+          className={cn(
+            "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/55 transition-colors hover:bg-(--color-fill-brand-strong) hover:text-white disabled:opacity-50 cursor-pointer",
+            isFavorited
+              ? "bg-(--color-fill-brand-strong) text-white"
+              : "bg-white text-(--color-fill-brand-strong)"
+          )}
+        >
+          <Heart className="h-4 w-4" fill={isFavorited ? "currentColor" : "none"} />
+        </button>
+
+        <button
+          type="button"
+          aria-label="Add card"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          className={cn(
+            "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/55 bg-white text-(--color-fill-brand-strong) transition-colors hover:text-white",
+            item.plusActive
+              ? "bg-white"
+              : "bg-[#E7E5E4] hover:bg-(--color-fill-brand-strong) hover:text-white",
+          )}
+        >
+          <Plus className="h-4 w-4" />
+        </button>
+      </div>
+    );
   }
 
-  return (
-    <div className="space-y-1.5">
-      {item.title ? (
-        <p className="text-[26px] leading-none font-medium sm:text-[36px]">{item.title}</p>
-      ) : null}
-      {typeof item.photoCount === "number" ? (
-        <div className="flex items-center gap-1.5 text-sm text-white/90">
-          <Camera className="h-3.5 w-3.5" />
-          <span>{item.photoCount}</span>
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-function buildActions(item: CardViewItem) {
-  return (
-    <div className="flex items-center gap-2">
-      <button
-        type="button"
-        aria-label="Add to favorites"
-        className={cn(
-          "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/55 bg-white text-(--color-fill-brand-strong) transition-colors hover:text-white",
-          item.favoriteActive
-            ? "bg-(--color-fill-brand-strong) text-white"
-            : "bg-[#E7E5E4] hover:bg-(--color-fill-brand-strong)",
-        )}
-      >
-        <Heart className="h-4 w-4" />
-      </button>
-
-      <button
-        type="button"
-        aria-label="Add card"
-        className={cn(
-          "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/55 bg-white text-(--color-fill-brand-strong) transition-colors hover:text-white",
-          item.plusActive
-            ? "bg-white"
-            : "bg-[#E7E5E4] hover:bg-(--color-fill-brand-strong) hover:text-white",
-        )}
-      >
-        <Plus className="h-4 w-4" />
-      </button>
-    </div>
-  );
-}
-
-export default function CardView({ items, className, desktopColumns = 4 }: CardViewProps) {
   const desktopItemsPerGroup = desktopColumns * 2;
   const desktopColumnPattern = desktopColumnPatternByCount[desktopColumns];
 

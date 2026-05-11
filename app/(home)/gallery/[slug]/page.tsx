@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { use, useState } from "react";
+import { use } from "react";
 import {
   Calendar,
   Camera,
@@ -17,6 +17,8 @@ import { Button } from "@/components/ui/button";
 import { PageTitle } from "@/components/shared/page-title";
 import { usePhotoDetailQuery, usePublicPhotosQuery } from "@/hooks/api/usePhotos";
 import { useAdvertisementQuery } from "@/hooks/api/useAdvertisement";
+import { useFavoriteIdsQuery, useToggleFavoriteMutation } from "@/hooks/api/useFavorites";
+import { useAuth } from "@/lib/auth";
 
 type GalleryDetailsPageProps = {
   params: Promise<{ slug: string }>;
@@ -24,13 +26,24 @@ type GalleryDetailsPageProps = {
 
 export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) {
   const { slug } = use(params);
-  const [favoriteActive, setFavoriteActive] = useState(false);
-
+  const { session, isHydrated } = useAuth();
+  
   // The slug is the photo ID based on our mapping in gallery/page.tsx
   const photoId = slug;
 
   const { data: photoResponse, isLoading, isError } = usePhotoDetailQuery(photoId);
   const { data: adData } = useAdvertisementQuery();
+  
+  // Favorites logic
+  const { data: favoriteIdsData } = useFavoriteIdsQuery();
+  const toggleMutation = useToggleFavoriteMutation();
+  const favoriteIds = favoriteIdsData?.data || [];
+  const isFavorited = favoriteIds.includes(photoId);
+
+  const handleToggleFavorite = () => {
+    if (!isHydrated || !session) return;
+    toggleMutation.mutate(photoId);
+  };
   
   // Fetch related images by same location
   const locationId = photoResponse?.data?.locationId;
@@ -182,15 +195,16 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
           <div className="mt-6 grid grid-cols-1 gap-2 sm:grid-cols-2">
             <Button
               variant="secondary"
+              disabled={toggleMutation.isPending}
               className={
-                favoriteActive
-                  ? "h-10 w-full cursor-pointer border border-(--color-line-brand) bg-(--color-fill-inverse-weak) text-(--color-text-white)"
-                  : "h-10 w-full cursor-pointer border border-(--color-line-weaker) bg-(--color-fill-inverse-weak) text-(--color-text-brand-strong)"
+                isFavorited
+                  ? "h-10 w-full cursor-pointer border border-(--color-line-brand) bg-(--color-fill-brand-strong) text-white hover:opacity-90"
+                  : "h-10 w-full cursor-pointer border border-(--color-line-weaker) bg-(--color-fill-inverse-weak) text-(--color-text-brand-strong) hover:bg-gray-50"
               }
-              onClick={() => setFavoriteActive((previousValue) => !previousValue)}
+              onClick={handleToggleFavorite}
             >
-              Add to favorites
-              <Heart className="h-4 w-4" />
+              {isFavorited ? "Remove from favorites" : "Add to favorites"}
+              <Heart className="h-4 w-4" fill={isFavorited ? "currentColor" : "none"} />
             </Button>
             <Link href="/cart" className="block h-10 w-full">
               <Button className="h-full w-full cursor-pointer bg-(--color-fill-brand-strong) text-(--color-text-inverse-strong) hover:opacity-95">
