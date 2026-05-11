@@ -85,6 +85,7 @@ export const getUserPhotos = async (userId: string, limit: number = 10): Promise
       data: response.data.data,
     };
   } catch (error) {
+    console.error("Error fetching user photos:", error);
     return {
       success: false,
       data: [],
