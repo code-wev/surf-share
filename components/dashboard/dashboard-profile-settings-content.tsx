@@ -4,21 +4,23 @@ import DashboardProfileHeader from "@/components/dashboard/profile/dashboard-pro
 import DashboardProfilePasswordSection from "@/components/dashboard/profile/dashboard-profile-password-section";
 import Image from "next/image";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { Pencil } from "lucide-react";
+import { useRef, useState } from "react";
+import { Pencil, Camera, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { getDemoUserProfile, useAuth } from "@/lib/auth";
-import { getUserById, updateUserById } from "@/src/actions/user.action";
+import { getUserById, updateUserById, uploadProfileImage } from "@/src/actions/user.action";
 import DashboardProfileInfoField from "./profile/dashboard-profile-info-field";
 
 export default function DashboardProfileSettingsContent() {
   const { session } = useAuth();
   const profile = getDemoUserProfile(session);
   const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [editValues, setEditValues] = useState<{
     fullName: string;
     country: string;
@@ -43,6 +45,7 @@ export default function DashboardProfileSettingsContent() {
   const displayProfile = profile
     ? {
         ...profile,
+        avatarSrc: (apiProfile as any)?.profileImageUrl ?? profile.avatarSrc,
         fullName: apiProfile?.name ?? profile.fullName,
         country: apiProfile?.countryName ?? profile.country,
         phone: apiProfile?.phoneNumber ?? profile.phone,
@@ -60,9 +63,6 @@ export default function DashboardProfileSettingsContent() {
       </div>
     );
   }
-
-  // The values shown in the fields (editValues when editing, displayProfile otherwise)
-  const fieldValues = isEditingProfile && editValues ? editValues : displayProfile;
 
   const handleEditProfile = () => {
     setEditValues({
@@ -83,7 +83,6 @@ export default function DashboardProfileSettingsContent() {
   const handleSaveProfile = async () => {
     if (!session?.id || !editValues) return;
     setIsSaving(true);
-    setMessage(null);
     try {
       const result = await updateUserById(session.id, {
         name: editValues.fullName,
@@ -93,21 +92,37 @@ export default function DashboardProfileSettingsContent() {
       });
 
       if (result.success) {
-        setMessage({ type: "success", text: "Profile updated successfully!" });
+        toast.success("Profile updated successfully!");
         await queryClient.invalidateQueries({
           queryKey: ["dashboard-profile", session.id],
         });
         setIsEditingProfile(false);
         setEditValues(null);
       } else {
-        setMessage({ type: "error", text: result.message || "Failed to update profile" });
+        toast.error(result.message || "Failed to update profile");
       }
     } catch (error) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const _error = error;
-      setMessage({ type: "error", text: "Failed to update profile. Please try again." });
+      toast.error("Failed to update profile. Please try again.");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !session?.id) return;
+
+    setIsUploading(true);
+    try {
+      await uploadProfileImage(session.id, file);
+      toast.success("Profile image updated successfully!");
+      await queryClient.invalidateQueries({
+        queryKey: ["dashboard-profile", session.id],
+      });
+    } catch (error) {
+      toast.error("Failed to upload profile image.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -124,16 +139,36 @@ export default function DashboardProfileSettingsContent() {
         <DashboardProfileHeader />
 
         <div className="mt-6 md:mt-12">
-          <div className="relative">
+          <div className="relative inline-block">
             <div className="border-line-weaker bg-fill-hover h-25 w-25 overflow-hidden rounded-full border">
-              <Image
-                src={displayProfile.avatarSrc}
-                alt="Profile photo"
-                width={100}
-                height={100}
-                className="h-full w-full object-cover"
-              />
+              {isUploading ? (
+                <div className="flex h-full w-full items-center justify-center">
+                    <Loader2 className="h-6 w-6 animate-spin text-text-weak" />
+                </div>
+              ) : (
+                <Image
+                    src={displayProfile.avatarSrc}
+                    alt="Profile photo"
+                    width={100}
+                    height={100}
+                    className="h-full w-full object-cover"
+                />
+              )}
             </div>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full bg-brand-default text-white hover:bg-brand-hover"
+            >
+              <Camera size={16} />
+            </button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*"
+              className="hidden"
+            />
           </div>
           <p className="text-text-strong mt-4 text-lg font-medium">{displayProfile.fullName}</p>
         </div>
@@ -173,49 +208,38 @@ export default function DashboardProfileSettingsContent() {
           )}
         </div>
 
-        {/* Success/Error Message */}
-        {message && (
-          <div
-            className={`mt-4 rounded-sm p-3 text-sm font-medium ${
-              message.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-            }`}
-          >
-            {message.text}
-          </div>
-        )}
-
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-x-6 md:gap-y-5">
           <DashboardProfileInfoField
             label="Full name"
-            value={fieldValues.fullName}
+            value={isEditingProfile && editValues ? editValues.fullName : displayProfile.fullName}
             defaultValue={displayProfile.fullName}
             isEditing={isEditingProfile}
             onChange={(v: string) => handleFieldChange("fullName", v)}
           />
           <DashboardProfileInfoField
             label="Country Name"
-            value={fieldValues.country}
+            value={isEditingProfile && editValues ? editValues.country : displayProfile.country}
             defaultValue={displayProfile.country}
             isEditing={isEditingProfile}
             onChange={(v: string) => handleFieldChange("country", v)}
           />
           <DashboardProfileInfoField
             label="Phone Number"
-            value={fieldValues.phone}
+            value={isEditingProfile && editValues ? editValues.phone : displayProfile.phone}
             defaultValue={displayProfile.phone}
             isEditing={isEditingProfile}
             onChange={(v: string) => handleFieldChange("phone", v)}
           />
           <DashboardProfileInfoField
             label="Email Address"
-            value={fieldValues.email}
+            value={isEditingProfile && editValues ? editValues.email : displayProfile.email}
             defaultValue={displayProfile.email}
             isEditing={isEditingProfile}
             onChange={(v: string) => handleFieldChange("email", v)}
           />
           <DashboardProfileInfoField
             label="Address"
-            value={fieldValues.address}
+            value={isEditingProfile && editValues ? editValues.address : displayProfile.address}
             defaultValue={displayProfile.address}
             isEditing={isEditingProfile}
             onChange={(v: string) => handleFieldChange("address", v)}
@@ -224,8 +248,6 @@ export default function DashboardProfileSettingsContent() {
         </div>
 
         <DashboardProfilePasswordSection />
-
-        {/* <DashboardProfileActions /> */}
       </section>
     </div>
   );

@@ -137,3 +137,18 @@ export const updateUserById = async (
     };
   }
 };
+
+export const uploadProfileImage = async (userId: string, file: File) => {
+  const formData = new FormData();
+  formData.append("image", file);
+  try {
+    const response = await apiClient.patch(`/users/${userId}/profile-image`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
