@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, ShoppingCart, X } from "lucide-react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 
@@ -68,41 +68,55 @@ export default function Navbar() {
 
           <div className="hidden items-center gap-3 sm:gap-4 lg:flex">
             {!isHydrated ? null : isDashboardRoute ? (
-              <Link
-                href={profileHref}
-                aria-label="Go to profile"
-                className={`inline-flex h-9 w-9 overflow-hidden rounded-full border transition-colors ${
-                  isProfileIconActive
-                    ? "border-brand-default"
-                    : "border-line-weaker hover:border-brand-default/60"
-                }`}
-              >
-                <Image
-                  src="/home/latest/latest1.jpg"
-                  alt="Profile"
-                  width={36}
-                  height={36}
-                  className="h-full w-full object-cover"
-                />
-              </Link>
+              <>
+                {session?.role === "SURFER" && (
+                  <Link href="/cart" aria-label="Cart" className="text-(--color-text-strong) hover:text-[#0c3173] transition-colors">
+                    <ShoppingCart size={20} />
+                  </Link>
+                )}
+                <Link
+                  href={profileHref}
+                  aria-label="Go to profile"
+                  className={`inline-flex h-9 w-9 overflow-hidden rounded-full border transition-colors ${
+                    isProfileIconActive
+                      ? "border-brand-default"
+                      : "border-line-weaker hover:border-brand-default/60"
+                  }`}
+                >
+                  <Image
+                    src="/home/latest/latest1.jpg"
+                    alt="Profile"
+                    width={36}
+                    height={36}
+                    className="h-full w-full object-cover"
+                  />
+                </Link>
+              </>
             ) : session ? (
-              <Link
-                href={profileHref}
-                aria-label="Go to profile"
-                className={`inline-flex h-9 w-9 overflow-hidden rounded-full border transition-colors ${
-                  isProfileIconActive
-                    ? "border-brand-default"
-                    : "border-line-weaker hover:border-brand-default/60"
-                }`}
-              >
-                <Image
-                  src="/home/latest/latest1.jpg"
-                  alt="Profile"
-                  width={36}
-                  height={36}
-                  className="h-full w-full object-cover"
-                />
-              </Link>
+              <>
+                {session.role === "SURFER" && (
+                  <Link href="/cart" aria-label="Cart" className="text-(--color-text-strong) hover:text-[#0c3173] transition-colors">
+                    <ShoppingCart size={20} />
+                  </Link>
+                )}
+                <Link
+                  href={profileHref}
+                  aria-label="Go to profile"
+                  className={`inline-flex h-9 w-9 overflow-hidden rounded-full border transition-colors ${
+                    isProfileIconActive
+                      ? "border-brand-default"
+                      : "border-line-weaker hover:border-brand-default/60"
+                  }`}
+                >
+                  <Image
+                    src="/home/latest/latest1.jpg"
+                    alt="Profile"
+                    width={36}
+                    height={36}
+                    className="h-full w-full object-cover"
+                  />
+                </Link>
+              </>
             ) : (
               <>
                 <Link
@@ -124,23 +138,30 @@ export default function Navbar() {
 
           <div className="flex items-center gap-2 lg:hidden">
             {isHydrated && (isDashboardRoute || session) ? (
-              <Link
-                href={profileHref}
-                aria-label="Go to profile"
-                className={`inline-flex h-8 w-8 overflow-hidden rounded-full border transition-colors ${
-                  isProfileIconActive
-                    ? "border-brand-default"
-                    : "border-line-weaker hover:border-brand-default/60"
-                }`}
-              >
-                <Image
-                  src="/home/latest/latest1.jpg"
-                  alt="Profile"
-                  width={32}
-                  height={32}
-                  className="h-full w-full object-cover"
-                />
-              </Link>
+              <>
+                {session?.role === "SURFER" && (
+                  <Link href="/cart" aria-label="Cart" className="mr-1 text-(--color-text-strong) hover:text-[#0c3173] transition-colors">
+                    <ShoppingCart size={18} />
+                  </Link>
+                )}
+                <Link
+                  href={profileHref}
+                  aria-label="Go to profile"
+                  className={`inline-flex h-8 w-8 overflow-hidden rounded-full border transition-colors ${
+                    isProfileIconActive
+                      ? "border-brand-default"
+                      : "border-line-weaker hover:border-brand-default/60"
+                  }`}
+                >
+                  <Image
+                    src="/home/latest/latest1.jpg"
+                    alt="Profile"
+                    width={32}
+                    height={32}
+                    className="h-full w-full object-cover"
+                  />
+                </Link>
+              </>
             ) : null}
 
             {!isDashboardRoute ? (
