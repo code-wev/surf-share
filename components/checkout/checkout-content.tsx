@@ -37,7 +37,7 @@ export default function CheckoutContent() {
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("+880");
+  const [phone, setPhone] = useState("");
 
   const handleSubmit = async () => {
     if (checkoutItems.length === 0 || createSessionMutation.isPending) {
@@ -87,7 +87,7 @@ export default function CheckoutContent() {
                   Phone
                   <Input
                     className="mt-1 placeholder:text-(--color-text-weaker)"
-                    placeholder="+880"
+                    placeholder="Enter your phone number"
                     value={phone}
                     onChange={(event) => setPhone(event.target.value)}
                   />

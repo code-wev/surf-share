@@ -5,4 +5,11 @@ export const checkoutService = {
     const response = await apiClient.post("/checkout/create-session", { photoIds });
     return response.data;
   },
+
+  verifySession: async (sessionId: string) => {
+    const response = await apiClient.get("/checkout/verify-session", {
+      params: { sessionId },
+    });
+    return response.data;
+  },
 };

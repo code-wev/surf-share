@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { useCartStore } from "@/store/cart.store";
+import { checkoutService } from "@/lib/api/services/checkout.service";
 
 export default function CheckoutSuccessPage() {
   const router = useRouter();
@@ -12,12 +13,22 @@ export default function CheckoutSuccessPage() {
   const sessionId = searchParams.get("session_id");
   const { clearCart } = useCartStore();
   const [mounted, setMounted] = useState(false);
+  const verifyAttempted = useRef(false);
 
   useEffect(() => {
     setTimeout(() => setMounted(true), 0);
-    if (sessionId) {
-      // If we successfully returned from Stripe with a session ID, wipe the local cart
-      clearCart();
+    
+    if (sessionId && !verifyAttempted.current) {
+      verifyAttempted.current = true;
+      
+      // Securely ask backend to verify the Stripe session directly
+      // This is a bulletproof fallback if local webhooks didn't fire
+      checkoutService.verifySession(sessionId)
+        .then(() => {
+           // On successful verification, wipe the local cart
+           clearCart();
+        })
+        .catch(console.error);
     }
   }, [sessionId, clearCart]);
 
