@@ -19,6 +19,7 @@ import { usePhotoDetailQuery, usePublicPhotosQuery } from "@/hooks/api/usePhotos
 import { useAdvertisementQuery } from "@/hooks/api/useAdvertisement";
 import { useFavoriteIdsQuery, useToggleFavoriteMutation } from "@/hooks/api/useFavorites";
 import { useAuth } from "@/lib/auth";
+import { useCartStore } from "@/store/cart.store";
 
 type GalleryDetailsPageProps = {
   params: Promise<{ slug: string }>;
@@ -27,6 +28,7 @@ type GalleryDetailsPageProps = {
 export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) {
   const { slug } = use(params);
   const { session, isHydrated } = useAuth();
+  const { addItem, items: cartItems } = useCartStore();
   
   // The slug is the photo ID based on our mapping in gallery/page.tsx
   const photoId = slug;
@@ -43,6 +45,18 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   const handleToggleFavorite = () => {
     if (!isHydrated || !session) return;
     toggleMutation.mutate(photoId);
+  };
+
+  const handleAddToCart = () => {
+    if (!photoResponse?.data) return;
+    const p = photoResponse.data;
+    addItem({
+      id: p.id,
+      imageUrl: p.imageUrl,
+      title: `Photo by ${p.photographer?.name}`,
+      location: p.location?.name || "Unknown Location",
+      price: p.price,
+    });
   };
   
   // Fetch related images by same location
@@ -206,12 +220,13 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
               {isFavorited ? "Remove from favorites" : "Add to favorites"}
               <Heart className="h-4 w-4" fill={isFavorited ? "currentColor" : "none"} />
             </Button>
-            <Link href="/cart" className="block h-10 w-full">
-              <Button className="h-full w-full cursor-pointer bg-(--color-fill-brand-strong) text-(--color-text-inverse-strong) hover:opacity-95">
-                Add to cart
-                <ShoppingCart className="h-4 w-4" />
-              </Button>
-            </Link>
+            <Button
+              className="h-10 w-full cursor-pointer bg-(--color-fill-brand-strong) text-(--color-text-inverse-strong) hover:opacity-95"
+              onClick={handleAddToCart}
+            >
+              {cartItems.some(item => item.id === photoId) ? "Added to cart" : "Add to cart"}
+              <ShoppingCart className="h-4 w-4" />
+            </Button>
           </div>
 
           <div className="mt-6 border-t border-(--color-line-weaker) pt-5">

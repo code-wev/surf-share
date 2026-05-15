@@ -3,46 +3,36 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import CartOrderSummary from "@/components/cart/cart-order-summary";
-import {
-  defaultCartItems,
-  formatPrice,
-  normalizeCartItems,
-  type CartLineItem,
-} from "@/components/cart/cart-model";
+import { formatPrice, type CartLineItem } from "@/components/cart/cart-model";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { PageTitle } from "../shared/page-title";
+import { useCartStore } from "@/store/cart.store";
 
-type CartContentProps = {
-  items?: CartLineItem[];
-  onCheckout?: (selectedItems: CartLineItem[]) => void;
-  onDeleteSelected?: (deletedIds: string[]) => void;
-};
-
-export default function CartContent({
-  items = defaultCartItems,
-  onCheckout,
-  onDeleteSelected,
-}: CartContentProps) {
+export default function CartContent() {
   const router = useRouter();
+  const { items, removeItems } = useCartStore();
+  const [mounted, setMounted] = useState(false);
 
-  const initialItems = useMemo(() => normalizeCartItems(items), [items]);
+  // Avoid hydration mismatch for Zustand persistence
+  useEffect(() => {
+    setTimeout(() => setMounted(true), 0);
+  }, []);
 
-  const [cartItems, setCartItems] = useState(initialItems);
   const [selectedIds, setSelectedIds] = useState<string[]>(() =>
-    initialItems[0] ? [String(initialItems[0].id)] : [],
+    items.length > 0 ? [String(items[0].id)] : [],
   );
 
   const selectedCartItems = useMemo(
-    () => cartItems.filter((item) => selectedIds.includes(String(item.id))),
-    [cartItems, selectedIds],
+    () => items.filter((item) => selectedIds.includes(String(item.id))),
+    [items, selectedIds],
   );
 
-  const isAllSelected = cartItems.length > 0 && selectedIds.length === cartItems.length;
+  const isAllSelected = items.length > 0 && selectedIds.length === items.length;
   const selectedIdsQuery = selectedCartItems
     .map((item) => encodeURIComponent(String(item.id)))
     .join(",");
@@ -54,7 +44,7 @@ export default function CartContent({
       return;
     }
 
-    setSelectedIds(cartItems.map((item) => item.id));
+    setSelectedIds(items.map((item) => item.id));
   };
 
   const toggleItem = (itemId: string) => {
@@ -72,16 +62,8 @@ export default function CartContent({
       return;
     }
 
-    const deletedIds = [...selectedIds];
-
-    setCartItems((previousItems) =>
-      previousItems.filter((item) => !selectedIds.includes(String(item.id))),
-    );
+    removeItems(selectedIds);
     setSelectedIds([]);
-
-    if (onDeleteSelected) {
-      onDeleteSelected(deletedIds);
-    }
   };
 
   const handleProceed = () => {
@@ -89,13 +71,17 @@ export default function CartContent({
       return;
     }
 
-    if (onCheckout) {
-      onCheckout(selectedCartItems);
-      return;
-    }
-
     router.push(checkoutHref);
   };
+
+  if (!mounted) return null;
+
+  // We map state items slightly to fit the CartLineItem UI requirements (adding imageSrc property)
+  const mappedSelectedCartItems = selectedCartItems.map((item) => ({
+    ...item,
+    imageSrc: item.imageUrl,
+    detailsHref: `/gallery/${item.id}`,
+  })) as CartLineItem[];
 
   return (
     <section className="py-8 sm:py-10 lg:py-25">
@@ -112,7 +98,7 @@ export default function CartContent({
                   onChange={toggleSelectAll}
                   className="h-4 w-4 rounded border border-(--color-line-weak)"
                 />
-                <span>Select All ({cartItems.length} Items)</span>
+                <span>Select All ({items.length} Items)</span>
               </label>
 
               <button
@@ -126,12 +112,12 @@ export default function CartContent({
             </div>
             {/* Cart Items */}
             <div className="space-y-3">
-              {cartItems.length === 0 ? (
+              {items.length === 0 ? (
                 <div className="rounded-md border border-(--color-line-weaker) bg-(--color-surface-base) p-6 text-center text-(--color-text-weak)">
                   Your cart is empty.
                 </div>
               ) : (
-                cartItems.map((item) => (
+                items.map((item) => (
                   <article
                     key={item.id}
                     className="rounded-md border border-(--color-line-weaker) bg-(--color-surface-base) p-3 sm:p-4"
@@ -146,7 +132,7 @@ export default function CartContent({
                         />
 
                         <Image
-                          src={item.imageSrc}
+                          src={item.imageUrl}
                           alt={item.title}
                           width={120}
                           height={120}
@@ -171,7 +157,7 @@ export default function CartContent({
                         </div>
 
                         <div className="mt-3 flex justify-end">
-                          <Link href={item.detailsHref} className="block">
+                          <Link href={`/gallery/${item.id}`} className="block">
                             <Button className="h-8 bg-(--color-fill-brand-strong) px-5 text-xs text-(--color-text-inverse-strong) hover:opacity-95">
                               View Details
                             </Button>
@@ -187,8 +173,8 @@ export default function CartContent({
           {/* Right Side Order Summary */}
           <CartOrderSummary
             mode="cart"
-            items={selectedCartItems}
-            proceedDisabled={selectedCartItems.length === 0}
+            items={mappedSelectedCartItems}
+            proceedDisabled={mappedSelectedCartItems.length === 0}
             onProceed={handleProceed}
           />
         </div>

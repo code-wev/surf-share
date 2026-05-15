@@ -96,7 +96,7 @@ export default function CartOrderSummary({
             </div>
           </div>
           <div className="mx-auto mt-3 w-fit rounded-sm bg-white px-2 py-1 text-[11px] font-semibold text-[#003087]">
-            PayPal
+            Stripe
           </div>
         </div>
       ) : null}

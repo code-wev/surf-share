@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import ImageCard from "./image-card";
 import { useAuth } from "@/lib/auth";
 import { useFavoriteIdsQuery, useToggleFavoriteMutation } from "@/hooks/api/useFavorites";
+import { useCartStore } from "@/store/cart.store";
 
 export type CardViewItem = {
   id: string | number;
@@ -70,17 +71,30 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
   const { data: favoriteIdsData } = useFavoriteIdsQuery();
   const toggleMutation = useToggleFavoriteMutation();
   const favoriteIds = favoriteIdsData?.data || [];
+  const { addItem, items: cartItems } = useCartStore();
 
   const handleToggleFavorite = (e: React.MouseEvent, id: string | number) => {
     e.preventDefault(); // Prevent navigating to image details
     e.stopPropagation();
     
     if (!isHydrated || !session) {
-      // You could trigger a login modal or toast here
       return;
     }
     
     toggleMutation.mutate(String(id));
+  };
+
+  const handleAddToCart = (e: React.MouseEvent, item: CardViewItem) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    addItem({
+      id: String(item.id),
+      imageUrl: item.src,
+      title: item.title || `Photo ${item.id}`,
+      location: item.location || "Unknown Location",
+      price: Number(item.price?.replace(/[^0-9.-]+/g, "")) || 0,
+    });
   };
 
   function buildInfo(item: CardViewItem) {
@@ -135,6 +149,7 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
 
   function buildActions(item: CardViewItem) {
     const isFavorited = favoriteIds.includes(String(item.id)) || item.favoriteActive;
+    const isAddedToCart = cartItems.some(i => i.id === String(item.id));
 
     return (
       <div className="flex items-center gap-2">
@@ -155,16 +170,13 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
 
         <button
           type="button"
-          aria-label="Add card"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
+          aria-label="Add to cart"
+          onClick={(e) => handleAddToCart(e, item)}
           className={cn(
-            "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/55 bg-white text-(--color-fill-brand-strong) transition-colors hover:text-white",
-            item.plusActive
-              ? "bg-white"
-              : "bg-[#E7E5E4] hover:bg-(--color-fill-brand-strong) hover:text-white",
+            "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/55 transition-colors hover:text-white cursor-pointer",
+            isAddedToCart
+              ? "bg-white text-green-600"
+              : "bg-[#E7E5E4] text-(--color-fill-brand-strong) hover:bg-(--color-fill-brand-strong)",
           )}
         >
           <Plus className="h-4 w-4" />
