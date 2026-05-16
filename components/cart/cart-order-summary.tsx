@@ -2,7 +2,7 @@ import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 
-import { checkoutTaxRate, formatPrice, type CartLineItem } from "@/components/cart/cart-model";
+import { formatPrice, type CartLineItem } from "@/components/cart/cart-model";
 import { ShieldCheck } from "lucide-react";
 
 type CartOrderSummaryProps = {
@@ -19,8 +19,7 @@ export default function CartOrderSummary({
   proceedDisabled = false,
 }: CartOrderSummaryProps) {
   const subtotal = items.reduce((total, item) => total + item.price, 0);
-  const tax = mode === "checkout" ? subtotal * checkoutTaxRate : 0;
-  const total = subtotal + tax;
+  const total = subtotal; // Removed 10% tax calculation
 
   return (
     <aside className="h-fit rounded-sm bg-(--color-fill-brand-strong) p-4 text-(--color-text-inverse-strong) sm:p-5 xl:sticky xl:top-24">
@@ -62,13 +61,7 @@ export default function CartOrderSummary({
           <span className="text-base">Subtotal</span>
           <span className="text-sm">{formatPrice(subtotal)}</span>
         </div>
-
-        {mode === "checkout" ? (
-          <div className="mt-2 flex items-center justify-between">
-            <span className="text-sm">Tax(10%)</span>
-            <span className="text-sm">{formatPrice(tax)}</span>
-          </div>
-        ) : null}
+        {/* Removed tax display row */}
       </div>
 
       <div className="mt-3.5 flex items-end justify-between">

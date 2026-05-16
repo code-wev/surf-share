@@ -13,8 +13,6 @@ export type CheckoutCustomer = {
   phone: string;
 };
 
-export const checkoutTaxRate = 0.1;
-
 export const defaultCartItems: CartLineItem[] = [
   {
     id: 1,

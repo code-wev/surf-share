@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { Trash2 } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 import CartOrderSummary from "@/components/cart/cart-order-summary";
 import { formatPrice, type CartLineItem } from "@/components/cart/cart-model";
@@ -12,11 +11,12 @@ import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { PageTitle } from "../shared/page-title";
 import { useCartStore } from "@/store/cart.store";
+import { useCreateCheckoutSessionMutation } from "@/hooks/api/useCheckout";
 
 export default function CartContent() {
-  const router = useRouter();
   const { items, removeItems } = useCartStore();
   const [mounted, setMounted] = useState(false);
+  const createSessionMutation = useCreateCheckoutSessionMutation();
 
   // Avoid hydration mismatch for Zustand persistence
   useEffect(() => {
@@ -33,10 +33,6 @@ export default function CartContent() {
   );
 
   const isAllSelected = items.length > 0 && selectedIds.length === items.length;
-  const selectedIdsQuery = selectedCartItems
-    .map((item) => encodeURIComponent(String(item.id)))
-    .join(",");
-  const checkoutHref = selectedIdsQuery ? `/checkout?items=${selectedIdsQuery}` : "/checkout";
 
   const toggleSelectAll = () => {
     if (isAllSelected) {
@@ -67,11 +63,13 @@ export default function CartContent() {
   };
 
   const handleProceed = () => {
-    if (selectedCartItems.length === 0) {
+    if (selectedCartItems.length === 0 || createSessionMutation.isPending) {
       return;
     }
 
-    router.push(checkoutHref);
+    // Direct Stripe integration! Pass selected IDs directly to backend
+    const photoIds = selectedCartItems.map((item) => String(item.id));
+    createSessionMutation.mutate(photoIds);
   };
 
   if (!mounted) return null;
@@ -172,9 +170,9 @@ export default function CartContent() {
           </div>
           {/* Right Side Order Summary */}
           <CartOrderSummary
-            mode="cart"
+            mode="checkout"
             items={mappedSelectedCartItems}
-            proceedDisabled={mappedSelectedCartItems.length === 0}
+            proceedDisabled={mappedSelectedCartItems.length === 0 || createSessionMutation.isPending}
             onProceed={handleProceed}
           />
         </div>
