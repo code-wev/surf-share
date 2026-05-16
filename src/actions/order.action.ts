@@ -5,6 +5,7 @@ export const getMyOrders = async () => {
     const response = await apiClient.get("/orders/my-orders");
     return response.data;
   } catch (error) {
+    console.error("Error fetching orders:", error);
     throw new Error("Failed to fetch orders");
   }
 };
