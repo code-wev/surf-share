@@ -28,7 +28,6 @@ export default function AuthRouteGuard() {
       pathname === "/forgot-password" ||
       pathname === "/verify-identity" ||
       pathname === "/set-new-password";
-
     if (!session) {
       if (isProfileRoute || isDashboardRoute) {
         router.replace("/login");

@@ -3,14 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { use } from "react";
-import {
-  Calendar,
-  Camera,
-  ExternalLink,
-  Heart,
-  MapPin,
-  ShoppingCart,
-} from "lucide-react";
+import { Calendar, Camera, ExternalLink, Heart, MapPin, ShoppingCart } from "lucide-react";
 
 import RelatedImagesSection from "@/components/home/gallery/related-images-section";
 import { Button } from "@/components/ui/button";
@@ -30,16 +23,19 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   const { slug } = use(params);
   const { session, isHydrated } = useAuth();
   const { addItem, items: cartItems } = useCartStore();
-  
+
   // The slug is the photo ID based on our mapping in gallery/page.tsx
   const photoId = slug;
 
   const { data: photoResponse, isLoading, isError } = usePhotoDetailQuery(photoId);
   const { data: adData } = useAdvertisementQuery();
-  const { data: purchasedIdsData } = usePurchasedPhotoIdsQuery();
-  
+  const canLoadPrivatePhotoState = isHydrated && Boolean(session);
+  const { data: purchasedIdsData } = usePurchasedPhotoIdsQuery({
+    enabled: canLoadPrivatePhotoState,
+  });
+
   // Favorites logic
-  const { data: favoriteIdsData } = useFavoriteIdsQuery();
+  const { data: favoriteIdsData } = useFavoriteIdsQuery({ enabled: canLoadPrivatePhotoState });
   const toggleMutation = useToggleFavoriteMutation();
   const favoriteIds = favoriteIdsData?.data || [];
   const purchasedIds = purchasedIdsData?.data || [];
@@ -62,7 +58,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
       price: p.price,
     });
   };
-  
+
   // Fetch related images by same location
   const locationId = photoResponse?.data?.locationId;
   const { data: relatedPhotosResponse } = usePublicPhotosQuery({
@@ -97,12 +93,17 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   }
 
   const detailItem = photoResponse.data;
-  
+
   // Format sizes and dates
-  const fileSizeMB = detailItem.fileSize ? (detailItem.fileSize / (1024 * 1024)).toFixed(2) + " MB" : "N/A";
-  const resolution = detailItem.width && detailItem.height ? `${detailItem.width} x ${detailItem.height} px` : "Unknown";
+  const fileSizeMB = detailItem.fileSize
+    ? (detailItem.fileSize / (1024 * 1024)).toFixed(2) + " MB"
+    : "N/A";
+  const resolution =
+    detailItem.width && detailItem.height
+      ? `${detailItem.width} x ${detailItem.height} px`
+      : "Unknown";
   const format = detailItem.format ? detailItem.format.toUpperCase() : "JPEG";
-  
+
   const takenDate = new Date(detailItem.capturedAt || detailItem.createdAt);
   const formattedDate = takenDate.toLocaleString("en-US", {
     month: "long",
@@ -119,16 +120,24 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   // Map related photos for RelatedImagesSection
   const relatedImages = (relatedPhotosResponse?.data || [])
     .filter((p: { id: string }) => p.id !== detailItem.id)
-    .map((p: { id: string; imageUrl: string; price: number; photographer?: { name?: string }; location?: { name?: string } }) => ({
-      id: p.id,
-      slug: p.id,
-      src: p.imageUrl,
-      alt: `Photo by ${p.photographer?.name}`,
-      userName: p.photographer?.name || "Unknown",
-      location: p.location?.name || "Unknown Location",
-      price: `$${p.price.toFixed(2)}`,
-      avatarSrc: "/home/logo.png",
-    }));
+    .map(
+      (p: {
+        id: string;
+        imageUrl: string;
+        price: number;
+        photographer?: { name?: string };
+        location?: { name?: string };
+      }) => ({
+        id: p.id,
+        slug: p.id,
+        src: p.imageUrl,
+        alt: `Photo by ${p.photographer?.name}`,
+        userName: p.photographer?.name || "Unknown",
+        location: p.location?.name || "Unknown Location",
+        price: `$${p.price.toFixed(2)}`,
+        avatarSrc: "/home/logo.png",
+      }),
+    );
 
   return (
     <section className="mx-auto max-w-480 py-6 lg:py-10">
@@ -227,16 +236,16 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
             <Button
               disabled={isPurchased}
               className={
-                isPurchased 
-                  ? "h-10 w-full cursor-not-allowed bg-green-600 text-white hover:bg-green-600 opacity-90"
+                isPurchased
+                  ? "h-10 w-full cursor-not-allowed bg-green-600 text-white opacity-90 hover:bg-green-600"
                   : "h-10 w-full cursor-pointer bg-(--color-fill-brand-strong) text-(--color-text-inverse-strong) hover:opacity-95"
               }
               onClick={handleAddToCart}
             >
-              {isPurchased 
-                ? "Already Purchased" 
-                : cartItems.some(item => item.id === photoId) 
-                  ? "Added to cart" 
+              {isPurchased
+                ? "Already Purchased"
+                : cartItems.some((item) => item.id === photoId)
+                  ? "Added to cart"
                   : "Add to cart"}
               {!isPurchased && <ShoppingCart className="h-4 w-4" />}
             </Button>
