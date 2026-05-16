@@ -1,13 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Clock, Check, X } from "lucide-react";
+import { Clock, Check, X, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { PageTitle } from "@/components/shared/page-title";
-import { defaultOrderItems, formatPrice, normalizeOrderItems, OrderLineItem } from "./order-model";
+import { getMyOrders } from "@/src/actions/order.action";
+import OrderDetailsModal from "./order-details-modal";
+import type { OrderApi, OrderListItem } from "./order-types";
 
 type TabType = "All Orders" | "Completed" | "Ordered" | "Cancelled";
 
@@ -34,20 +36,43 @@ const statusConfig: Record<
   },
 };
 
-type CartContentProps = {
-  items?: OrderLineItem[];
-  onCheckout?: (selectedItems: OrderLineItem[]) => void;
-  onDeleteSelected?: (deletedIds: string[]) => void;
-};
-
-export default function ProfileOrderPage({ items = defaultOrderItems }: CartContentProps) {
+export default function ProfileOrderPage() {
   const [activeTab, setActiveTab] = useState<TabType>("All Orders");
-  const initialItems = useMemo(() => normalizeOrderItems(items), [items]);
+  const [activeOrder, setActiveOrder] = useState<OrderListItem | null>(null);
+
+  const { data, isLoading, isError } = useQuery<{ success: boolean; data?: OrderApi[] }, Error>({
+    queryKey: ["my-orders"],
+    queryFn: getMyOrders,
+  });
+
+  const orders = useMemo(() => {
+    if (!data?.data) return [] as OrderListItem[];
+    return data.data.map(
+      (order) =>
+        ({
+          id: order.id,
+          title: order.items[0]?.photo.photographer.name || "Unknown",
+          location: order.items[0]?.photo.location.name || "Unknown",
+          imageSrc: order.items[0]?.photo.imageUrl || "/default-photo.jpg",
+          price: order.totalAmount,
+          detailsHref: "#",
+          orderNo: order.id.slice(-8).toUpperCase(),
+          placedOn: new Date(order.createdAt).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          }),
+          imageQuantity: order.items.length,
+          status: order.status === "PAID" ? "Completed" : "Ordered",
+          items: order.items, // passed to details modal
+        }) as OrderListItem,
+    );
+  }, [data]);
 
   const filteredItems = useMemo(() => {
-    if (activeTab === "All Orders") return initialItems;
-    return initialItems.filter((item) => item.status === activeTab);
-  }, [initialItems, activeTab]);
+    if (activeTab === "All Orders") return orders;
+    return orders.filter((item) => item.status === activeTab);
+  }, [orders, activeTab]);
 
   const getStatusConfig = (status?: string) => {
     if (!status) return { bg: "", text: "text-text-weak", icon: null };
@@ -60,6 +85,18 @@ export default function ProfileOrderPage({ items = defaultOrderItems }: CartCont
     const IconComponent = config.icon;
     return <IconComponent size={16} className="" />;
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-20">
+        <Loader2 className="text-brand-default h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return <div className="text-danger-strong py-10 text-center">Failed to load orders.</div>;
+  }
 
   return (
     <section className="">
@@ -80,7 +117,7 @@ export default function ProfileOrderPage({ items = defaultOrderItems }: CartCont
         ))}
       </div>
 
-      {/* Cart Items */}
+      {/* Items */}
       <div className="space-y-3">
         {filteredItems.length === 0 ? (
           <div className="rounded-md border border-(--color-line-weaker) bg-(--color-surface-base) p-4 text-center text-(--color-text-weak) sm:p-6">
@@ -111,7 +148,7 @@ export default function ProfileOrderPage({ items = defaultOrderItems }: CartCont
                 <div>
                   <PageTitle
                     align="start"
-                    title={formatPrice(item.price)}
+                    title={`$${item.price.toFixed(2)}`}
                     subtitle={`${item.imageQuantity || "0"} Photos`}
                     titleClassName="text-lg sm:text-2xl! text-(--color-text-brand-strong) font-medium!"
                     subtitleClassName="text-xs sm:text-sm! text-(--color-text-weak) -mt-1 sm:-mt-2"
@@ -139,7 +176,7 @@ export default function ProfileOrderPage({ items = defaultOrderItems }: CartCont
 
                   <div className="hidden sm:block">
                     <p className="text-sm leading-none font-semibold text-(--color-text-strong)">
-                      {formatPrice(item.price)}
+                      ${item.price.toFixed(2)}
                     </p>
                   </div>
                 </div>
@@ -147,20 +184,25 @@ export default function ProfileOrderPage({ items = defaultOrderItems }: CartCont
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
                   <div className="sm:hidden">
                     <p className="text-sm leading-none font-semibold text-(--color-text-strong)">
-                      {formatPrice(item.price)}
+                      ${item.price.toFixed(2)}
                     </p>
                   </div>
-                  <Link href={item.detailsHref} className="w-full sm:w-auto">
-                    <Button className="h-8 w-full bg-(--color-fill-brand-strong) px-5 text-xs text-(--color-text-inverse-strong) hover:opacity-95 sm:h-8">
-                      View Details
-                    </Button>
-                  </Link>
+                  <Button
+                    onClick={() => setActiveOrder(item)}
+                    className="h-8 w-auto bg-(--color-fill-brand-strong) px-5 text-xs text-(--color-text-inverse-strong) hover:opacity-95 sm:h-8"
+                  >
+                    View Details
+                  </Button>
                 </div>
               </div>
             </article>
           ))
         )}
       </div>
+
+      {activeOrder && (
+        <OrderDetailsModal order={activeOrder} onClose={() => setActiveOrder(null)} />
+      )}
     </section>
   );
 }
