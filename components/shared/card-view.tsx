@@ -69,8 +69,11 @@ function getDetailsHref(item: CardViewItem) {
 
 export default function CardView({ items, className, desktopColumns = 4 }: CardViewProps) {
   const { session, isHydrated } = useAuth();
-  const { data: favoriteIdsData } = useFavoriteIdsQuery();
-  const { data: purchasedIdsData } = usePurchasedPhotoIdsQuery();
+  const canLoadPrivatePhotoState = isHydrated && Boolean(session);
+  const { data: favoriteIdsData } = useFavoriteIdsQuery({ enabled: canLoadPrivatePhotoState });
+  const { data: purchasedIdsData } = usePurchasedPhotoIdsQuery({
+    enabled: canLoadPrivatePhotoState,
+  });
   const toggleMutation = useToggleFavoriteMutation();
   const favoriteIds = favoriteIdsData?.data || [];
   const purchasedIds = purchasedIdsData?.data || [];
@@ -79,23 +82,23 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
   const handleToggleFavorite = (e: React.MouseEvent, id: string | number) => {
     e.preventDefault(); // Prevent navigating to image details
     e.stopPropagation();
-    
+
     if (!isHydrated || !session) {
       return;
     }
-    
+
     toggleMutation.mutate(String(id));
   };
 
   const handleAddToCart = (e: React.MouseEvent, item: CardViewItem) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (purchasedIds.includes(String(item.id))) {
-       // Do not add if already owned
-       return;
+      // Do not add if already owned
+      return;
     }
-    
+
     addItem({
       id: String(item.id),
       imageUrl: item.src,
@@ -157,7 +160,7 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
 
   function buildActions(item: CardViewItem) {
     const isFavorited = favoriteIds.includes(String(item.id)) || item.favoriteActive;
-    const isAddedToCart = cartItems.some(i => i.id === String(item.id));
+    const isAddedToCart = cartItems.some((i) => i.id === String(item.id));
     const isPurchased = purchasedIds.includes(String(item.id));
 
     return (
@@ -168,10 +171,10 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
           onClick={(e) => handleToggleFavorite(e, item.id)}
           disabled={toggleMutation.isPending}
           className={cn(
-            "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/55 transition-colors hover:bg-(--color-fill-brand-strong) hover:text-white disabled:opacity-50 cursor-pointer",
+            "inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/55 transition-colors hover:bg-(--color-fill-brand-strong) hover:text-white disabled:opacity-50",
             isFavorited
               ? "bg-(--color-fill-brand-strong) text-white"
-              : "bg-white text-(--color-fill-brand-strong)"
+              : "bg-white text-(--color-fill-brand-strong)",
           )}
         >
           <Heart className="h-4 w-4" fill={isFavorited ? "currentColor" : "none"} />
@@ -183,12 +186,12 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
           onClick={(e) => handleAddToCart(e, item)}
           disabled={isPurchased}
           className={cn(
-            "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/55 transition-colors cursor-pointer",
-            isPurchased 
-              ? "bg-green-600 text-white opacity-90 cursor-not-allowed border-none"
+            "inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/55 transition-colors",
+            isPurchased
+              ? "cursor-not-allowed border-none bg-green-600 text-white opacity-90"
               : isAddedToCart
                 ? "bg-white text-green-600 hover:text-green-700"
-                : "bg-[#E7E5E4] text-(--color-fill-brand-strong) hover:bg-(--color-fill-brand-strong) hover:text-white"
+                : "bg-[#E7E5E4] text-(--color-fill-brand-strong) hover:bg-(--color-fill-brand-strong) hover:text-white",
           )}
         >
           {isPurchased ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}

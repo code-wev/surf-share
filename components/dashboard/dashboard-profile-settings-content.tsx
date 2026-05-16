@@ -45,7 +45,7 @@ export default function DashboardProfileSettingsContent() {
   const displayProfile = profile
     ? {
         ...profile,
-        avatarSrc: (apiProfile as any)?.profileImageUrl ?? profile.avatarSrc,
+        avatarSrc: apiProfile?.profileImageUrl ?? profile.avatarSrc,
         fullName: apiProfile?.name ?? profile.fullName,
         country: apiProfile?.countryName ?? profile.country,
         phone: apiProfile?.phoneNumber ?? profile.phone,
@@ -143,22 +143,22 @@ export default function DashboardProfileSettingsContent() {
             <div className="border-line-weaker bg-fill-hover h-25 w-25 overflow-hidden rounded-full border">
               {isUploading ? (
                 <div className="flex h-full w-full items-center justify-center">
-                    <Loader2 className="h-6 w-6 animate-spin text-text-weak" />
+                  <Loader2 className="text-text-weak h-6 w-6 animate-spin" />
                 </div>
               ) : (
                 <Image
-                    src={displayProfile.avatarSrc}
-                    alt="Profile photo"
-                    width={100}
-                    height={100}
-                    className="h-full w-full object-cover"
+                  src={displayProfile.avatarSrc}
+                  alt="Profile photo"
+                  width={100}
+                  height={100}
+                  className="h-full w-full object-cover"
                 />
               )}
             </div>
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
-              className="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full bg-brand-default text-white hover:bg-brand-hover"
+              className="bg-brand-default hover:bg-brand-hover absolute right-1 bottom-1 flex h-8 w-8 items-center justify-center rounded-full text-white"
             >
               <Camera size={16} />
             </button>

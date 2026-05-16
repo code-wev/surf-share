@@ -9,6 +9,15 @@ export const apiClient = axios.create({
   },
 });
 
+function isProtectedRoute(pathname: string) {
+  return (
+    pathname === "/profile" ||
+    pathname.startsWith("/profile/") ||
+    pathname === "/dashboard" ||
+    pathname.startsWith("/dashboard/")
+  );
+}
+
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -33,7 +42,7 @@ apiClient.interceptors.response.use(
 
         // Also update the failed request and retry it
         originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-        
+
         // Since we're not inside a React context here, we can't easily update localStorage
         // But we rely on the `auth.tsx` context picking up the newly set default header,
         // or we could manually update localStorage here as a fallback:
@@ -45,17 +54,16 @@ apiClient.interceptors.response.use(
         localStorage.removeItem("surf-share-auth-session");
         localStorage.removeItem("surf-share-auth-token");
         delete apiClient.defaults.headers.common["Authorization"];
-        
-        // Only redirect to login if we are in the browser
-        if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+
+        // Only force-login from protected pages; public pages should keep rendering.
+        if (typeof window !== "undefined" && isProtectedRoute(window.location.pathname)) {
           window.location.href = "/login";
         }
-        
+
         return Promise.reject(refreshError);
       }
     }
 
     return Promise.reject(error);
-  }
+  },
 );
-

@@ -15,6 +15,7 @@ interface UserGetResponse {
     id: string;
     name: string;
     email: string;
+    profileImageUrl?: string;
     phoneNumber?: string | null;
     role: string;
     countryName?: string | null;
@@ -29,6 +30,7 @@ interface UserGetByIdResponse {
     id: string;
     name: string;
     email: string;
+    profileImageUrl?: string;
     phoneNumber?: string | null;
     role: string;
     countryName?: string | null;
@@ -77,7 +79,10 @@ export const getUsers = async (query: Record<string, unknown>): Promise<UserGetR
   }
 };
 
-export const getUserPhotos = async (userId: string, limit: number = 10): Promise<{ success: boolean; data: Array<{ imageUrl: string }> }> => {
+export const getUserPhotos = async (
+  userId: string,
+  limit: number = 10,
+): Promise<{ success: boolean; data: Array<{ imageUrl: string }> }> => {
   try {
     const response = await apiClient.get(`/photos/${userId}`, { params: { limit } });
     return {

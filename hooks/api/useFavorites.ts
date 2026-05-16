@@ -4,17 +4,23 @@ import { favoriteService } from "../../lib/api/services/favorite.service";
 import { queryKeys } from "../../lib/api/query-keys";
 import { getErrorMessage } from "../../lib/utils/error-handler";
 
-export const useMyFavoritesQuery = () => {
+type FavoritesQueryOptions = {
+  enabled?: boolean;
+};
+
+export const useMyFavoritesQuery = (options: FavoritesQueryOptions = {}) => {
   return useQuery({
     queryKey: queryKeys.favorites.myFavorites(),
     queryFn: () => favoriteService.getMyFavorites(),
+    enabled: options.enabled ?? true,
   });
 };
 
-export const useFavoriteIdsQuery = () => {
+export const useFavoriteIdsQuery = (options: FavoritesQueryOptions = {}) => {
   return useQuery({
     queryKey: queryKeys.favorites.ids(),
     queryFn: () => favoriteService.getMyFavoriteIds(),
+    enabled: options.enabled ?? true,
   });
 };
 
