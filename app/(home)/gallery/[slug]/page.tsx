@@ -18,6 +18,7 @@ import { PageTitle } from "@/components/shared/page-title";
 import { usePhotoDetailQuery, usePublicPhotosQuery } from "@/hooks/api/usePhotos";
 import { useAdvertisementQuery } from "@/hooks/api/useAdvertisement";
 import { useFavoriteIdsQuery, useToggleFavoriteMutation } from "@/hooks/api/useFavorites";
+import { usePurchasedPhotoIdsQuery } from "@/hooks/api/useCheckout";
 import { useAuth } from "@/lib/auth";
 import { useCartStore } from "@/store/cart.store";
 
@@ -35,12 +36,15 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
 
   const { data: photoResponse, isLoading, isError } = usePhotoDetailQuery(photoId);
   const { data: adData } = useAdvertisementQuery();
+  const { data: purchasedIdsData } = usePurchasedPhotoIdsQuery();
   
   // Favorites logic
   const { data: favoriteIdsData } = useFavoriteIdsQuery();
   const toggleMutation = useToggleFavoriteMutation();
   const favoriteIds = favoriteIdsData?.data || [];
+  const purchasedIds = purchasedIdsData?.data || [];
   const isFavorited = favoriteIds.includes(photoId);
+  const isPurchased = purchasedIds.includes(photoId);
 
   const handleToggleFavorite = () => {
     if (!isHydrated || !session) return;
@@ -48,7 +52,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   };
 
   const handleAddToCart = () => {
-    if (!photoResponse?.data) return;
+    if (!photoResponse?.data || isPurchased) return;
     const p = photoResponse.data;
     addItem({
       id: p.id,
@@ -221,11 +225,20 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
               <Heart className="h-4 w-4" fill={isFavorited ? "currentColor" : "none"} />
             </Button>
             <Button
-              className="h-10 w-full cursor-pointer bg-(--color-fill-brand-strong) text-(--color-text-inverse-strong) hover:opacity-95"
+              disabled={isPurchased}
+              className={
+                isPurchased 
+                  ? "h-10 w-full cursor-not-allowed bg-green-600 text-white hover:bg-green-600 opacity-90"
+                  : "h-10 w-full cursor-pointer bg-(--color-fill-brand-strong) text-(--color-text-inverse-strong) hover:opacity-95"
+              }
               onClick={handleAddToCart}
             >
-              {cartItems.some(item => item.id === photoId) ? "Added to cart" : "Add to cart"}
-              <ShoppingCart className="h-4 w-4" />
+              {isPurchased 
+                ? "Already Purchased" 
+                : cartItems.some(item => item.id === photoId) 
+                  ? "Added to cart" 
+                  : "Add to cart"}
+              {!isPurchased && <ShoppingCart className="h-4 w-4" />}
             </Button>
           </div>
 

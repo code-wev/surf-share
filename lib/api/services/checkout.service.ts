@@ -12,4 +12,9 @@ export const checkoutService = {
     });
     return response.data;
   },
+
+  getPurchasedPhotoIds: async () => {
+    const response = await apiClient.get("/checkout/purchased-ids");
+    return response.data;
+  },
 };

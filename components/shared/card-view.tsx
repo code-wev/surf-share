@@ -1,13 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { Camera, ExternalLink, Heart, Plus } from "lucide-react";
+import { Camera, ExternalLink, Heart, Plus, Check } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import ImageCard from "./image-card";
 import { useAuth } from "@/lib/auth";
 import { useFavoriteIdsQuery, useToggleFavoriteMutation } from "@/hooks/api/useFavorites";
 import { useCartStore } from "@/store/cart.store";
+import { usePurchasedPhotoIdsQuery } from "@/hooks/api/useCheckout";
 
 export type CardViewItem = {
   id: string | number;
@@ -69,8 +70,10 @@ function getDetailsHref(item: CardViewItem) {
 export default function CardView({ items, className, desktopColumns = 4 }: CardViewProps) {
   const { session, isHydrated } = useAuth();
   const { data: favoriteIdsData } = useFavoriteIdsQuery();
+  const { data: purchasedIdsData } = usePurchasedPhotoIdsQuery();
   const toggleMutation = useToggleFavoriteMutation();
   const favoriteIds = favoriteIdsData?.data || [];
+  const purchasedIds = purchasedIdsData?.data || [];
   const { addItem, items: cartItems } = useCartStore();
 
   const handleToggleFavorite = (e: React.MouseEvent, id: string | number) => {
@@ -87,6 +90,11 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
   const handleAddToCart = (e: React.MouseEvent, item: CardViewItem) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    if (purchasedIds.includes(String(item.id))) {
+       // Do not add if already owned
+       return;
+    }
     
     addItem({
       id: String(item.id),
@@ -150,6 +158,7 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
   function buildActions(item: CardViewItem) {
     const isFavorited = favoriteIds.includes(String(item.id)) || item.favoriteActive;
     const isAddedToCart = cartItems.some(i => i.id === String(item.id));
+    const isPurchased = purchasedIds.includes(String(item.id));
 
     return (
       <div className="flex items-center gap-2">
@@ -170,16 +179,19 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
 
         <button
           type="button"
-          aria-label="Add to cart"
+          aria-label={isPurchased ? "Already Owned" : "Add to cart"}
           onClick={(e) => handleAddToCart(e, item)}
+          disabled={isPurchased}
           className={cn(
-            "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/55 transition-colors hover:text-white cursor-pointer",
-            isAddedToCart
-              ? "bg-white text-green-600"
-              : "bg-[#E7E5E4] text-(--color-fill-brand-strong) hover:bg-(--color-fill-brand-strong)",
+            "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/55 transition-colors cursor-pointer",
+            isPurchased 
+              ? "bg-green-600 text-white opacity-90 cursor-not-allowed border-none"
+              : isAddedToCart
+                ? "bg-white text-green-600 hover:text-green-700"
+                : "bg-[#E7E5E4] text-(--color-fill-brand-strong) hover:bg-(--color-fill-brand-strong) hover:text-white"
           )}
         >
-          <Plus className="h-4 w-4" />
+          {isPurchased ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
         </button>
       </div>
     );
