@@ -1,85 +1,44 @@
+"use client";
+
 import Link from "next/link";
 import { PageTitle } from "../shared/page-title";
 import { Button } from "../ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import CardView, { type CardViewItem } from "../shared/card-view";
+import { usePublicPhotosQuery } from "@/hooks/api/usePhotos";
 
-const latestUploadItems: CardViewItem[] = [
-  {
-    id: 1,
-    src: "/home/latest/latest1.jpg",
-    alt: "Surfers in turquoise ocean",
-    userName: "John Doe",
-    location: "Oahu, Hawaii",
-    price: "$10.60",
-    avatarSrc: "/home/logo.png",
-  },
-  {
-    id: 2,
-    src: "/home/latest/latest2.jpg",
-    alt: "Surfboard heading into sunset sea",
-    userName: "John Doe",
-    location: "Oahu, Hawaii",
-    price: "$10.60",
-    avatarSrc: "/home/logo.png",
-  },
-  {
-    id: 3,
-    src: "/home/latest/latest3.jpg",
-    alt: "Surfer carving on a wave",
-    userName: "John Doe",
-    location: "Oahu, Hawaii",
-    price: "$10.60",
-    avatarSrc: "/home/logo.png",
-  },
-  {
-    id: 4,
-    src: "/home/latest/latest4.jpg",
-    alt: "Surfer in a splashy wave",
-    userName: "John Doe",
-    location: "Oahu, Hawaii",
-    price: "$10.60",
-    avatarSrc: "/home/logo.png",
-  },
-  {
-    id: 5,
-    src: "/home/latest/latest5.jpg",
-    alt: "Group of surfers in the water",
-    userName: "John Doe",
-    location: "Oahu, Hawaii",
-    price: "$10.60",
-    avatarSrc: "/home/logo.png",
-  },
-  {
-    id: 6,
-    src: "/home/latest/latest6.jpg",
-    alt: "Surfer sitting on the beach",
-    userName: "John Doe",
-    location: "Oahu, Hawaii",
-    price: "$10.60",
-    avatarSrc: "/home/logo.png",
-  },
-  {
-    id: 7,
-    src: "/home/latest/latest7.jpg",
-    alt: "Hand above ocean water",
-    userName: "John Doe",
-    location: "Oahu, Hawaii",
-    price: "$10.60",
-    avatarSrc: "/home/logo.png",
-  },
-  {
-    id: 8,
-    src: "/home/latest/latest8.jpg",
-    alt: "Surfer riding at blue sky",
-    userName: "John Doe",
-    location: "Oahu, Hawaii",
-    price: "$10.60",
-    avatarSrc: "/home/logo.png",
-  },
-];
+type PublicPhoto = {
+  id: string;
+  imageUrl: string;
+  photographer?: {
+    name?: string;
+  };
+  location?: {
+    name?: string;
+  };
+  price: number;
+};
 
 export default function LatestUpload() {
+  const { data, isLoading, isError } = usePublicPhotosQuery({
+    sort: "latest",
+    page: 1,
+    limit: 8,
+  });
+
+  const photos = data?.data || [];
+  
+  const latestUploadItems: CardViewItem[] = (photos as PublicPhoto[]).map((p) => ({
+    id: p.id,
+    slug: p.id,
+    src: p.imageUrl,
+    alt: `Photo by ${p.photographer?.name}`,
+    userName: p.photographer?.name || "Unknown",
+    location: p.location?.name || "Unknown Location",
+    price: `$${p.price.toFixed(2)}`,
+    avatarSrc: "/home/logo.png",
+  }));
+
   return (
     <section className="mb-10 bg-(--color-fill-hover) md:mb-25">
       <div className="mx-auto max-w-480 py-12 sm:px-6 md:px-8 lg:py-21">
@@ -92,7 +51,7 @@ export default function LatestUpload() {
             subtitleClassName="text-lg text-(--color-text-weak) sm:text-xl md:text-2xl lg:text-[34px]"
           />
 
-          <Link href="/properties">
+          <Link href="/gallery">
             <Button className="cursor-pointer border border-(--color-line-weaker) bg-transparent font-medium text-(--color-text-brand-strong) transition-colors hover:bg-(--color-fill-hover)">
               View All <ArrowRight className="h-4 w-4" />
             </Button>
@@ -100,7 +59,17 @@ export default function LatestUpload() {
         </div>
 
         <div className="mt-8 px-4">
-          <CardView items={latestUploadItems} />
+          {isLoading ? (
+            <div className="flex h-64 items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+            </div>
+          ) : isError ? (
+            <div className="flex h-64 items-center justify-center">
+              <p className="text-sm text-red-500">Failed to load photos.</p>
+            </div>
+          ) : (
+            <CardView items={latestUploadItems} />
+          )}
         </div>
         <div className="flex items-center justify-center text-center">
           <Link href="/gallery">
