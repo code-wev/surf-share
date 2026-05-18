@@ -17,8 +17,9 @@ export const useUpdateSubscriptionMutation = () => {
   return useMutation({
     mutationFn: ({ userId, tier }: { userId: string; tier: string }) =>
       usersService.updateSubscription(userId, tier),
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
+      queryClient.invalidateQueries({ queryKey: ["user", variables.userId] });
       toast.success(data.message || "Subscription updated successfully.");
     },
     onError: (error: unknown) => {
