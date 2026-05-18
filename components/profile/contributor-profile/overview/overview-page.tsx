@@ -1,6 +1,14 @@
 "use client";
 
-import { ChevronDown, Clock3, DollarSign, Download, Images, TrendingUp } from "lucide-react";
+import {
+  ChevronDown,
+  Clock3,
+  DollarSign,
+  Download,
+  Images,
+  TrendingUp,
+  Loader2,
+} from "lucide-react";
 import {
   LineChart,
   Line,
@@ -12,48 +20,65 @@ import {
 } from "recharts";
 
 import { useAuth } from "@/lib/auth";
-
-const overviewStats = [
-  {
-    label: "Total Earnings",
-    value: "12k",
-    Icon: DollarSign,
-    trendLabel: "+ 12%",
-    trendTone: "positive" as const,
-  },
-  {
-    label: "Total Photos",
-    value: "123",
-    Icon: Images,
-    trendLabel: "+ 12%",
-    trendTone: "positive" as const,
-  },
-  {
-    label: "Downloaded Photos",
-    value: "85",
-    Icon: Download,
-    trendLabel: "+ 12%",
-    trendTone: "positive" as const,
-  },
-  {
-    label: "Pending photos",
-    value: "10",
-    Icon: Clock3,
-    trendLabel: "+ 12%",
-    trendTone: "negative" as const,
-  },
-];
-
-const chartLabels = ["Jan", "Feb", "March", "Apr", "May", "Jun", "Jul"];
-const chartValues = [420, 945, 1033, 968, 740, 1180, 1056];
-
-const chartData = chartLabels.map((label, index) => ({
-  label,
-  value: chartValues[index],
-}));
+import { useMySales } from "@/hooks/api/useSales";
 
 export default function ContributorOverviewPage() {
   const { session } = useAuth();
+  const { data, isLoading, isError } = useMySales();
+
+  const overviewStats = data?.stats
+    ? [
+        {
+          label: "Total Earnings",
+          value: `$${data.stats.totalEarnings >= 1000 ? (data.stats.totalEarnings / 1000).toFixed(1) + "k" : data.stats.totalEarnings.toFixed(2)}`,
+          Icon: DollarSign,
+          trendLabel: "+ 0%",
+          trendTone: "positive" as const,
+        },
+        {
+          label: "Total Photos",
+          value: data.stats.totalPhotos.toString(),
+          Icon: Images,
+          trendLabel: "+ 0%",
+          trendTone: "positive" as const,
+        },
+        {
+          label: "Total Selling Photos",
+          value: data.stats.totalSoldPhotos.toString(),
+          Icon: Download,
+          trendLabel: "+ 0%",
+          trendTone: "positive" as const,
+        },
+        {
+          label: "Pending Photos",
+          value: data.stats.pendingPhotos.toString(),
+          Icon: Clock3,
+          trendLabel: "+ 0%",
+          trendTone: "negative" as const,
+        },
+      ]
+    : [];
+
+  const chartData = data?.chartData || [];
+  const maxVal = Math.max(...chartData.map((d) => d.value), 100);
+  const roundedMax = Math.ceil(maxVal / 100) * 100;
+  const yTicks = [0, roundedMax * 0.25, roundedMax * 0.5, roundedMax * 0.75, roundedMax].map(v => Math.round(v));
+
+  if (isLoading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="text-brand-default h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="text-danger-strong flex h-64 items-center justify-center">
+        Failed to load overview data.
+      </div>
+    );
+  }
 
   return (
     <section className="h-full">
@@ -63,7 +88,7 @@ export default function ContributorOverviewPage() {
         </div>
 
         <h1 className="text-text-strong my-5 text-[27px] leading-tight font-bold tracking-tight sm:my-6 sm:text-[34px] md:my-7 md:text-[40px] lg:text-[44px] xl:my-8 2xl:text-[48px]">
-          Welcome Back, {session?.name ?? "Demo Moderator"}
+          Welcome Back, {session?.name ?? "Photographer"}
         </h1>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:gap-5 xl:grid-cols-4 xl:gap-6">
@@ -82,7 +107,7 @@ export default function ContributorOverviewPage() {
                     type="button"
                     className="text-text-weaker inline-flex items-center gap-1 text-[11px] sm:text-xs"
                   >
-                    January
+                    All Time
                     <ChevronDown size={12} />
                   </button>
 
@@ -127,8 +152,8 @@ export default function ContributorOverviewPage() {
                       axisLine={{ stroke: "#495262" }}
                     />
                     <YAxis
-                      domain={[0, 1400]}
-                      ticks={[0, 350, 700, 1050, 1400]}
+                      domain={[0, roundedMax]}
+                      ticks={yTicks}
                       tick={{ fill: "#495262", fontSize: 11 }}
                       axisLine={{ stroke: "#495262" }}
                     />
