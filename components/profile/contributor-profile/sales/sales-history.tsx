@@ -7,19 +7,18 @@ import {
   ChevronRight as ChevronRightSmall,
   MapPin,
   SlidersHorizontal,
+  Loader2,
 } from "lucide-react";
 
-import {
-  galleryLocationLabels,
-  galleryLocations,
-  type GalleryLocation,
-} from "@/components/home/gallery/gallery-images";
-import {
-  ContributorUploadApiItem,
-  ContributorUploadRow,
-  mockApiResponse,
-} from "../my-uploads/my-upload-data";
 import SaleHistoryTable, { SaleHistoryTableRow } from "./sales-history-list";
+import { useMySales } from "@/hooks/api/useSales";
+import { useAuth } from "@/lib/auth";
+import { useAllLocationsQuery } from "@/hooks/api/useLocations";
+
+type Location = {
+  id: string;
+  name: string;
+};
 
 function formatApiDate(dateValue: string) {
   return new Date(`${dateValue}T00:00:00`).toLocaleDateString("en-US", {
@@ -29,100 +28,79 @@ function formatApiDate(dateValue: string) {
   });
 }
 
-function mapApiUploadToRow(item: ContributorUploadApiItem): ContributorUploadRow {
-  return {
-    id: item.id,
-    photoUrl: item.photoUrl,
-    name: item.name,
-    location: item.location,
-    dateLabel: formatApiDate(item.uploadedAt),
-    priceLabel: `$${item.priceUsd}`,
-    status: item.status,
-  };
-}
-
-type EnrichedUploadRow = SaleHistoryTableRow & {
-  uploadedAt: string;
-  priceValue: number;
-  locationKey: GalleryLocation;
-  photographer: string;
-  resolution: string;
-  format: string;
-  size: string;
-};
-
-const PAGE_SIZE = mockApiResponse.pageSize;
-
-function getLocationKeyFromLabel(locationLabel: string): GalleryLocation {
-  if (locationLabel.includes("Trigg")) return "trigg";
-  if (locationLabel.includes("Cottesloe")) return "cottesloe";
-  if (locationLabel.includes("Scarborough")) return "scarborough";
-  if (locationLabel.includes("Bells")) return "bellsBeach";
-  if (locationLabel.includes("Byron")) return "byronBay";
-  if (locationLabel.includes("Bondi")) return "bondi";
-  if (locationLabel.includes("Manly")) return "manly";
-  return "all";
-}
-
-function buildModalDetailsFromUpload(item: ContributorUploadApiItem) {
-  return {
-    photographer: item.photographer ?? "Julian Wave Rossi",
-    resolution: item.resolution ?? "7860 x 4370 px",
-    format: item.format ?? "RAW / JPEG",
-    size: item.size ?? "24.8 MB",
-  };
-}
+const PAGE_SIZE = 10;
 
 export default function ContributorSalesHistoryPage() {
-  const [selectedLocation, setSelectedLocation] = useState<GalleryLocation>("all");
+  const { session } = useAuth();
+  const { data: locationsData } = useAllLocationsQuery();
+  const [selectedLocationId, setSelectedLocationId] = useState<string>("all");
+  const { data, isLoading, isError } = useMySales(
+    selectedLocationId === "all" ? undefined : selectedLocationId,
+  );
+
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<"location" | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const uploads = useMemo<EnrichedUploadRow[]>(
+  const locations = useMemo(() => {
+    return locationsData || [];
+  }, [locationsData]);
+
+  const uploads = useMemo<SaleHistoryTableRow[]>(
     () =>
-      mockApiResponse.items.map((item) => {
-        const modalDetails = buildModalDetailsFromUpload(item);
+      (data?.items || []).map((item) => {
         return {
-          ...mapApiUploadToRow(item),
+          id: item.id,
+          photoUrl: item.photoUrl,
+          name: item.name,
+          location: item.location,
+          dateLabel: formatApiDate(item.uploadedAt),
+          priceLabel: `$${item.priceUsd}`,
+          status: item.status,
           uploadedAt: item.uploadedAt,
           priceValue: item.priceUsd,
-          locationKey: getLocationKeyFromLabel(item.location),
-          photographer: modalDetails.photographer,
-          resolution: modalDetails.resolution,
-          format: modalDetails.format,
-          size: modalDetails.size,
-          commissionUsd: item.commissionUsd ?? item.priceUsd * 0.3,
-          totalDownloads: item.totalDownloads ?? 0,
-          earningsUsd: item.earningsUsd ?? item.priceUsd * (item.totalDownloads ?? 0) * 0.7,
-        };
+          photographer: session?.name || "Photographer",
+          resolution: item.resolution || "N/A",
+          format: item.format || "N/A",
+          size: item.size || "N/A",
+          commissionUsd: item.commissionUsd,
+          totalDownloads: item.totalDownloads,
+          earningsUsd: item.earningsUsd,
+        } as SaleHistoryTableRow;
       }),
-    [],
+    [data?.items, session?.name],
   );
 
-  const filteredUploads = useMemo(() => {
-    const filtered = uploads.filter((upload) => {
-      const matchesLocation = selectedLocation === "all" || upload.locationKey === selectedLocation;
-      return matchesLocation;
-    });
-
-    return filtered;
-  }, [selectedLocation, uploads]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredUploads.length / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(uploads.length / PAGE_SIZE));
   const safeCurrentPage = Math.min(currentPage, totalPages);
 
   const pagedUploads = useMemo(() => {
     const startIndex = (safeCurrentPage - 1) * PAGE_SIZE;
-    return filteredUploads.slice(startIndex, startIndex + PAGE_SIZE);
-  }, [filteredUploads, safeCurrentPage]);
+    return uploads.slice(startIndex, startIndex + PAGE_SIZE);
+  }, [uploads, safeCurrentPage]);
 
-  const handleLocationSelect = (value: GalleryLocation) => {
-    setSelectedLocation(value);
+  const handleLocationSelect = (id: string) => {
+    setSelectedLocationId(id);
     setCurrentPage(1);
     setShowFilterPanel(false);
     setActiveSubmenu(null);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="text-brand-default h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="text-danger-strong flex h-64 items-center justify-center">
+        Failed to load sales history. Please try again later.
+      </div>
+    );
+  }
 
   return (
     <section className="pt-10 [font-family:var(--font-sf-pro)] md:pt-0">
@@ -132,7 +110,7 @@ export default function ContributorSalesHistoryPage() {
         </h1>
 
         <div className="relative flex items-center gap-3 text-sm">
-          <p className="text-text-weak">{filteredUploads.length} Images</p>
+          <p className="text-text-weak">{uploads.length} Images</p>
           <button
             type="button"
             onClick={() => {
@@ -152,18 +130,29 @@ export default function ContributorSalesHistoryPage() {
                   <p className="text-text-weak px-4 pt-3 pb-1 text-xs font-semibold tracking-wide uppercase">
                     Regions
                   </p>
-                  {galleryLocations.map((location) => (
+                  <button
+                    type="button"
+                    onClick={() => handleLocationSelect("all")}
+                    className={`hover:bg-fill-hover w-full px-4 py-2 text-left text-sm ${
+                      selectedLocationId === "all"
+                        ? "text-text-strong font-medium"
+                        : "text-text-weak"
+                    }`}
+                  >
+                    All Regions
+                  </button>
+                  {locations.map((location: Location) => (
                     <button
-                      key={location}
+                      key={location.id}
                       type="button"
-                      onClick={() => handleLocationSelect(location)}
+                      onClick={() => handleLocationSelect(location.id)}
                       className={`hover:bg-fill-hover w-full px-4 py-2 text-left text-sm ${
-                        selectedLocation === location
+                        selectedLocationId === location.id
                           ? "text-text-strong font-medium"
                           : "text-text-weak"
                       }`}
                     >
-                      {galleryLocationLabels[location]}
+                      {location.name}
                     </button>
                   ))}
                 </div>
@@ -194,47 +183,57 @@ export default function ContributorSalesHistoryPage() {
         </div>
       </div>
 
-      <SaleHistoryTable rows={pagedUploads} />
+      {uploads.length === 0 ? (
+        <div className="border-line-weaker bg-surface-muted-100 text-text-weak mt-5 flex h-40 items-center justify-center border text-sm">
+          No sales found for the selected filters.
+        </div>
+      ) : (
+        <SaleHistoryTable rows={pagedUploads} />
+      )}
 
       {/* Pagination */}
-      <div className="text-text-weak mt-6 flex items-center justify-center gap-1.5 text-sm sm:gap-2">
-        <button
-          type="button"
-          disabled={safeCurrentPage === 1}
-          onClick={() => setCurrentPage((previous) => Math.max(1, previous - 1))}
-          className="inline-flex h-9 items-center gap-1 rounded-sm px-2 disabled:opacity-45"
-        >
-          <ChevronLeft size={14} />
-          Previous
-        </button>
-
-        {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+      {totalPages > 1 && (
+        <div className="text-text-weak mt-6 flex items-center justify-center gap-1.5 text-sm sm:gap-2">
           <button
-            key={page}
             type="button"
-            onClick={() => setCurrentPage(page)}
-            className={`inline-flex h-9 w-9 items-center justify-center rounded-sm ${
-              page === safeCurrentPage
-                ? "text-text-strong bg-[#EEF2F7] font-semibold"
-                : "text-text-weak hover:bg-fill-hover"
-            }`}
+            disabled={safeCurrentPage === 1}
+            onClick={() => setCurrentPage((previous) => Math.max(1, previous - 1))}
+            className="inline-flex h-9 items-center gap-1 rounded-sm px-2 disabled:opacity-45"
           >
-            {page}
+            <ChevronLeft size={14} />
+            Previous
           </button>
-        ))}
 
-        {totalPages > 4 ? <span className="px-1">...</span> : null}
+          {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+            <button
+              key={page}
+              type="button"
+              onClick={() => setCurrentPage(page)}
+              className={`inline-flex h-9 w-9 items-center justify-center rounded-sm ${
+                page === safeCurrentPage
+                  ? "text-text-strong bg-[#EEF2F7] font-semibold"
+                  : "text-text-weak hover:bg-fill-hover"
+              }`}
+            >
+              {page}
+            </button>
+          ))}
 
-        <button
-          type="button"
-          disabled={safeCurrentPage === totalPages}
-          onClick={() => setCurrentPage((previous) => Math.min(totalPages, previous + 1))}
-          className="inline-flex h-9 items-center gap-1 rounded-sm px-2 disabled:opacity-45"
-        >
-          Next
-          <ChevronRight size={14} />
-        </button>
-      </div>
+          {totalPages > 4 && safeCurrentPage < totalPages - 2 ? (
+            <span className="px-1">...</span>
+          ) : null}
+
+          <button
+            type="button"
+            disabled={safeCurrentPage === totalPages}
+            onClick={() => setCurrentPage((previous) => Math.min(totalPages, previous + 1))}
+            className="inline-flex h-9 items-center gap-1 rounded-sm px-2 disabled:opacity-45"
+          >
+            Next
+            <ChevronRight size={14} />
+          </button>
+        </div>
+      )}
     </section>
   );
 }

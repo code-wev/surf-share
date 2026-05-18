@@ -30,7 +30,13 @@ const Footer = () => {
           <div>
             <div className="mb-5">
               <Link href="/">
-                <Image src="/logo.png" alt="Renewably UK" width={258} height={64} />
+                <Image
+                  src="/logo.png"
+                  alt="Renewably UK"
+                  width={258}
+                  height={64}
+                  style={{ width: "258px", height: "auto" }}
+                />
               </Link>
             </div>
 

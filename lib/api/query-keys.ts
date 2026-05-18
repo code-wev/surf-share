@@ -38,4 +38,8 @@ export const queryKeys = {
     myFavorites: () => [...queryKeys.favorites.all, "list"] as const,
     ids: () => [...queryKeys.favorites.all, "ids"] as const,
   },
+  sales: {
+    all: ["sales"] as const,
+    mySales: () => [...queryKeys.sales.all, "my"] as const,
+  },
 };
