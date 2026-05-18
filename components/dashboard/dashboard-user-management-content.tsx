@@ -21,6 +21,7 @@ import type {
   FilterOption,
   UserRow,
   UserRole,
+  UserPlan,
 } from "@/components/dashboard/user-management/user-management-types";
 import { getUsers } from "@/src/actions/user.action";
 
@@ -91,20 +92,22 @@ export default function DashboardUserManagementContent() {
 
   const mappedRows: UserRow[] = useMemo(() => {
     return (
-      data?.data?.map((user) => ({
-        id: user.id,
+      data?.data?.map((user: Record<string, unknown>) => ({
+        id: user.id as string,
         photo: "/home/latest/latest15.jpg", // Default photo as requested
-        name: user.name,
-        email: user.email,
-        phone: user.phoneNumber || "-",
-        role: mapRoleToFrontend(user.role),
+        name: user.name as string,
+        email: user.email as string,
+        phone: (user.phoneNumber as string) || "-",
+        role: mapRoleToFrontend(user.role as string),
         contributedPhotos: "-", // Specific requested defaults
-        plan: "-",
+        plan: (user.subscriptionTier 
+          ? (user.subscriptionTier as string).charAt(0).toUpperCase() + (user.subscriptionTier as string).slice(1).toLowerCase() 
+          : "-") as UserPlan,
         platformCommission: "-",
         purchasePhoto: "-",
         status: "Active", // Default
-        country: user.countryName ?? undefined,
-        address: user.address ?? undefined,
+        country: (user.countryName as string) ?? undefined,
+        address: (user.address as string) ?? undefined,
       })) || []
     );
   }, [data?.data]);

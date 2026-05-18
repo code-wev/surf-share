@@ -2,6 +2,7 @@ import Image from "next/image";
 import { ChevronsRight, SquarePen, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getUserById, getUserPhotos } from "@/src/actions/user.action";
+import { useUpdateSubscriptionMutation } from "@/hooks/api/useUsers";
 
 import type {
   UserPlan,
@@ -44,6 +45,14 @@ export default function UserDetailsModal({
     queryFn: () => (userId ? getUserPhotos(userId, 100) : Promise.reject("No user ID")),
     enabled: !!userId,
   });
+
+  const updateSubscriptionMutation = useUpdateSubscriptionMutation();
+
+  const handleSubscriptionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (!userId) return;
+    const newTier = e.target.value;
+    updateSubscriptionMutation.mutate({ userId, tier: newTier });
+  };
 
   const user = userResponse?.data;
   const photos = photosData?.data ?? [];
@@ -112,6 +121,31 @@ export default function UserDetailsModal({
                 <UserDetailRow label="Email" value={user.email} />
                 <UserDetailRow label="Phone Number" value={user.phoneNumber ?? "--"} />
                 <UserDetailRow label="Role" value={user.role} />
+                
+                {/* ADMIN ONLY SUBSCRIPTION TOGGLE */}
+                {user.role === "PHOTOGRAPHER" && (
+                  <UserDetailRow
+                    label="Subscription"
+                    value={
+                      <div className="flex items-center gap-2">
+                        <select
+                          className="h-8 rounded-sm border border-line-weaker bg-white px-2 text-sm text-text-strong focus:outline-none focus:ring-1 focus:ring-brand-default"
+                          value={(user as Record<string, unknown>).subscriptionTier as string || "BRONZE"}
+                          onChange={handleSubscriptionChange}
+                          disabled={updateSubscriptionMutation.isPending}
+                        >
+                          <option value="BRONZE">BRONZE (70% Split)</option>
+                          <option value="SILVER">SILVER (80% Split)</option>
+                          <option value="GOLD">GOLD (90% Split)</option>
+                        </select>
+                        {updateSubscriptionMutation.isPending && (
+                          <Loader2 className="h-4 w-4 animate-spin text-brand-default" />
+                        )}
+                      </div>
+                    }
+                  />
+                )}
+                
                 <UserDetailRow label="Country" value={user.countryName ?? "--"} />
                 <UserDetailRow label="Address" value={user.address ?? "--"} />
                 <UserDetailRow
