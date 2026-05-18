@@ -11,6 +11,16 @@ export const useLocationsQuery = (filters: { search?: string; page: number; limi
   });
 };
 
+export const useAllLocationsQuery = () => {
+  return useQuery({
+    queryKey: [...queryKeys.locations.all, "all-list"],
+    queryFn: async () => {
+      const response = await locationService.getAll({ page: 1, limit: 1000 });
+      return response.data;
+    },
+  });
+};
+
 export const useCreateLocationMutation = () => {
   const queryClient = useQueryClient();
 
