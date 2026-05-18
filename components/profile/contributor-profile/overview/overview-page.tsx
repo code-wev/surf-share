@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  ChevronDown,
-  Clock3,
-  DollarSign,
-  Download,
-  Images,
-  TrendingUp,
-  Loader2,
-} from "lucide-react";
+import { Clock3, DollarSign, Download, Images, TrendingUp, Loader2 } from "lucide-react";
 import {
   LineChart,
   Line,
