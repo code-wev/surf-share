@@ -62,7 +62,9 @@ export default function ContributorOverviewPage() {
   const chartData = data?.chartData || [];
   const maxVal = Math.max(...chartData.map((d) => d.value), 100);
   const roundedMax = Math.ceil(maxVal / 100) * 100;
-  const yTicks = [0, roundedMax * 0.25, roundedMax * 0.5, roundedMax * 0.75, roundedMax].map(v => Math.round(v));
+  const yTicks = [0, roundedMax * 0.25, roundedMax * 0.5, roundedMax * 0.75, roundedMax].map((v) =>
+    Math.round(v),
+  );
 
   if (isLoading) {
     return (
@@ -108,7 +110,6 @@ export default function ContributorOverviewPage() {
                     className="text-text-weaker inline-flex items-center gap-1 text-[11px] sm:text-xs"
                   >
                     All Time
-                    <ChevronDown size={12} />
                   </button>
 
                   <span
