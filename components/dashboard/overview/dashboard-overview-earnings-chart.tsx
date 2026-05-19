@@ -1,3 +1,7 @@
+"use client";
+
+import { useMemo, useState } from "react";
+
 type DashboardOverviewEarningsChartProps = {
   labels: string[];
   values: number[];
@@ -31,17 +35,9 @@ function buildSmoothLinePath(points: Array<{ x: number; y: number }>) {
   let path = `M${points[0].x} ${points[0].y}`;
 
   for (let index = 0; index < points.length - 1; index++) {
-    const previousPoint = points[index - 1] ?? points[index];
-    const currentPoint = points[index];
     const nextPoint = points[index + 1];
-    const nextNextPoint = points[index + 2] ?? nextPoint;
 
-    const controlPoint1X = currentPoint.x + (nextPoint.x - previousPoint.x) / 6;
-    const controlPoint1Y = currentPoint.y + (nextPoint.y - previousPoint.y) / 6;
-    const controlPoint2X = nextPoint.x - (nextNextPoint.x - currentPoint.x) / 6;
-    const controlPoint2Y = nextPoint.y - (nextNextPoint.y - currentPoint.y) / 6;
-
-    path += ` C${controlPoint1X} ${controlPoint1Y}, ${controlPoint2X} ${controlPoint2Y}, ${nextPoint.x} ${nextPoint.y}`;
+    path += ` L${nextPoint.x} ${nextPoint.y}`;
   }
 
   return path;
@@ -78,21 +74,48 @@ export default function DashboardOverviewEarningsChart({
   values,
   yTicks,
 }: DashboardOverviewEarningsChartProps) {
-  const { points, linePath, xCoordinates, yToCoordinate } = toChartModel(values, yTicks);
+  const { points, linePath, xCoordinates, yToCoordinate } = useMemo(
+    () => toChartModel(values, yTicks),
+    [values, yTicks],
+  );
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  const hoveredPoint = hoveredIndex !== null ? points[hoveredIndex] : null;
+
+  const handleMouseMove = (event: React.MouseEvent<SVGSVGElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const cursorX = ((event.clientX - rect.left) / rect.width) * chartWidth;
+
+    let nearestIndex = 0;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+
+    points.forEach((point, index) => {
+      const distance = Math.abs(point.x - cursorX);
+
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+        nearestIndex = index;
+      }
+    });
+
+    setHoveredIndex(nearestIndex);
+  };
 
   return (
     <section className="flex h-full flex-col">
-      <h2 className="text-[20px] leading-tight font-semibold text-text-strong sm:text-[24px] lg:text-[28px]">
+      <h2 className="text-text-strong text-[20px] leading-tight font-semibold sm:text-[24px] lg:text-[28px]">
         Earnings Overview
       </h2>
 
-      <div className="mt-3 flex-1 rounded-sm border border-line-weaker bg-surface-muted-100 p-2 sm:p-3">
-        <div className="h-64 w-full overflow-hidden sm:h-72 md:h-80 lg:h-90 xl:h-full">
+      <div className="border-line-weaker bg-surface-muted-100 mt-3 flex-1 rounded-sm border p-2 sm:p-3">
+        <div className="relative h-64 w-full overflow-visible sm:h-72 md:h-80 lg:h-90 xl:h-full">
           <svg
             viewBox={`0 0 ${chartWidth} ${chartHeight}`}
             className="h-full w-full"
             role="img"
             aria-label="Earnings trend chart"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={() => setHoveredIndex(null)}
           >
             {yTicks.map((tick) => {
               const y = yToCoordinate(tick);
@@ -140,12 +163,21 @@ export default function DashboardOverviewEarningsChart({
                 key={`${point.x}-${point.y}`}
                 cx={point.x}
                 cy={point.y}
-                r="5"
+                r={hoveredIndex !== null && points[hoveredIndex] === point ? 7 : 5}
                 fill="#FFFFFF"
                 stroke="#0EA5E9"
-                strokeWidth="3"
+                strokeWidth={hoveredIndex !== null && points[hoveredIndex] === point ? 4 : 3}
               />
             ))}
+
+            {hoveredPoint ? (
+              <circle
+                cx={hoveredPoint.x}
+                cy={hoveredPoint.y}
+                r="12"
+                fill="rgba(14, 165, 233, 0.12)"
+              />
+            ) : null}
 
             {labels.map((label, index) => (
               <text
@@ -159,6 +191,21 @@ export default function DashboardOverviewEarningsChart({
               </text>
             ))}
           </svg>
+
+          {hoveredPoint ? (
+            <div
+              className="border-line-weaker bg-surface-strong pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-md border px-3 py-2 text-left shadow-lg"
+              style={{
+                left: `${(hoveredPoint.x / chartWidth) * 100}%`,
+                top: `${(hoveredPoint.y / chartHeight) * 100}%`,
+              }}
+            >
+              <p className="text-text-weaker text-[11px]">{labels[hoveredIndex ?? 0]}</p>
+              <p className="text-text-strong text-sm font-semibold">
+                ${hoveredPoint.value.toLocaleString()}
+              </p>
+            </div>
+          ) : null}
         </div>
       </div>
     </section>

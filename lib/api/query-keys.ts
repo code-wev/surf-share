@@ -42,4 +42,8 @@ export const queryKeys = {
     all: ["sales"] as const,
     mySales: () => [...queryKeys.sales.all, "my"] as const,
   },
+  dashboard: {
+    all: ["dashboard"] as const,
+    stats: () => [...queryKeys.dashboard.all, "stats"] as const,
+  },
 };

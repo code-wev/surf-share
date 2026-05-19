@@ -11,19 +11,21 @@ export default function DashboardOverviewTopContributors({
 }: DashboardOverviewTopContributorsProps) {
   return (
     <section className="flex h-full flex-col">
-      <h2 className="text-[20px] leading-tight font-semibold text-text-strong sm:text-[22px]">
+      <h2 className="text-text-strong text-[20px] leading-tight font-semibold sm:text-[22px]">
         Top Contributors
       </h2>
 
       <div className="mt-4 flex-1 space-y-2 sm:mt-6 sm:space-y-2.5 md:mt-8 md:space-y-3 xl:mt-9">
-        {contributors.map((contributor) => (
+        {contributors.map((contributor, index) => (
           <article
-            key={contributor.id}
-            className="flex items-center justify-between border-b border-line-weaker pb-2 last:border-b-0"
+            key={`${contributor.id ?? contributor.name ?? "contributor"}-${index}`}
+            className="border-line-weaker flex items-center justify-between border-b pb-2 last:border-b-0"
           >
             <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
               <Image
-                src={contributor.avatarSrc}
+                src={
+                  contributor.avatarSrc?.trim() ? contributor.avatarSrc : "/home/latest/latest1.jpg"
+                }
                 alt={contributor.name}
                 width={34}
                 height={34}
@@ -31,14 +33,16 @@ export default function DashboardOverviewTopContributors({
               />
 
               <div className="min-w-0">
-                <p className="truncate text-base leading-tight text-text-strong sm:text-lg lg:text-[22px]">
+                <p className="text-text-strong truncate text-base leading-tight sm:text-lg lg:text-[22px]">
                   {contributor.name}
                 </p>
-                <p className="text-[11px] text-text-weaker sm:text-[12px]">{contributor.photosLabel}</p>
+                <p className="text-text-weaker text-[11px] sm:text-[12px]">
+                  {contributor.photosLabel}
+                </p>
               </div>
             </div>
 
-            <p className="shrink-0 text-base leading-tight font-medium text-brand-default sm:text-lg lg:text-[22px]">
+            <p className="text-brand-default shrink-0 text-base leading-tight font-medium sm:text-lg lg:text-[22px]">
               {contributor.earnings}
             </p>
           </article>
