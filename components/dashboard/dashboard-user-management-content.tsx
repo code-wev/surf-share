@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 
 const UserDetailsModal = dynamic(
   () => import("@/components/dashboard/user-management/user-details-modal"),
-  { ssr: false }
+  { ssr: false },
 );
 
 import UserManagementHeader from "@/components/dashboard/user-management/user-management-header";
@@ -94,18 +94,19 @@ export default function DashboardUserManagementContent() {
     return (
       data?.data?.map((user: Record<string, unknown>) => ({
         id: user.id as string,
-        photo: "/home/latest/latest15.jpg", // Default photo as requested
+        photo: (user.profileImageUrl as string) || "/home/logo.png",
         name: user.name as string,
         email: user.email as string,
         phone: (user.phoneNumber as string) || "-",
         role: mapRoleToFrontend(user.role as string),
-        contributedPhotos: "-", // Specific requested defaults
-        plan: (user.subscriptionTier 
-          ? (user.subscriptionTier as string).charAt(0).toUpperCase() + (user.subscriptionTier as string).slice(1).toLowerCase() 
+        contributedPhotos: "-",
+        plan: (user.subscriptionTier
+          ? (user.subscriptionTier as string).charAt(0).toUpperCase() +
+            (user.subscriptionTier as string).slice(1).toLowerCase()
           : "-") as UserPlan,
         platformCommission: "-",
         purchasePhoto: "-",
-        status: "Active", // Default
+        status: (user.status as string) === "ACTIVE" ? "Active" : "Suspended",
         country: (user.countryName as string) ?? undefined,
         address: (user.address as string) ?? undefined,
       })) || []
@@ -156,12 +157,7 @@ export default function DashboardUserManagementContent() {
         )}
 
         {selectedUserId ? (
-          <UserDetailsModal
-            userId={selectedUserId}
-            planClassNameMap={planClassNameMap}
-            statusClassNameMap={statusClassNameMap}
-            onClose={() => setSelectedUserId(null)}
-          />
+          <UserDetailsModal userId={selectedUserId} onClose={() => setSelectedUserId(null)} />
         ) : null}
       </div>
     </section>

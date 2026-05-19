@@ -27,3 +27,20 @@ export const useUpdateSubscriptionMutation = () => {
     },
   });
 };
+
+export const useUpdateUserStatusMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ userId, status }: { userId: string; status: string }) =>
+      usersService.updateStatus(userId, status),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
+      queryClient.invalidateQueries({ queryKey: ["user", variables.userId] });
+      toast.success(data.message || "User status updated successfully.");
+    },
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, "Failed to update user status."));
+    },
+  });
+};

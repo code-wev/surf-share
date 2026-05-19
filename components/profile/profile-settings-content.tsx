@@ -1,16 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { Pencil, ChevronDown, Plus } from "lucide-react";
-import { useState } from "react";
+import { Pencil, ChevronDown, Plus, Camera, Loader2 } from "lucide-react";
+import { useState, useRef } from "react";
 import React from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import ProfileInfoField from "@/components/profile/profile-info-field";
 import ProfilePasswordField from "@/components/profile/profile-password-field";
 import { Input } from "@/components/ui/input";
 import { getDemoUserProfile, useAuth } from "@/lib/auth";
-import { getUserById, updateUserById } from "@/src/actions/user.action";
+import { getUserById, updateUserById, uploadProfileImage } from "@/src/actions/user.action";
 import { changePassword } from "@/src/actions/auth.action";
 
 type SocialAccountType = "facebook" | "instagram" | "twitter" | "x";
@@ -31,6 +32,9 @@ export default function ProfileSettingsContent() {
   const { session } = useAuth();
   const profile = getDemoUserProfile(session);
   const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
   const [socialType, setSocialType] = useState<SocialAccountType | "">();
   const [socialUrl, setSocialUrl] = useState("");
   const [socialLinks, setSocialLinks] = useState<SocialAccountLink[]>([]);
@@ -46,7 +50,7 @@ export default function ProfileSettingsContent() {
     address: string;
   } | null>(null);
 
-  // Password change form state (separate from profile edit)
+  // Password change form state
   const [passwordFormValues, setPasswordFormValues] = useState({
     currentPassword: "",
     newPassword: "",
@@ -77,7 +81,7 @@ export default function ProfileSettingsContent() {
     setSocialUrl("");
   };
 
-  // Fetch user from API to get real values (and social accounts)
+  // Fetch user from API
   const { data } = useQuery({
     queryKey: ["profile", session?.id],
     queryFn: async () => {
@@ -88,18 +92,37 @@ export default function ProfileSettingsContent() {
   });
 
   const apiProfile = data?.data;
-  const displayProfile = profile
-    ? {
-        ...profile,
-        fullName: apiProfile?.name ?? profile.fullName,
-        country: apiProfile?.countryName ?? profile.country,
-        phone: apiProfile?.phoneNumber ?? profile.phone,
-        email: apiProfile?.email ?? profile.email,
-        address: apiProfile?.address ?? profile.address,
-      }
-    : profile;
+  
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !session?.id) return;
 
-  // Prepare social links - show any added links or load from API
+    setIsUploading(true);
+    try {
+      await uploadProfileImage(session.id, file);
+      toast.success("Profile image updated successfully!");
+      await queryClient.invalidateQueries({
+        queryKey: ["profile", session.id],
+      });
+    } catch (error) {
+      toast.error("Failed to upload profile image.");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const displayProfile = {
+    fullName: apiProfile?.name ?? profile?.fullName ?? "",
+    avatarSrc: apiProfile?.profileImageUrl ?? profile?.avatarSrc ?? "/home/logo.png",
+    country: apiProfile?.countryName ?? profile?.country ?? "",
+    phone: apiProfile?.phoneNumber ?? profile?.phone ?? "",
+    email: apiProfile?.email ?? profile?.email ?? "",
+    address: apiProfile?.address ?? profile?.address ?? "",
+  };
+
   interface _ApiProfile {
     socialAccounts?: { platform: string; url: string }[];
   }
@@ -113,8 +136,6 @@ export default function ProfileSettingsContent() {
           url: s.url,
         }));
 
-  if (!displayProfile) return null;
-
   return (
     <div className="h-full px-4 py-4 sm:px-6 sm:py-6 md:px-0 md:py-0">
       <section className="flex h-full flex-col">
@@ -123,20 +144,41 @@ export default function ProfileSettingsContent() {
         </h1>
 
         <div className="mt-6 md:mt-12">
-          <div className="relative">
+          <div className="relative inline-block">
             <div className="border-line-weaker bg-fill-hover h-25 w-25 overflow-hidden rounded-full border">
-              <Image
-                src={displayProfile.avatarSrc}
-                alt="Profile photo"
-                width={100}
-                height={100}
-                className="h-full w-full object-cover"
-              />
+              {isUploading ? (
+                <div className="flex h-full w-full items-center justify-center">
+                  <Loader2 className="text-text-weak h-6 w-6 animate-spin" />
+                </div>
+              ) : (
+                <Image
+                  src={displayProfile.avatarSrc}
+                  alt="Profile photo"
+                  width={100}
+                  height={100}
+                  className="h-full w-full object-cover"
+                />
+              )}
             </div>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="bg-brand-default hover:bg-brand-hover absolute right-0 bottom-0 flex h-8 w-8 items-center justify-center rounded-full text-white"
+            >
+              <Camera size={16} />
+            </button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*"
+              className="hidden"
+            />
           </div>
           <p className="text-text-strong mt-4 text-lg font-medium">{displayProfile.fullName}</p>
         </div>
-        {/* Profile fields */}
+        
+        {/* Profile details section... */}
         <div className="mt-6 flex items-center justify-between md:mt-9">
           <h2 className="text-text-strong text-[18px] font-semibold">Profile Details</h2>
 

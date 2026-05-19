@@ -6,7 +6,9 @@ import { Menu, ShoppingCart, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 
-import { getRoleHomePath, useAuth } from "@/lib/auth";
+import { getRoleHomePath, useAuth, getDemoUserProfile } from "@/lib/auth";
+import { useQuery } from "@tanstack/react-query";
+import { getUserById } from "@/src/actions/user.action";
 import { useCartStore } from "@/store/cart.store";
 
 const navItems = [
@@ -21,7 +23,18 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const { session, isHydrated } = useAuth();
-  
+  const { data: fullProfile } = useQuery({
+    queryKey: ["nav-profile", session?.id],
+    queryFn: async () => (session?.id ? getUserById(session.id) : Promise.reject("No session")),
+    enabled: Boolean(session?.id),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const avatarSrc =
+    fullProfile?.data?.profileImageUrl ||
+    getDemoUserProfile(session)?.avatarSrc ||
+    "/home/logo.png";
+
   const { items } = useCartStore();
   const cartItemCount = items.length;
   const [cartHydrated, setCartHydrated] = useState(false);
@@ -79,7 +92,11 @@ export default function Navbar() {
             {!isHydrated ? null : isDashboardRoute ? (
               <>
                 {session?.role === "SURFER" && (
-                  <Link href="/cart" aria-label="Cart" className="relative flex items-center text-(--color-text-strong) hover:text-[#0c3173] transition-colors">
+                  <Link
+                    href="/cart"
+                    aria-label="Cart"
+                    className="relative flex items-center text-(--color-text-strong) transition-colors hover:text-[#0c3173]"
+                  >
                     <ShoppingCart size={20} />
                     {cartHydrated && cartItemCount > 0 && (
                       <span className="absolute -top-1.5 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
@@ -98,7 +115,7 @@ export default function Navbar() {
                   }`}
                 >
                   <Image
-                    src="/home/latest/latest1.jpg"
+                    src={avatarSrc}
                     alt="Profile"
                     width={36}
                     height={36}
@@ -109,7 +126,11 @@ export default function Navbar() {
             ) : session ? (
               <>
                 {session.role === "SURFER" && (
-                  <Link href="/cart" aria-label="Cart" className="relative flex items-center text-(--color-text-strong) hover:text-[#0c3173] transition-colors">
+                  <Link
+                    href="/cart"
+                    aria-label="Cart"
+                    className="relative flex items-center text-(--color-text-strong) transition-colors hover:text-[#0c3173]"
+                  >
                     <ShoppingCart size={20} />
                     {cartHydrated && cartItemCount > 0 && (
                       <span className="absolute -top-1.5 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
@@ -128,7 +149,7 @@ export default function Navbar() {
                   }`}
                 >
                   <Image
-                    src="/home/latest/latest1.jpg"
+                    src={avatarSrc}
                     alt="Profile"
                     width={36}
                     height={36}
@@ -159,7 +180,11 @@ export default function Navbar() {
             {isHydrated && (isDashboardRoute || session) ? (
               <>
                 {session?.role === "SURFER" && (
-                  <Link href="/cart" aria-label="Cart" className="relative flex items-center text-(--color-text-strong) hover:text-[#0c3173] transition-colors">
+                  <Link
+                    href="/cart"
+                    aria-label="Cart"
+                    className="relative flex items-center text-(--color-text-strong) transition-colors hover:text-[#0c3173]"
+                  >
                     <ShoppingCart size={20} />
                     {cartHydrated && cartItemCount > 0 && (
                       <span className="absolute -top-1.5 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
@@ -178,7 +203,7 @@ export default function Navbar() {
                   }`}
                 >
                   <Image
-                    src="/home/latest/latest1.jpg"
+                    src={avatarSrc}
                     alt="Profile"
                     width={32}
                     height={32}

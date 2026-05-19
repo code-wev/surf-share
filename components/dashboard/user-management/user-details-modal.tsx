@@ -2,17 +2,11 @@ import Image from "next/image";
 import { ChevronsRight, SquarePen, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getUserById, getUserPhotos } from "@/src/actions/user.action";
-import { useUpdateSubscriptionMutation } from "@/hooks/api/useUsers";
+import { useUpdateSubscriptionMutation, useUpdateUserStatusMutation } from "@/hooks/api/useUsers";
 
-import type {
-  UserPlan,
-  UserStatus,
-} from "@/components/dashboard/user-management/user-management-types";
 
 type UserDetailsModalProps = {
   userId: string | null;
-  planClassNameMap: Record<UserPlan, string>;
-  statusClassNameMap: Record<UserStatus, string>;
   onClose: () => void;
 };
 
@@ -47,11 +41,18 @@ export default function UserDetailsModal({
   });
 
   const updateSubscriptionMutation = useUpdateSubscriptionMutation();
+  const updateStatusMutation = useUpdateUserStatusMutation();
 
   const handleSubscriptionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (!userId) return;
     const newTier = e.target.value;
     updateSubscriptionMutation.mutate({ userId, tier: newTier });
+  };
+
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (!userId) return;
+    const newStatus = e.target.value;
+    updateStatusMutation.mutate({ userId, status: newStatus });
   };
 
   const user = userResponse?.data;
@@ -105,12 +106,12 @@ export default function UserDetailsModal({
           ) : (
             <>
               <div className="relative">
-                <div className="border-line-weaker h-10 w-10 overflow-hidden rounded-full border bg-fill-hover">
+                <div className="border-line-weaker h-16 w-16 overflow-hidden rounded-full border bg-fill-hover">
                   <Image
-                    src="/home/latest/latest15.jpg"
+                    src={user.profileImageUrl || "/home/logo.png"}
                     alt={`${user.name} thumbnail`}
-                    width={40}
-                    height={40}
+                    width={64}
+                    height={64}
                     className="h-full w-full object-cover"
                   />
                 </div>
@@ -119,10 +120,28 @@ export default function UserDetailsModal({
               <div className="mt-6 space-y-3">
                 <UserDetailRow label="Name" value={user.name} />
                 <UserDetailRow label="Email" value={user.email} />
-                <UserDetailRow label="Phone Number" value={user.phoneNumber ?? "--"} />
                 <UserDetailRow label="Role" value={user.role} />
                 
-                {/* ADMIN ONLY SUBSCRIPTION TOGGLE */}
+                <UserDetailRow 
+                    label="Status" 
+                    value={
+                      <div className="flex items-center gap-2">
+                        <select
+                          className="h-8 rounded-sm border border-line-weaker bg-white px-2 text-sm text-text-strong focus:outline-none focus:ring-1 focus:ring-brand-default"
+                          value={user.status}
+                          onChange={handleStatusChange}
+                          disabled={updateStatusMutation.isPending}
+                        >
+                          <option value="ACTIVE">ACTIVE</option>
+                          <option value="SUSPENDED">SUSPENDED</option>
+                        </select>
+                        {updateStatusMutation.isPending && (
+                          <Loader2 className="h-4 w-4 animate-spin text-brand-default" />
+                        )}
+                      </div>
+                    } 
+                />
+                
                 {user.role === "PHOTOGRAPHER" && (
                   <UserDetailRow
                     label="Subscription"
@@ -146,8 +165,10 @@ export default function UserDetailsModal({
                   />
                 )}
                 
+                <UserDetailRow label="Phone Number" value={user.phoneNumber ?? "--"} />
                 <UserDetailRow label="Country" value={user.countryName ?? "--"} />
                 <UserDetailRow label="Address" value={user.address ?? "--"} />
+                <UserDetailRow label="Created At" value={new Date(user.createdAt).toLocaleDateString()} />
                 <UserDetailRow
                   label="Photos"
                   value={
