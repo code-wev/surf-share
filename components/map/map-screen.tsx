@@ -6,8 +6,6 @@ import { useMapLocationsQuery } from "@/hooks/api/useLocations";
 import { Loader2 } from "lucide-react";
 
 import {
-	defaultFromDate,
-	defaultToDate,
 	timeOptions,
 	type SurfSpot,
 	type TimeOptionValue,
@@ -31,8 +29,8 @@ export default function MapScreen() {
 
 	const [selectedState, setSelectedState] = useState("all");
 	const [selectedRegion, setSelectedRegion] = useState("all");
-	const [selectedFromDate, setSelectedFromDate] = useState(defaultFromDate);
-	const [selectedToDate, setSelectedToDate] = useState(defaultToDate);
+	const [selectedFromDate, setSelectedFromDate] = useState("");
+	const [selectedToDate, setSelectedToDate] = useState("");
 	const [selectedTime, setSelectedTime] = useState<TimeOptionValue>("all");
 	const [activeSpotId, setActiveSpotId] = useState<string | null>(null);
 
@@ -54,7 +52,14 @@ export default function MapScreen() {
 			const matchesState = selectedState === "all" || spot.state === selectedState;
 			const matchesRegion = selectedRegion === "all" || spot.region === selectedRegion;
 			const matchesTime = selectedTime === "all" || spot.timeWindows.includes(selectedTime);
-			const inDateRange = !(selectedFromDate > spot.availableTo || selectedToDate < spot.availableFrom);
+			
+			let inDateRange = true;
+			if (selectedFromDate && spot.availableTo) {
+				if (selectedFromDate > spot.availableTo) inDateRange = false;
+			}
+			if (selectedToDate && spot.availableFrom) {
+				if (selectedToDate < spot.availableFrom) inDateRange = false;
+			}
 
 			return matchesState && matchesRegion && matchesTime && inDateRange;
 		});
