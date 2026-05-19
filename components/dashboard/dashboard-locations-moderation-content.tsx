@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useMemo, useState, useEffect } from "react";
-import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 import AddLocationModal, {
   type AddLocationModalPayload,
@@ -10,7 +10,7 @@ import AddLocationModal, {
 import LocationsModerationFeaturedCard from "@/components/dashboard/locations-moderation/locations-moderation-featured-card";
 import LocationsModerationSidebar from "@/components/dashboard/locations-moderation/locations-moderation-sidebar";
 import type { LocationModerationItem } from "@/components/dashboard/locations-moderation/locations-moderation-types";
-import { useLocationsQuery, useCreateLocationMutation, useDeleteLocationMutation } from "@/hooks/api/useLocations";
+import { useLocationsQuery, useCreateLocationMutation, useDeleteLocationMutation, useUpdateLocationMutation } from "@/hooks/api/useLocations";
 
 const LocationsModerationMap = dynamic(
   () => import("@/components/dashboard/locations-moderation/locations-moderation-map"),
@@ -37,9 +37,11 @@ type ApiLocation = {
 };
 
 export default function DashboardLocationsModerationContent() {
+  const router = useRouter();
   const [searchValue, setSearchValue] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isAddLocationModalOpen, setIsAddLocationModalOpen] = useState(false);
+  const [locationToEdit, setLocationToEdit] = useState<LocationModerationItem | null>(null);
   const [activeLocationId, setActiveLocationId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -60,6 +62,7 @@ export default function DashboardLocationsModerationContent() {
   });
 
   const createMutation = useCreateLocationMutation();
+  const updateMutation = useUpdateLocationMutation();
   const deleteMutation = useDeleteLocationMutation();
 
   const locations: LocationModerationItem[] = useMemo(() => {
@@ -93,6 +96,7 @@ export default function DashboardLocationsModerationContent() {
   ];
 
   const handleAddLocation = () => {
+    setLocationToEdit(null);
     setIsAddLocationModalOpen(true);
   };
 
@@ -108,15 +112,25 @@ export default function DashboardLocationsModerationContent() {
       formData.append("previewImage", payload.previewImage);
     }
 
-    createMutation.mutate(formData, {
-      onSuccess: () => {
-        setIsAddLocationModalOpen(false);
-      }
-    });
+    if (locationToEdit) {
+      updateMutation.mutate({ id: locationToEdit.id, payload: formData }, {
+        onSuccess: () => {
+          setIsAddLocationModalOpen(false);
+          setLocationToEdit(null);
+        }
+      });
+    } else {
+      createMutation.mutate(formData, {
+        onSuccess: () => {
+          setIsAddLocationModalOpen(false);
+        }
+      });
+    }
   };
 
   const handleEditLocation = (location: LocationModerationItem) => {
-    toast.success(`Edit opened for ${location.name}.`);
+    setLocationToEdit(location);
+    setIsAddLocationModalOpen(true);
   };
 
   const handleDeleteLocation = (location: LocationModerationItem) => {
@@ -127,8 +141,7 @@ export default function DashboardLocationsModerationContent() {
     if (!activeLocation) {
       return;
     }
-
-    toast.success(`Opening gallery for ${activeLocation.name}.`);
+    router.push(`/gallery?locationId=${activeLocation.id}`);
   };
 
   return (
@@ -182,9 +195,13 @@ export default function DashboardLocationsModerationContent() {
       {isAddLocationModalOpen ? (
         <AddLocationModal
           initialCoordinates={addLocationInitialCoordinates}
-          onClose={() => setIsAddLocationModalOpen(false)}
+          initialLocation={locationToEdit}
+          onClose={() => {
+            setIsAddLocationModalOpen(false);
+            setLocationToEdit(null);
+          }}
           onSubmit={handleCreateLocation}
-          isPending={createMutation.isPending}
+          isPending={createMutation.isPending || updateMutation.isPending}
         />
       ) : null}
     </section>

@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import Image from "next/image";
 
 import { Input } from "@/components/ui/input";
+import type { LocationModerationItem } from "@/components/dashboard/locations-moderation/locations-moderation-types";
 
 const AddLocationMapPicker = dynamic(
   () => import("@/components/dashboard/locations-moderation/add-location-map-picker"),
@@ -27,7 +28,7 @@ export type AddLocationModalPayload = {
   state: string;
   latitude: number;
   longitude: number;
-  previewImage: File;
+  previewImage?: File;
 };
 
 type AddLocationModalProps = {
@@ -35,6 +36,7 @@ type AddLocationModalProps = {
   onClose: () => void;
   onSubmit: (payload: AddLocationModalPayload) => void;
   isPending?: boolean;
+  initialLocation?: LocationModerationItem | null;
 };
 
 function formatCoordinate(value: number) {
@@ -46,17 +48,20 @@ export default function AddLocationModal({
   onClose,
   onSubmit,
   isPending,
+  initialLocation,
 }: AddLocationModalProps) {
-  const [name, setName] = useState("");
-  const [parentSpot, setParentSpot] = useState("");
-  const [region, setRegion] = useState("");
-  const [stateValue, setStateValue] = useState("");
-  const [coordinates, setCoordinates] = useState<[number, number]>(initialCoordinates);
-  const [latitudeInput, setLatitudeInput] = useState(formatCoordinate(initialCoordinates[0]));
-  const [longitudeInput, setLongitudeInput] = useState(formatCoordinate(initialCoordinates[1]));
+  const [name, setName] = useState(initialLocation?.name || "");
+  const [parentSpot, setParentSpot] = useState(initialLocation?.parentSpot || "");
+  const [region, setRegion] = useState(initialLocation?.region || "");
+  const [stateValue, setStateValue] = useState(initialLocation?.state || "");
+  
+  const startCoords = initialLocation?.coordinates || initialCoordinates;
+  const [coordinates, setCoordinates] = useState<[number, number]>(startCoords);
+  const [latitudeInput, setLatitudeInput] = useState(formatCoordinate(startCoords[0]));
+  const [longitudeInput, setLongitudeInput] = useState(formatCoordinate(startCoords[1]));
   
   const [previewImage, setPreviewImage] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(initialLocation?.previewImage || null);
   const [isDragging, setIsDragging] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -85,7 +90,8 @@ export default function AddLocationModal({
     const file = e.target.files?.[0];
     if (file) {
       if (file.type.startsWith("image/")) {
-        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        // Only revoke object URL if it's a local blob, not a remote URL
+        if (previewUrl && previewUrl.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
         setPreviewImage(file);
         setPreviewUrl(URL.createObjectURL(file));
       } else {
@@ -110,7 +116,7 @@ export default function AddLocationModal({
     const file = e.dataTransfer.files?.[0];
     if (file) {
       if (file.type.startsWith("image/")) {
-        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        if (previewUrl && previewUrl.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
         setPreviewImage(file);
         setPreviewUrl(URL.createObjectURL(file));
       } else {
@@ -120,7 +126,7 @@ export default function AddLocationModal({
   };
 
   const removePhoto = () => {
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    if (previewUrl && previewUrl.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
     setPreviewImage(null);
     setPreviewUrl(null);
     if (fileInputRef.current) {
@@ -139,7 +145,7 @@ export default function AddLocationModal({
       return;
     }
 
-    if (!previewImage) {
+    if (!previewImage && !initialLocation?.previewImage) {
       toast.error("Preview image is mandatory.");
       return;
     }
@@ -151,7 +157,7 @@ export default function AddLocationModal({
       state: stateValue.trim(),
       latitude,
       longitude,
-      previewImage,
+      ...(previewImage ? { previewImage } : {}),
     });
   };
 
@@ -275,7 +281,7 @@ export default function AddLocationModal({
                   Preview Image
                 </span>
                 
-                {!previewImage ? (
+                {!previewUrl ? (
                   <div
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
@@ -325,8 +331,8 @@ export default function AddLocationModal({
 
                       <div className="relative h-40 w-full overflow-hidden bg-gray-100">
                         <Image
-                          src={previewUrl!}
-                          alt={previewImage.name}
+                          src={previewUrl}
+                          alt="Location preview"
                           fill
                           unoptimized
                           className="object-cover"
@@ -334,7 +340,9 @@ export default function AddLocationModal({
                       </div>
                       
                       <div className="p-3">
-                        <p className="truncate text-sm font-semibold text-gray-900">{previewImage.name}</p>
+                        <p className="truncate text-sm font-semibold text-gray-900">
+                          {previewImage?.name || "Current Image"}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -356,7 +364,7 @@ export default function AddLocationModal({
                 disabled={isPending}
                 className="inline-flex h-10 w-full items-center justify-center rounded-sm bg-brand-default px-4 text-sm font-medium text-text-inverse-strong transition-colors hover:bg-brand-hover disabled:opacity-50 sm:h-8 sm:w-auto sm:text-xs"
               >
-                {isPending ? "Adding..." : "Add Location"}
+                {isPending ? (initialLocation ? "Updating..." : "Adding...") : (initialLocation ? "Update Location" : "Add Location")}
               </button>
             </div>
           </form>
