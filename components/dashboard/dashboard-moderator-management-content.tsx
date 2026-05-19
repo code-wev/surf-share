@@ -30,6 +30,8 @@ type ApiModerator = {
   phoneNumber?: string;
   createdAt: string;
   permissions?: string[];
+  profileImageUrl?: string | null;
+  status?: string;
 };
 
 export default function DashboardModeratorManagementContent() {
@@ -56,7 +58,12 @@ export default function DashboardModeratorManagementContent() {
   });
 
   const registerModeratorMutation = useMutation({
-    mutationFn: async (payload: { name: string; email: string; password?: string; permissions: string[] }) => {
+    mutationFn: async (payload: {
+      name: string;
+      email: string;
+      password?: string;
+      permissions: string[];
+    }) => {
       const response = await apiClient.post("/auth/register/moderator", payload);
       return response.data;
     },
@@ -71,7 +78,7 @@ export default function DashboardModeratorManagementContent() {
           ? error.response.data.message
           : "Failed to register moderator.";
       toast.error(errorMessage);
-    }
+    },
   });
 
   useEffect(() => {
@@ -121,6 +128,13 @@ export default function DashboardModeratorManagementContent() {
     return "Approve Photo";
   };
 
+  const mapBackendStatusToFrontend = (backendStatus?: string) => {
+    if (!backendStatus) return "Active" as const;
+    if (backendStatus === "ACTIVE") return "Active" as const;
+    if (backendStatus === "SUSPENDED") return "Suspended" as const;
+    return "Active" as const;
+  };
+
   const mapFrontendPermissionToBackend = (perm: AssignedPermission): string => {
     if (perm === "Approve Photo") return "APPROVE_PHOTO";
     if (perm === "Add Location") return "ADD_LOCATION";
@@ -129,20 +143,22 @@ export default function DashboardModeratorManagementContent() {
   };
 
   const mappedRows: ModeratorRow[] = useMemo(() => {
-    return data?.data?.map((mod: ApiModerator) => {
-      const backendPerms = Array.isArray(mod.permissions) ? mod.permissions : [];
-      
-      return {
-        id: mod.id,
-        photo: "/home/latest/latest15.jpg", // Default photo
-        name: mod.name,
-        email: mod.email,
-        phone: mod.phoneNumber || "-",
-        assignedDate: mod.createdAt ? new Date(mod.createdAt).toLocaleDateString("en-GB") : "-",
-        assignedPermissions: backendPerms.map(mapBackendPermissionToFrontend),
-        status: "Active", // Default
-      };
-    }) || [];
+    return (
+      data?.data?.map((mod: ApiModerator) => {
+        const backendPerms = Array.isArray(mod.permissions) ? mod.permissions : [];
+
+        return {
+          id: mod.id,
+          photo: (mod.profileImageUrl as string) || "/home/latest/latest1.jpg",
+          name: mod.name,
+          email: mod.email,
+          phone: mod.phoneNumber || "-",
+          assignedDate: mod.createdAt ? new Date(mod.createdAt).toLocaleDateString("en-GB") : "-",
+          assignedPermissions: backendPerms.map(mapBackendPermissionToFrontend),
+          status: mapBackendStatusToFrontend(mod.status),
+        };
+      }) || []
+    );
   }, [data?.data]);
 
   const filteredRows = useMemo(() => {
@@ -152,12 +168,17 @@ export default function DashboardModeratorManagementContent() {
     return mappedRows;
   }, [activeFilter, mappedRows]);
 
-  const handleAddModerator = ({ name, email, password, assignedPermissions }: AddModeratorModalPayload) => {
+  const handleAddModerator = ({
+    name,
+    email,
+    password,
+    assignedPermissions,
+  }: AddModeratorModalPayload) => {
     registerModeratorMutation.mutate({
       name,
       email,
       password,
-      permissions: assignedPermissions.map(mapFrontendPermissionToBackend)
+      permissions: assignedPermissions.map(mapFrontendPermissionToBackend),
     });
   };
 
@@ -180,13 +201,13 @@ export default function DashboardModeratorManagementContent() {
         />
 
         {isLoading ? (
-           <div className="flex h-64 items-center justify-center">
-             <p className="text-text-weaker">Loading moderators...</p>
-           </div>
+          <div className="flex h-64 items-center justify-center">
+            <p className="text-text-weaker">Loading moderators...</p>
+          </div>
         ) : isError ? (
-           <div className="flex h-64 items-center justify-center">
-             <p className="text-danger-strong">Failed to load moderators.</p>
-           </div>
+          <div className="flex h-64 items-center justify-center">
+            <p className="text-danger-strong">Failed to load moderators.</p>
+          </div>
         ) : (
           <ModeratorManagementTable
             rows={filteredRows}

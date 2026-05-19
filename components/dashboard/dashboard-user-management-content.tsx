@@ -25,6 +25,22 @@ import type {
 } from "@/components/dashboard/user-management/user-management-types";
 import { getUsers } from "@/src/actions/user.action";
 
+type ApiUser = {
+  id: string;
+  name: string;
+  email: string;
+  profileImageUrl?: string | null;
+  phoneNumber?: string | null;
+  role: string;
+  status?: string | null;
+  photoCount?: number | string | null;
+  platformCommission?: number | string | null;
+  purchasePhoto?: number | string | null;
+  subscriptionTier?: string | null;
+  countryName?: string | null;
+  address?: string | null;
+};
+
 export default function DashboardUserManagementContent() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<FilterOption>("All Users");
@@ -90,25 +106,32 @@ export default function DashboardUserManagementContent() {
     return "Surfer";
   };
 
+  const mapPlatformCommissionByPlan = (subscriptionTier?: string | null) => {
+    if (subscriptionTier === "BRONZE") return "30%";
+    if (subscriptionTier === "SILVER") return "20%";
+    if (subscriptionTier === "GOLD") return "10%";
+    return "-";
+  };
+
   const mappedRows: UserRow[] = useMemo(() => {
     return (
-      data?.data?.map((user: Record<string, unknown>) => ({
-        id: user.id as string,
-        photo: (user.profileImageUrl as string) || "/home/logo.png",
-        name: user.name as string,
-        email: user.email as string,
-        phone: (user.phoneNumber as string) || "-",
-        role: mapRoleToFrontend(user.role as string),
-        contributedPhotos: "-",
+      data?.data?.map((user: ApiUser) => ({
+        id: user.id,
+        photo: user.profileImageUrl || "/home/latest/latest1.jpg",
+        name: user.name,
+        email: user.email,
+        phone: user.phoneNumber || "-",
+        role: mapRoleToFrontend(user.role),
+        contributedPhotos: user.photoCount ?? "-",
         plan: (user.subscriptionTier
           ? (user.subscriptionTier as string).charAt(0).toUpperCase() +
             (user.subscriptionTier as string).slice(1).toLowerCase()
           : "-") as UserPlan,
-        platformCommission: "-",
-        purchasePhoto: "-",
-        status: (user.status as string) === "ACTIVE" ? "Active" : "Suspended",
-        country: (user.countryName as string) ?? undefined,
-        address: (user.address as string) ?? undefined,
+        platformCommission: mapPlatformCommissionByPlan(user.subscriptionTier),
+        purchasePhoto: user.purchasePhoto ?? "-",
+        status: user.status === "ACTIVE" ? "Active" : "Suspended",
+        country: user.countryName ?? undefined,
+        address: user.address ?? undefined,
       })) || []
     );
   }, [data?.data]);

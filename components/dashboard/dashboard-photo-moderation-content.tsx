@@ -11,7 +11,12 @@ import type {
   PhotoModerationItem,
 } from "@/components/dashboard/photo-moderation/photo-moderation-types";
 import PhotoModerationDetailsModal from "./photo-moderation/photo-moderation-details-modal";
-import { getPhotos, updatePhotoStatus, bulkUpdatePhotoStatus } from "@/src/actions/photo.action";
+import {
+  getPhotos,
+  updatePhotoStatus,
+  bulkUpdatePhotoStatus,
+  type PhotoModerationApiPhoto,
+} from "@/src/actions/photo.action";
 import { Loader2 } from "lucide-react";
 
 const getApiOrigin = () => {
@@ -64,7 +69,7 @@ export default function DashboardPhotoModerationContent() {
   const photoItems: PhotoModerationItem[] = useMemo(() => {
     if (!photosResponse?.data) return [];
 
-    const items = photosResponse.data.map((photo: any) => {
+    const items = photosResponse.data.map((photo: PhotoModerationApiPhoto) => {
       const resolution = photo.width && photo.height ? `${photo.width}x${photo.height}` : "N/A";
 
       const format = photo.format ? photo.format.toUpperCase() : "N/A";
