@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { use } from "react";
 import { Calendar, Camera, ExternalLink, Heart, MapPin, ShoppingCart } from "lucide-react";
+import { toast } from "sonner";
 
 import RelatedImagesSection from "@/components/home/gallery/related-images-section";
 import { Button } from "@/components/ui/button";
@@ -21,6 +23,7 @@ type GalleryDetailsPageProps = {
 
 export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) {
   const { slug } = use(params);
+  const router = useRouter();
   const { session, isHydrated } = useAuth();
   const { addItem, items: cartItems } = useCartStore();
 
@@ -43,11 +46,22 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   const isPurchased = purchasedIds.includes(photoId);
 
   const handleToggleFavorite = () => {
-    if (!isHydrated || !session) return;
+    if (!isHydrated) return;
+    if (!session) {
+      toast.error("Please login to add to favorites");
+      router.push("/login");
+      return;
+    }
     toggleMutation.mutate(photoId);
   };
 
   const handleAddToCart = () => {
+    if (!isHydrated) return;
+    if (!session) {
+      toast.error("Please login to add to cart");
+      router.push("/login");
+      return;
+    }
     if (!photoResponse?.data || isPurchased) return;
     const p = photoResponse.data;
     addItem({
