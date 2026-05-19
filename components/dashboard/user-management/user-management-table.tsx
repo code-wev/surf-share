@@ -1,7 +1,11 @@
-import Image from "next/image";
 import { ChevronsUpDown, Eye } from "lucide-react";
+import Avatar from "@/components/shared/avatar";
 
-import type { UserPlan, UserRow, UserStatus } from "@/components/dashboard/user-management/user-management-types";
+import type {
+  UserPlan,
+  UserRow,
+  UserStatus,
+} from "@/components/dashboard/user-management/user-management-types";
 
 type UserManagementTableProps = {
   rows: UserRow[];
@@ -20,19 +24,21 @@ export default function UserManagementTable({
     <>
       <div className="mt-6 grid grid-cols-1 gap-3 lg:hidden">
         {rows.map((row) => (
-          <article key={row.id} className="rounded-sm border border-line-weaker bg-surface-muted-100 p-3">
+          <article
+            key={row.id}
+            className="border-line-weaker bg-surface-muted-100 rounded-sm border p-3"
+          >
             <div className="flex items-start gap-3">
-              <Image
+              <Avatar
                 src={row.photo}
                 alt={row.name}
-                width={44}
-                height={44}
+                size={44}
                 className="h-11 w-11 rounded-full object-cover"
               />
 
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-text-strong">{row.name}</p>
-                <p className="mt-0.5 truncate text-xs text-text-weak">{row.email}</p>
+                <p className="text-text-strong truncate text-sm font-semibold">{row.name}</p>
+                <p className="text-text-weak mt-0.5 truncate text-xs">{row.email}</p>
 
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <span className="inline-flex rounded-sm bg-[#F3F4F6] px-2 py-0.5 text-[11px] text-[#6B7280]">
@@ -52,17 +58,23 @@ export default function UserManagementTable({
               </div>
             </div>
 
-            <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs text-text-weak">
+            <div className="text-text-weak mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
               <p>
-                <span className="block text-[11px] uppercase tracking-wide text-text-weaker">Phone</span>
+                <span className="text-text-weaker block text-[11px] tracking-wide uppercase">
+                  Phone
+                </span>
                 <span className="mt-0.5 block">{row.phone}</span>
               </p>
               <p>
-                <span className="block text-[11px] uppercase tracking-wide text-text-weaker">Contributed</span>
+                <span className="text-text-weaker block text-[11px] tracking-wide uppercase">
+                  Contributed
+                </span>
                 <span className="mt-0.5 block">{row.contributedPhotos ?? "--"}</span>
               </p>
               <p>
-                <span className="block text-[11px] uppercase tracking-wide text-text-weaker">Commission</span>
+                <span className="text-text-weaker block text-[11px] tracking-wide uppercase">
+                  Commission
+                </span>
                 <span className="mt-0.5 inline-flex items-center gap-1">
                   {row.platformCommission ?? "--"}
                   {row.showCommissionSortIcon ? (
@@ -71,7 +83,9 @@ export default function UserManagementTable({
                 </span>
               </p>
               <p>
-                <span className="block text-[11px] uppercase tracking-wide text-text-weaker">Purchase</span>
+                <span className="text-text-weaker block text-[11px] tracking-wide uppercase">
+                  Purchase
+                </span>
                 <span className="mt-0.5 block">{row.purchasePhoto ?? "--"}</span>
               </p>
             </div>
@@ -88,10 +102,10 @@ export default function UserManagementTable({
         ))}
       </div>
 
-      <div className="mt-6 hidden overflow-x-auto border border-line-weaker bg-surface-muted-100 lg:mt-9 lg:block [font-family:var(--font-sf-pro)]">
-        <table className="w-full min-w-280 border-collapse text-xs text-text-weak xl:min-w-0">
+      <div className="border-line-weaker bg-surface-muted-100 mt-6 hidden overflow-x-auto border [font-family:var(--font-sf-pro)] lg:mt-9 lg:block">
+        <table className="text-text-weak w-full min-w-280 border-collapse text-xs xl:min-w-0">
           <thead>
-            <tr className="border-b border-line-weaker text-left font-semibold text-text-strong">
+            <tr className="border-line-weaker text-text-strong border-b text-left font-semibold">
               <th className="p-2">Name</th>
               <th className="p-2">Photo</th>
               <th className="p-2">Email</th>
@@ -108,13 +122,12 @@ export default function UserManagementTable({
 
           <tbody>
             {rows.map((row) => (
-              <tr key={row.id} className="border-b border-line-weaker last:border-b-0">
+              <tr key={row.id} className="border-line-weaker border-b last:border-b-0">
                 <td className="p-2">
-                  <Image
+                  <Avatar
                     src={row.photo}
                     alt={row.name}
-                    width={40}
-                    height={40}
+                    size={40}
                     className="h-10 w-10 rounded-full object-cover"
                   />
                 </td>
@@ -132,7 +145,9 @@ export default function UserManagementTable({
                 <td className="p-2">{row.contributedPhotos ?? "--"}</td>
 
                 <td className="p-2">
-                  <span className={`inline-flex rounded-sm px-2 py-0.5 ${planClassNameMap[row.plan]}`}>
+                  <span
+                    className={`inline-flex rounded-sm px-2 py-0.5 ${planClassNameMap[row.plan]}`}
+                  >
                     {row.plan}
                   </span>
                 </td>

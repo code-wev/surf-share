@@ -19,6 +19,10 @@ interface UserGetResponse {
     phoneNumber?: string | null;
     role: string;
     status: string;
+    photoCount?: number | string | null;
+    platformCommission?: number | string | null;
+    purchasePhoto?: number | string | null;
+    subscriptionTier?: string | null;
     countryName?: string | null;
     address?: string | null;
   }>;
