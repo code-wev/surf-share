@@ -2,11 +2,10 @@
 
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
+import { useMapLocationsQuery } from "@/hooks/api/useLocations";
+import { Loader2 } from "lucide-react";
 
 import {
-	defaultFromDate,
-	defaultToDate,
-	demoSurfSpots,
 	timeOptions,
 	type SurfSpot,
 	type TimeOptionValue,
@@ -21,46 +20,50 @@ const SurfMapView = dynamic(() => import("@/components/map/surf-map-view"), {
 	),
 });
 
-function toHumanDate(value: string) {
-	const date = new Date(value);
-	return date.toLocaleDateString("en-US", {
-		month: "short",
-		day: "2-digit",
-		year: "numeric",
-	});
-}
-
 export default function MapScreen() {
+	const { data: mapDataResponse, isLoading } = useMapLocationsQuery();
+	
+	const liveSurfSpots = useMemo(() => {
+		return (mapDataResponse?.data || []) as SurfSpot[];
+	}, [mapDataResponse?.data]);
+
 	const [selectedState, setSelectedState] = useState("all");
 	const [selectedRegion, setSelectedRegion] = useState("all");
-	const [selectedFromDate, setSelectedFromDate] = useState(defaultFromDate);
-	const [selectedToDate, setSelectedToDate] = useState(defaultToDate);
+	const [selectedFromDate, setSelectedFromDate] = useState("");
+	const [selectedToDate, setSelectedToDate] = useState("");
 	const [selectedTime, setSelectedTime] = useState<TimeOptionValue>("all");
-	const [activeSpotId, setActiveSpotId] = useState<string | null>(demoSurfSpots[0]?.id ?? null);
+	const [activeSpotId, setActiveSpotId] = useState<string | null>(null);
 
 	const stateOptions = useMemo(() => {
-		return ["all", ...Array.from(new Set(demoSurfSpots.map((spot) => spot.state)))];
-	}, []);
+		return ["all", ...Array.from(new Set(liveSurfSpots.map((spot) => spot.state)))];
+	}, [liveSurfSpots]);
 
 	const regionOptions = useMemo(() => {
 		const spots =
 			selectedState === "all"
-				? demoSurfSpots
-				: demoSurfSpots.filter((spot) => spot.state === selectedState);
+				? liveSurfSpots
+				: liveSurfSpots.filter((spot) => spot.state === selectedState);
 
 		return ["all", ...Array.from(new Set(spots.map((spot) => spot.region)))];
-	}, [selectedState]);
+	}, [selectedState, liveSurfSpots]);
 
 	const filteredSpots = useMemo(() => {
-		return demoSurfSpots.filter((spot) => {
+		return liveSurfSpots.filter((spot) => {
 			const matchesState = selectedState === "all" || spot.state === selectedState;
 			const matchesRegion = selectedRegion === "all" || spot.region === selectedRegion;
 			const matchesTime = selectedTime === "all" || spot.timeWindows.includes(selectedTime);
-			const inDateRange = !(selectedFromDate > spot.availableTo || selectedToDate < spot.availableFrom);
+			
+			let inDateRange = true;
+			if (selectedFromDate && spot.availableTo) {
+				if (selectedFromDate > spot.availableTo) inDateRange = false;
+			}
+			if (selectedToDate && spot.availableFrom) {
+				if (selectedToDate < spot.availableFrom) inDateRange = false;
+			}
 
 			return matchesState && matchesRegion && matchesTime && inDateRange;
 		});
-	}, [selectedRegion, selectedState, selectedTime, selectedFromDate, selectedToDate]);
+	}, [liveSurfSpots, selectedRegion, selectedState, selectedTime, selectedFromDate, selectedToDate]);
 
 	const resolvedActiveSpotId = filteredSpots.some((spot) => spot.id === activeSpotId)
 		? activeSpotId
@@ -71,16 +74,18 @@ export default function MapScreen() {
 		return filteredSpots.find((spot) => spot.id === resolvedActiveSpotId) ?? filteredSpots[0];
 	}, [filteredSpots, resolvedActiveSpotId]);
 
-	return (
-		<section className="mx-auto w-full max-w-470 px-4 py-8 font-sf-pro sm:px-6 sm:py-10 lg:px-10 xl:px-12.5 xl:py-12.5">
-			<h1 className="text-2xl font-semibold tracking-tight text-brand-default sm:text-3xl lg:text-4xl">
-				Find Your Wave
-			</h1>
-			<p className="mt-2 text-sm text-text-weak sm:text-base">
-				Discover high-quality surf photography from world-class breaks.
-			</p>
+	if (isLoading) {
+		return (
+			<section className="absolute inset-0 left-0 right-0 mx-auto flex w-full max-w-470 flex-col items-center justify-center font-sf-pro">
+				<Loader2 className="h-8 w-8 animate-spin text-brand-default" />
+				<p className="mt-4 text-sm text-text-weak">Loading map data...</p>
+			</section>
+		);
+	}
 
-			<div className="mt-8 grid grid-cols-1 gap-4 sm:mt-10 lg:grid-cols-2 lg:gap-5 xl:mt-12 xl:grid-cols-[1.5fr_0.95fr_0.75fr]">
+	return (
+		<section className="mx-auto flex h-[calc(100vh-68px)] w-full max-w-470 flex-col px-4 py-4 font-sf-pro sm:px-6 lg:px-10 xl:px-12.5">
+			<div className="shrink-0 grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-5 xl:grid-cols-[1.5fr_0.95fr_0.75fr]">
 				<div className="space-y-3">
 					<h2 className="text-xl font-medium text-text-strong sm:text-2xl">Location</h2>
 					<div className="grid grid-cols-2 gap-2 sm:gap-3">
@@ -174,7 +179,7 @@ export default function MapScreen() {
 				</div>
 			</div>
 
-			<div className="relative mt-6 h-[52vh] min-h-90 w-full overflow-hidden border border-line-weaker bg-fill-weak sm:h-[56vh] sm:min-h-105 md:h-[60vh] md:min-h-130 lg:h-[64vh] lg:min-h-145 xl:h-[72vh] xl:min-h-160 2xl:h-[78vh] 2xl:min-h-190">
+			<div className="relative mt-4 flex-1 min-h-75 w-full overflow-hidden rounded-md border border-line-weaker bg-fill-weak">
 				<SurfMapView
 					spots={filteredSpots}
 					activeSpotId={activeSpot?.id ?? null}
@@ -189,11 +194,6 @@ export default function MapScreen() {
 					</div>
 				) : null}
 			</div>
-
-			<p className="mt-3 text-xs leading-relaxed text-text-weaker sm:text-sm">
-				Showing {filteredSpots.length} locations | {toHumanDate(selectedFromDate)} to{" "}
-				{toHumanDate(selectedToDate)} | {selectedTime === "all" ? "All Times" : selectedTime}
-			</p>
 		</section>
 	);
 }

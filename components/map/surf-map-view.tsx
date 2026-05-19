@@ -7,6 +7,7 @@ import Image from "next/image";
 import { MapPin } from "lucide-react";
 
 import type { SurfSpot } from "@/components/map/map-demo-data";
+import Link from "next/link";
 
 type SurfMapViewProps = {
   spots: SurfSpot[];
@@ -129,7 +130,7 @@ function ActiveMarker({ spot, icon, onClick }: { spot: SurfSpot; icon: L.DivIcon
       >
         <article className="w-70 overflow-hidden rounded-sm border border-line-weaker bg-surface-muted-100 shadow-[0_14px_30px_rgba(15,23,42,0.14)] sm:w-[320px]">
           <div className="relative h-36 w-full sm:h-44">
-            <Image src={spot.image} alt={spot.name} fill className="object-cover" />
+            <Image src={spot.imageSrc} alt={spot.name} fill className="object-cover" />
           </div>
 
           <div className="space-y-3 p-4">
@@ -144,13 +145,13 @@ function ActiveMarker({ spot, icon, onClick }: { spot: SurfSpot; icon: L.DivIcon
             </div>
 
             <div className="flex items-center justify-between border-t border-line-weaker pt-3">
-              <p className="text-xs text-text-weak">{spot.photoCount}+ Photos Available</p>
-              <button
-                type="button"
-                className="inline-flex items-center rounded-sm bg-brand-default px-3 py-1.5 text-xs font-semibold text-text-inverse-strong transition-colors hover:bg-brand-hover"
+              <p className="text-xs text-text-weak">{spot.photoCount} Photos Available</p>
+              <Link
+                href={`/gallery?locationId=${spot.id}`}
+                className="inline-flex items-center rounded-sm bg-brand-default px-3 py-1.5 text-xs font-semibold transition-colors"
               >
-                View Gallery
-              </button>
+                <h1 className="text-white">View Gallery</h1>
+              </Link>
             </div>
           </div>
         </article>

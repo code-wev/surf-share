@@ -105,6 +105,7 @@ export default function ProfileSettingsContent() {
         queryKey: ["profile", session.id],
       });
     } catch (error) {
+      console.error("Error uploading profile image:", error);
       toast.error("Failed to upload profile image.");
     } finally {
       setIsUploading(false);

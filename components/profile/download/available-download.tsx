@@ -7,6 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Clock, Download, Loader2 } from "lucide-react";
 import Image from "next/image";
 
+type DownloadablePhoto = {
+  id: string;
+  imageUrl: string;
+  photographer: { name: string };
+  location: { name: string };
+};
+
 export default function AvailableDownload() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["downloadable-photos"],
@@ -27,6 +34,7 @@ export default function AvailableDownload() {
       window.URL.revokeObjectURL(url);
       toast.success("Download started!");
     } catch (error) {
+      console.error("Error downloading image:", error);
       toast.error("Failed to download image.");
     }
   };
@@ -55,7 +63,7 @@ export default function AvailableDownload() {
           {items.length === 0 ? (
             <p className="text-text-weak mt-6">No downloadable items found.</p>
           ) : (
-            items.map((item: any) => (
+            items.map((item: DownloadablePhoto) => (
               <div
                 key={item.id}
                 className="flex flex-col overflow-hidden rounded-md border border-(--color-line-weaker) bg-(--color-fill-hover)"

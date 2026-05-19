@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 
 import GalleryContent from "@/components/home/gallery/gallery-content";
 import GalleryPagination from "@/components/home/gallery/gallery-pagination";
 import GalleryTitle from "@/components/home/gallery/gallery-title";
 import { usePublicPhotosQuery } from "@/hooks/api/usePhotos";
 import { useLocationsQuery } from "@/hooks/api/useLocations";
+import { Loader2 } from "lucide-react";
 
 export type GalleryTab = "all" | "today" | "yesterday" | "last7days" | "last14days";
 export type GalleryTime = "all" | "FIRST_LIGHT" | "MORNING" | "LUNCH" | "AFTERNOON";
@@ -22,9 +24,12 @@ type ApiPhoto = {
   location?: { name?: string };
 };
 
-export default function GalleryPage() {
+function GalleryPageContent() {
+  const searchParams = useSearchParams();
+  const locationQuery = searchParams.get("locationId");
+
   const [activeTab, setActiveTab] = useState<GalleryTab>("all");
-  const [selectedLocation, setSelectedLocation] = useState<string>("all");
+  const [selectedLocation, setSelectedLocation] = useState<string>(locationQuery || "all");
   const [selectedTime, setSelectedTime] = useState<GalleryTime>("all");
   const [selectedSort, setSelectedSort] = useState<GallerySort>("latest");
   const [currentPage, setCurrentPage] = useState(1);
@@ -64,7 +69,6 @@ export default function GalleryPage() {
   const photos = photosData?.data || [];
   const meta = photosData?.meta || { total: 0, totalPages: 1 };
 
-  // Map backend photos to GallerySeedImage format for CardView
   const mappedPhotos = photos.map((p: ApiPhoto) => ({
     id: p.id,
     slug: p.id,
@@ -92,7 +96,7 @@ export default function GalleryPage() {
       />
       {isLoading ? (
         <div className="flex h-64 items-center justify-center">
-          <p className="text-sm text-gray-500">Loading photos...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-brand-default" />
         </div>
       ) : (
         <GalleryContent items={mappedPhotos} />
@@ -103,5 +107,19 @@ export default function GalleryPage() {
         onPageChange={(page) => setCurrentPage(Math.min(Math.max(page, 1), meta.totalPages))}
       />
     </>
+  );
+}
+
+export default function GalleryPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-screen items-center justify-center">
+          <Loader2 className="h-10 w-10 animate-spin text-brand-default" />
+        </div>
+      }
+    >
+      <GalleryPageContent />
+    </Suspense>
   );
 }

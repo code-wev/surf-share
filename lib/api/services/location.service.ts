@@ -25,4 +25,8 @@ export const locationService = {
     const response = await apiClient.delete(`/locations/${id}`);
     return response.data;
   },
+  getMapData: async () => {
+    const response = await apiClient.get("/locations/map-data");
+    return response.data;
+  },
 };

@@ -98,12 +98,14 @@ export default function ContributorMyUploadsPage() {
     locationId: selectedLocationId === "all" ? undefined : selectedLocationId,
   });
 
-  const apiPhotos = data?.data || [];
   const meta = data?.meta;
   const totalPages = meta?.totalPages || 1;
   const totalItems = meta?.total || 0;
 
-  const uploads = useMemo<EnrichedUploadRow[]>(() => apiPhotos.map(mapApiPhotoToRow), [apiPhotos]);
+  const uploads = useMemo<EnrichedUploadRow[]>(() => {
+    const apiPhotos = data?.data || [];
+    return apiPhotos.map(mapApiPhotoToRow);
+  }, [data?.data]);
 
   const handleLocationSelect = (id: string) => {
     setSelectedLocationId(id);

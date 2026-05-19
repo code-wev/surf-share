@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { checkoutService } from "../../lib/api/services/checkout.service";
 import { getErrorMessage } from "../../lib/utils/error-handler";
@@ -34,7 +34,7 @@ export const useCreateCheckoutSessionMutation = () => {
           return;
         }
       } catch (e) {
-        // Not a JSON error string, just a normal string message
+        console.log("Error parsing checkout error message:", e);
       }
 
       toast.error(errorMessage);
