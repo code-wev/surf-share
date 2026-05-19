@@ -14,6 +14,20 @@ import PhotoModerationDetailsModal from "./photo-moderation/photo-moderation-det
 import { getPhotos, updatePhotoStatus, bulkUpdatePhotoStatus } from "@/src/actions/photo.action";
 import { Loader2 } from "lucide-react";
 
+type BackendPhoto = {
+  id: string;
+  imageUrl: string;
+  price: number;
+  width?: number;
+  height?: number;
+  format?: string;
+  fileSize?: number;
+  createdAt: string;
+  status: string;
+  photographer?: { name?: string };
+  location?: { name?: string };
+};
+
 const getApiOrigin = () => {
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -64,7 +78,7 @@ export default function DashboardPhotoModerationContent() {
   const photoItems: PhotoModerationItem[] = useMemo(() => {
     if (!photosResponse?.data) return [];
 
-    const items = photosResponse.data.map((photo: any) => {
+    const items = photosResponse.data.map((photo: BackendPhoto) => {
       const resolution = photo.width && photo.height ? `${photo.width}x${photo.height}` : "N/A";
 
       const format = photo.format ? photo.format.toUpperCase() : "N/A";
