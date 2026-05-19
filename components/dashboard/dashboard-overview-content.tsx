@@ -45,6 +45,7 @@ export default function DashboardOverviewContent() {
     ...item,
     value: statsByLabel.get(item.label) ?? item.value,
   }));
+  const weeklyUploadActivity = data.weeklyUploadActivity ?? [];
 
   return (
     <section className="px-3 pb-5 sm:px-4 sm:pb-6 md:px-6 md:pb-8 lg:px-0 lg:pr-10 lg:pb-10 xl:pr-12.5 xl:pb-12.5">
@@ -68,7 +69,7 @@ export default function DashboardOverviewContent() {
 
           {isAdmin ? (
             <>
-              <DashboardOverviewWeeklyUploadActivity bars={chartValues} yTicks={yTicks} />
+              <DashboardOverviewWeeklyUploadActivity bars={weeklyUploadActivity} yTicks={yTicks} />
               <DashboardOverviewTopContributors contributors={data.topContributors} />
               <DashboardOverviewTopLocations locations={[]} />
             </>
