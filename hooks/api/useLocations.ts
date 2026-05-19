@@ -65,3 +65,10 @@ export const useDeleteLocationMutation = () => {
     },
   });
 };
+
+export const useMapLocationsQuery = () => {
+  return useQuery({
+    queryKey: [...queryKeys.locations.all, "map-data"],
+    queryFn: locationService.getMapData,
+  });
+};

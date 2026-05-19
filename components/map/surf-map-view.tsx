@@ -129,7 +129,7 @@ function ActiveMarker({ spot, icon, onClick }: { spot: SurfSpot; icon: L.DivIcon
       >
         <article className="w-70 overflow-hidden rounded-sm border border-line-weaker bg-surface-muted-100 shadow-[0_14px_30px_rgba(15,23,42,0.14)] sm:w-[320px]">
           <div className="relative h-36 w-full sm:h-44">
-            <Image src={spot.image} alt={spot.name} fill className="object-cover" />
+            <Image src={spot.imageSrc} alt={spot.name} fill className="object-cover" />
           </div>
 
           <div className="space-y-3 p-4">

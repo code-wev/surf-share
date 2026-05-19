@@ -2,11 +2,12 @@
 
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
+import { useMapLocationsQuery } from "@/hooks/api/useLocations";
+import { Loader2 } from "lucide-react";
 
 import {
 	defaultFromDate,
 	defaultToDate,
-	demoSurfSpots,
 	timeOptions,
 	type SurfSpot,
 	type TimeOptionValue,
@@ -22,28 +23,34 @@ const SurfMapView = dynamic(() => import("@/components/map/surf-map-view"), {
 });
 
 export default function MapScreen() {
+	const { data: mapDataResponse, isLoading } = useMapLocationsQuery();
+	
+	const liveSurfSpots = useMemo(() => {
+		return (mapDataResponse?.data || []) as SurfSpot[];
+	}, [mapDataResponse?.data]);
+
 	const [selectedState, setSelectedState] = useState("all");
 	const [selectedRegion, setSelectedRegion] = useState("all");
 	const [selectedFromDate, setSelectedFromDate] = useState(defaultFromDate);
 	const [selectedToDate, setSelectedToDate] = useState(defaultToDate);
 	const [selectedTime, setSelectedTime] = useState<TimeOptionValue>("all");
-	const [activeSpotId, setActiveSpotId] = useState<string | null>(demoSurfSpots[0]?.id ?? null);
+	const [activeSpotId, setActiveSpotId] = useState<string | null>(null);
 
 	const stateOptions = useMemo(() => {
-		return ["all", ...Array.from(new Set(demoSurfSpots.map((spot) => spot.state)))];
-	}, []);
+		return ["all", ...Array.from(new Set(liveSurfSpots.map((spot) => spot.state)))];
+	}, [liveSurfSpots]);
 
 	const regionOptions = useMemo(() => {
 		const spots =
 			selectedState === "all"
-				? demoSurfSpots
-				: demoSurfSpots.filter((spot) => spot.state === selectedState);
+				? liveSurfSpots
+				: liveSurfSpots.filter((spot) => spot.state === selectedState);
 
 		return ["all", ...Array.from(new Set(spots.map((spot) => spot.region)))];
-	}, [selectedState]);
+	}, [selectedState, liveSurfSpots]);
 
 	const filteredSpots = useMemo(() => {
-		return demoSurfSpots.filter((spot) => {
+		return liveSurfSpots.filter((spot) => {
 			const matchesState = selectedState === "all" || spot.state === selectedState;
 			const matchesRegion = selectedRegion === "all" || spot.region === selectedRegion;
 			const matchesTime = selectedTime === "all" || spot.timeWindows.includes(selectedTime);
@@ -51,7 +58,7 @@ export default function MapScreen() {
 
 			return matchesState && matchesRegion && matchesTime && inDateRange;
 		});
-	}, [selectedRegion, selectedState, selectedTime, selectedFromDate, selectedToDate]);
+	}, [liveSurfSpots, selectedRegion, selectedState, selectedTime, selectedFromDate, selectedToDate]);
 
 	const resolvedActiveSpotId = filteredSpots.some((spot) => spot.id === activeSpotId)
 		? activeSpotId
@@ -62,8 +69,17 @@ export default function MapScreen() {
 		return filteredSpots.find((spot) => spot.id === resolvedActiveSpotId) ?? filteredSpots[0];
 	}, [filteredSpots, resolvedActiveSpotId]);
 
+	if (isLoading) {
+		return (
+			<section className="absolute inset-0 left-0 right-0 mx-auto flex w-full max-w-470 flex-col items-center justify-center font-sf-pro">
+				<Loader2 className="h-8 w-8 animate-spin text-brand-default" />
+				<p className="mt-4 text-sm text-text-weak">Loading map data...</p>
+			</section>
+		);
+	}
+
 	return (
-		<section className="absolute inset-0 left-0 right-0 mx-auto flex w-full max-w-470 flex-col px-4 py-4 font-sf-pro sm:px-6 lg:px-10 xl:px-12.5">
+		<section className="mx-auto flex h-[calc(100vh-68px)] w-full max-w-470 flex-col px-4 py-4 font-sf-pro sm:px-6 lg:px-10 xl:px-12.5">
 			<div className="shrink-0 grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-5 xl:grid-cols-[1.5fr_0.95fr_0.75fr]">
 				<div className="space-y-3">
 					<h2 className="text-xl font-medium text-text-strong sm:text-2xl">Location</h2>
