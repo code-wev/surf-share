@@ -8,13 +8,12 @@ import { useRef, useState } from "react";
 import { Pencil, Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { getDemoUserProfile, useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth";
 import { getUserById, updateUserById, uploadProfileImage } from "@/src/actions/user.action";
 import DashboardProfileInfoField from "./profile/dashboard-profile-info-field";
 
 export default function DashboardProfileSettingsContent() {
   const { session } = useAuth();
-  const profile = getDemoUserProfile(session);
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -41,18 +40,7 @@ export default function DashboardProfileSettingsContent() {
     enabled: Boolean(session?.id),
   });
 
-  const apiProfile = data?.data;
-  const displayProfile = profile
-    ? {
-        ...profile,
-        avatarSrc: apiProfile?.profileImageUrl ?? profile.avatarSrc,
-        fullName: apiProfile?.name ?? profile.fullName,
-        country: apiProfile?.countryName ?? profile.country,
-        phone: apiProfile?.phoneNumber ?? profile.phone,
-        email: apiProfile?.email ?? profile.email,
-        address: apiProfile?.address ?? profile.address,
-      }
-    : profile;
+  const displayProfile = data?.data;
 
   if (!displayProfile) {
     return (
@@ -66,11 +54,11 @@ export default function DashboardProfileSettingsContent() {
 
   const handleEditProfile = () => {
     setEditValues({
-      fullName: displayProfile.fullName,
-      country: displayProfile.country,
-      phone: displayProfile.phone,
+      fullName: displayProfile.name,
+      country: displayProfile.countryName || "",
+      phone: displayProfile.phoneNumber || "",
       email: displayProfile.email,
-      address: displayProfile.address,
+      address: displayProfile.address || "",
     });
     setIsEditingProfile(true);
   };
@@ -123,6 +111,9 @@ export default function DashboardProfileSettingsContent() {
       toast.error("Failed to upload profile image.");
     } finally {
       setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
@@ -147,7 +138,7 @@ export default function DashboardProfileSettingsContent() {
                 </div>
               ) : (
                 <Image
-                  src={displayProfile.avatarSrc}
+                  src={displayProfile.profileImageUrl || "/home/logo.png"}
                   alt="Profile photo"
                   width={100}
                   height={100}
@@ -170,7 +161,7 @@ export default function DashboardProfileSettingsContent() {
               className="hidden"
             />
           </div>
-          <p className="text-text-strong mt-4 text-lg font-medium">{displayProfile.fullName}</p>
+          <p className="text-text-strong mt-4 text-lg font-medium">{displayProfile.name}</p>
         </div>
 
         {/* Profile Details Section Header with Edit / Save */}
@@ -211,22 +202,22 @@ export default function DashboardProfileSettingsContent() {
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-x-6 md:gap-y-5">
           <DashboardProfileInfoField
             label="Full name"
-            value={isEditingProfile && editValues ? editValues.fullName : displayProfile.fullName}
-            defaultValue={displayProfile.fullName}
+            value={isEditingProfile && editValues ? editValues.fullName : displayProfile.name}
+            defaultValue={displayProfile.name}
             isEditing={isEditingProfile}
             onChange={(v: string) => handleFieldChange("fullName", v)}
           />
           <DashboardProfileInfoField
             label="Country Name"
-            value={isEditingProfile && editValues ? editValues.country : displayProfile.country}
-            defaultValue={displayProfile.country}
+            value={isEditingProfile && editValues ? editValues.country : displayProfile.countryName || ""}
+            defaultValue={displayProfile.countryName || ""}
             isEditing={isEditingProfile}
             onChange={(v: string) => handleFieldChange("country", v)}
           />
           <DashboardProfileInfoField
             label="Phone Number"
-            value={isEditingProfile && editValues ? editValues.phone : displayProfile.phone}
-            defaultValue={displayProfile.phone}
+            value={isEditingProfile && editValues ? editValues.phone : displayProfile.phoneNumber || ""}
+            defaultValue={displayProfile.phoneNumber || ""}
             isEditing={isEditingProfile}
             onChange={(v: string) => handleFieldChange("phone", v)}
           />
@@ -239,8 +230,8 @@ export default function DashboardProfileSettingsContent() {
           />
           <DashboardProfileInfoField
             label="Address"
-            value={isEditingProfile && editValues ? editValues.address : displayProfile.address}
-            defaultValue={displayProfile.address}
+            value={isEditingProfile && editValues ? editValues.address : displayProfile.address || ""}
+            defaultValue={displayProfile.address || ""}
             isEditing={isEditingProfile}
             onChange={(v: string) => handleFieldChange("address", v)}
             className="md:col-span-2"
