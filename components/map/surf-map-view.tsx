@@ -148,7 +148,7 @@ function ActiveMarker({ spot, icon, onClick }: { spot: SurfSpot; icon: L.DivIcon
               <p className="text-xs text-text-weak">{spot.photoCount} Photos Available</p>
               <Link
                 href={`/gallery?locationId=${spot.id}`}
-                className="inline-flex items-center rounded-sm bg-brand-default px-3 py-1.5 text-xs font-semibold text-text-inverse-strong transition-colors hover:bg-brand-hover"
+                className="inline-flex items-center rounded-sm bg-brand-default px-3 py-1.5 text-xs font-semibold transition-colors"
               >
                 View Gallery
               </Link>
