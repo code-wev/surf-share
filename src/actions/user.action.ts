@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/api/client";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 
 interface UserGetResponse {
   success: boolean;
@@ -18,6 +18,7 @@ interface UserGetResponse {
     profileImageUrl?: string;
     phoneNumber?: string | null;
     role: string;
+    status: string;
     countryName?: string | null;
     address?: string | null;
   }>;
@@ -30,9 +31,11 @@ interface UserGetByIdResponse {
     id: string;
     name: string;
     email: string;
-    profileImageUrl?: string;
+    profileImageUrl?: string | null;
     phoneNumber?: string | null;
     role: string;
+    status: string;
+    createdAt: string;
     countryName?: string | null;
     address?: string | null;
   };
@@ -147,13 +150,21 @@ export const uploadProfileImage = async (userId: string, file: File) => {
   const formData = new FormData();
   formData.append("image", file);
   try {
-    const response = await apiClient.patch(`/users/${userId}/profile-image`, formData, {
+    const response = await apiClient.post(`/users/${userId}/profile-image`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
     return response.data;
-  } catch (error) {
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.error("Upload error details:", error.response?.data || error.message);
+    } else if (error instanceof Error) {
+      console.error("Upload error details:", error.message);
+    } else {
+      console.error("Upload error details:", error);
+    }
+
     throw new Error(getErrorMessage(error));
   }
 };
