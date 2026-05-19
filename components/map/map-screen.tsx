@@ -21,15 +21,6 @@ const SurfMapView = dynamic(() => import("@/components/map/surf-map-view"), {
 	),
 });
 
-function toHumanDate(value: string) {
-	const date = new Date(value);
-	return date.toLocaleDateString("en-US", {
-		month: "short",
-		day: "2-digit",
-		year: "numeric",
-	});
-}
-
 export default function MapScreen() {
 	const [selectedState, setSelectedState] = useState("all");
 	const [selectedRegion, setSelectedRegion] = useState("all");
@@ -72,15 +63,8 @@ export default function MapScreen() {
 	}, [filteredSpots, resolvedActiveSpotId]);
 
 	return (
-		<section className="mx-auto w-full max-w-470 px-4 py-8 font-sf-pro sm:px-6 sm:py-10 lg:px-10 xl:px-12.5 xl:py-12.5">
-			<h1 className="text-2xl font-semibold tracking-tight text-brand-default sm:text-3xl lg:text-4xl">
-				Find Your Wave
-			</h1>
-			<p className="mt-2 text-sm text-text-weak sm:text-base">
-				Discover high-quality surf photography from world-class breaks.
-			</p>
-
-			<div className="mt-8 grid grid-cols-1 gap-4 sm:mt-10 lg:grid-cols-2 lg:gap-5 xl:mt-12 xl:grid-cols-[1.5fr_0.95fr_0.75fr]">
+		<section className="absolute inset-0 left-0 right-0 mx-auto flex w-full max-w-470 flex-col px-4 py-4 font-sf-pro sm:px-6 lg:px-10 xl:px-12.5">
+			<div className="shrink-0 grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-5 xl:grid-cols-[1.5fr_0.95fr_0.75fr]">
 				<div className="space-y-3">
 					<h2 className="text-xl font-medium text-text-strong sm:text-2xl">Location</h2>
 					<div className="grid grid-cols-2 gap-2 sm:gap-3">
@@ -174,7 +158,7 @@ export default function MapScreen() {
 				</div>
 			</div>
 
-			<div className="relative mt-6 h-[52vh] min-h-90 w-full overflow-hidden border border-line-weaker bg-fill-weak sm:h-[56vh] sm:min-h-105 md:h-[60vh] md:min-h-130 lg:h-[64vh] lg:min-h-145 xl:h-[72vh] xl:min-h-160 2xl:h-[78vh] 2xl:min-h-190">
+			<div className="relative mt-4 flex-1 min-h-75 w-full overflow-hidden rounded-md border border-line-weaker bg-fill-weak">
 				<SurfMapView
 					spots={filteredSpots}
 					activeSpotId={activeSpot?.id ?? null}
@@ -189,11 +173,6 @@ export default function MapScreen() {
 					</div>
 				) : null}
 			</div>
-
-			<p className="mt-3 text-xs leading-relaxed text-text-weaker sm:text-sm">
-				Showing {filteredSpots.length} locations | {toHumanDate(selectedFromDate)} to{" "}
-				{toHumanDate(selectedToDate)} | {selectedTime === "all" ? "All Times" : selectedTime}
-			</p>
 		</section>
 	);
 }
