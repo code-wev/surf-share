@@ -7,6 +7,7 @@ import Image from "next/image";
 import { MapPin } from "lucide-react";
 
 import type { SurfSpot } from "@/components/map/map-demo-data";
+import Link from "next/link";
 
 type SurfMapViewProps = {
   spots: SurfSpot[];
@@ -144,13 +145,13 @@ function ActiveMarker({ spot, icon, onClick }: { spot: SurfSpot; icon: L.DivIcon
             </div>
 
             <div className="flex items-center justify-between border-t border-line-weaker pt-3">
-              <p className="text-xs text-text-weak">{spot.photoCount}+ Photos Available</p>
-              <button
-                type="button"
+              <p className="text-xs text-text-weak">{spot.photoCount} Photos Available</p>
+              <Link
+                href={`/gallery?locationId=${spot.id}`}
                 className="inline-flex items-center rounded-sm bg-brand-default px-3 py-1.5 text-xs font-semibold text-text-inverse-strong transition-colors hover:bg-brand-hover"
               >
                 View Gallery
-              </button>
+              </Link>
             </div>
           </div>
         </article>
