@@ -27,6 +27,7 @@ export default function AvailableDownload() {
       window.URL.revokeObjectURL(url);
       toast.success("Download started!");
     } catch (error) {
+      console.error("Error downloading image:", error);
       toast.error("Failed to download image.");
     }
   };

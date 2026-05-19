@@ -90,6 +90,7 @@ export default function DashboardProfileSettingsContent() {
         toast.error(result.message || "Failed to update profile");
       }
     } catch (error) {
+      console.error("Error updating profile:", error);
       toast.error("Failed to update profile. Please try again.");
     } finally {
       setIsSaving(false);
@@ -108,6 +109,7 @@ export default function DashboardProfileSettingsContent() {
         queryKey: ["dashboard-profile", session.id],
       });
     } catch (error) {
+      console.error("Error uploading profile image:", error);
       toast.error("Failed to upload profile image.");
     } finally {
       setIsUploading(false);
