@@ -1,7 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Camera, ExternalLink, Heart, Plus, Check } from "lucide-react";
+import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 import ImageCard from "./image-card";
@@ -68,6 +70,7 @@ function getDetailsHref(item: CardViewItem) {
 }
 
 export default function CardView({ items, className, desktopColumns = 4 }: CardViewProps) {
+  const router = useRouter();
   const { session, isHydrated } = useAuth();
   const canLoadPrivatePhotoState = isHydrated && Boolean(session);
   const { data: favoriteIdsData } = useFavoriteIdsQuery({ enabled: canLoadPrivatePhotoState });
@@ -83,7 +86,11 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
     e.preventDefault(); // Prevent navigating to image details
     e.stopPropagation();
 
-    if (!isHydrated || !session) {
+    if (!isHydrated) return;
+    
+    if (!session) {
+      toast.error("Please login to add to favorites");
+      router.push("/login");
       return;
     }
 
@@ -93,6 +100,14 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
   const handleAddToCart = (e: React.MouseEvent, item: CardViewItem) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (!isHydrated) return;
+
+    if (!session) {
+      toast.error("Please login to add to cart");
+      router.push("/login");
+      return;
+    }
 
     if (purchasedIds.includes(String(item.id))) {
       // Do not add if already owned
