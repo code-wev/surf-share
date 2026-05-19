@@ -6,6 +6,34 @@ interface ApiErrorResponse {
   data?: unknown;
 }
 
+export interface PhotoModerationApiPhoto {
+  id: string;
+  imageUrl: string;
+  price: number;
+  createdAt: string;
+  status: string;
+  width?: number | null;
+  height?: number | null;
+  format?: string | null;
+  fileSize?: number | null;
+  photographer?: {
+    name?: string | null;
+  } | null;
+  location?: {
+    name?: string | null;
+  } | null;
+}
+
+export interface ApiListResponse<T> {
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  data: T[];
+}
+
 const getErrorMessage = (error: unknown): string => {
   if (error instanceof Error) {
     if ("response" in error) {
@@ -17,7 +45,9 @@ const getErrorMessage = (error: unknown): string => {
   return "An error occurred. Please try again.";
 };
 
-export const getPhotos = async (query: Record<string, unknown>) => {
+export const getPhotos = async (
+  query: Record<string, unknown>,
+): Promise<ApiListResponse<PhotoModerationApiPhoto>> => {
   try {
     const response = await apiClient.get("/photos", { params: query });
     return response.data;
