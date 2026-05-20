@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Clock, Download, Loader2 } from "lucide-react";
 import Image from "next/image";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 
 type DownloadablePhoto = {
   id: string;
@@ -70,7 +71,7 @@ export default function AvailableDownload() {
               >
                 <div className="relative h-70 w-full md:h-85 lg:h-85 xl:h-115">
                   <Image
-                    src={item.imageUrl}
+                    src={getAbsoluteImageUrl(item.imageUrl)}
                     alt={item.photographer.name}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -93,7 +94,7 @@ export default function AvailableDownload() {
                     <Button
                       onClick={() =>
                         handleDownload(
-                          item.imageUrl,
+                          getAbsoluteImageUrl(item.imageUrl),
                           `${item.photographer.name}-${item.location.name}`,
                         )
                       }
