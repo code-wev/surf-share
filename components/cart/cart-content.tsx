@@ -12,6 +12,7 @@ import { Container } from "@/components/ui/container";
 import { PageTitle } from "../shared/page-title";
 import { useCartStore } from "@/store/cart.store";
 import { useCreateCheckoutSessionMutation } from "@/hooks/api/useCheckout";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 
 export default function CartContent() {
   const { items, removeItems } = useCartStore();
@@ -77,7 +78,7 @@ export default function CartContent() {
   // We map state items slightly to fit the CartLineItem UI requirements (adding imageSrc property)
   const mappedSelectedCartItems = selectedCartItems.map((item) => ({
     ...item,
-    imageSrc: item.imageUrl,
+    imageSrc: getAbsoluteImageUrl(item.imageUrl),
     detailsHref: `/gallery/${item.id}`,
   })) as CartLineItem[];
 
@@ -130,7 +131,7 @@ export default function CartContent() {
                         />
 
                         <Image
-                          src={item.imageUrl}
+                          src={getAbsoluteImageUrl(item.imageUrl)}
                           alt={item.title}
                           width={120}
                           height={120}
