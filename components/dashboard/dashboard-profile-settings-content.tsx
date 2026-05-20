@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
 import { getUserById, updateUserById, uploadProfileImage } from "@/src/actions/user.action";
 import DashboardProfileInfoField from "./profile/dashboard-profile-info-field";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 
 export default function DashboardProfileSettingsContent() {
   const { session } = useAuth();
@@ -140,7 +141,7 @@ export default function DashboardProfileSettingsContent() {
                 </div>
               ) : (
                 <Image
-                  src={displayProfile.profileImageUrl || "/home/logo.png"}
+                  src={displayProfile.profileImageUrl ? getAbsoluteImageUrl(displayProfile.profileImageUrl) : "/home/logo.png"}
                   alt="Profile photo"
                   width={100}
                   height={100}

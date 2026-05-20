@@ -16,6 +16,7 @@ import { useFavoriteIdsQuery, useToggleFavoriteMutation } from "@/hooks/api/useF
 import { usePurchasedPhotoIdsQuery } from "@/hooks/api/useCheckout";
 import { useAuth } from "@/lib/auth";
 import { useCartStore } from "@/store/cart.store";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 
 type GalleryDetailsPageProps = {
   params: Promise<{ slug: string }>;
@@ -66,7 +67,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
     const p = photoResponse.data;
     addItem({
       id: p.id,
-      imageUrl: p.imageUrl,
+      imageUrl: getAbsoluteImageUrl(p.imageUrl),
       title: `Photo by ${p.photographer?.name}`,
       location: p.location?.name || "Unknown Location",
       price: p.price,

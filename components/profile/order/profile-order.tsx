@@ -10,6 +10,7 @@ import { PageTitle } from "@/components/shared/page-title";
 import { getMyOrders } from "@/src/actions/order.action";
 import OrderDetailsModal from "./order-details-modal";
 import type { OrderApi, OrderListItem } from "./order-types";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 
 type TabType = "All Orders" | "Completed" | "Ordered" | "Cancelled";
 
@@ -53,7 +54,7 @@ export default function ProfileOrderPage() {
           id: order.id,
           title: order.items[0]?.photo.photographer.name || "Unknown",
           location: order.items[0]?.photo.location.name || "Unknown",
-          imageSrc: order.items[0]?.photo.imageUrl || "/default-photo.jpg",
+          imageSrc: order.items[0]?.photo.imageUrl ? getAbsoluteImageUrl(order.items[0]?.photo.imageUrl) : "/default-photo.jpg",
           price: order.totalAmount,
           detailsHref: "#",
           orderNo: order.id.slice(-8).toUpperCase(),

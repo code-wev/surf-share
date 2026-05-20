@@ -24,6 +24,7 @@ import type {
   UserPlan,
 } from "@/components/dashboard/user-management/user-management-types";
 import { getUsers } from "@/src/actions/user.action";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 
 type ApiUser = {
   id: string;
@@ -117,7 +118,7 @@ export default function DashboardUserManagementContent() {
     return (
       data?.data?.map((user: ApiUser) => ({
         id: user.id,
-        photo: user.profileImageUrl || "/home/latest/latest1.jpg",
+        photo: user.profileImageUrl ? getAbsoluteImageUrl(user.profileImageUrl as string) : "/home/latest/latest1.jpg",
         name: user.name,
         email: user.email,
         phone: user.phoneNumber || "-",

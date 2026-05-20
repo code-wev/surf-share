@@ -3,6 +3,7 @@ import { ChevronsRight, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getUserById, getUserPhotos } from "@/src/actions/user.action";
 import { useUpdateSubscriptionMutation, useUpdateUserStatusMutation } from "@/hooks/api/useUsers";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 
 type UserDetailsModalProps = {
   userId: string | null;
@@ -100,7 +101,7 @@ export default function UserDetailsModal({ userId, onClose }: UserDetailsModalPr
               <div className="relative">
                 <div className="border-line-weaker bg-fill-hover h-16 w-16 overflow-hidden rounded-full border">
                   <Image
-                    src={user.profileImageUrl || "/home/logo.png"}
+                    src={user.profileImageUrl ? getAbsoluteImageUrl(user.profileImageUrl) : "/home/logo.png"}
                     alt={`${user.name} thumbnail`}
                     width={64}
                     height={64}

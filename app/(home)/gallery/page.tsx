@@ -9,6 +9,7 @@ import GalleryTitle from "@/components/home/gallery/gallery-title";
 import { usePublicPhotosQuery } from "@/hooks/api/usePhotos";
 import { useLocationsQuery } from "@/hooks/api/useLocations";
 import { Loader2 } from "lucide-react";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 
 export type GalleryTab = "all" | "today" | "yesterday" | "last7days" | "last14days";
 export type GalleryTime = "all" | "FIRST_LIGHT" | "MORNING" | "LUNCH" | "AFTERNOON";

@@ -15,6 +15,7 @@ import UploadDetailsModal from "./upload-details-modal";
 import { useMyPhotosQuery } from "@/hooks/api/usePhotos";
 import type { IPhotoResponse } from "@/lib/api/services/photo.service";
 import { useLocationsQuery } from "@/hooks/api/useLocations";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 
 type Location = {
   id: string;
@@ -62,7 +63,7 @@ function mapStatus(dbStatus: string): "approved" | "rejected" | "pending" {
 function mapApiPhotoToRow(item: IPhotoResponse): EnrichedUploadRow {
   return {
     id: item.id,
-    photoUrl: item.imageUrl,
+    photoUrl: getAbsoluteImageUrl(item.imageUrl),
     name: "Photo",
     location: `${item.location.name}, ${item.location.state}`,
     dateLabel: formatApiDate(item.createdAt),
