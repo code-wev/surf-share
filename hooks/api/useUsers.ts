@@ -11,6 +11,24 @@ export const useUsersQuery = (filters: { role: string; page: number; limit?: num
   });
 };
 
+export const useUpdateUserMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ userId, payload }: { userId: string; payload: Record<string, unknown> }) =>
+      usersService.update(userId, payload),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
+      queryClient.invalidateQueries({ queryKey: ["user", variables.userId] });
+      queryClient.invalidateQueries({ queryKey: ["moderators"] });
+      toast.success(data.message || "User updated successfully.");
+    },
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, "Failed to update user."));
+    },
+  });
+};
+
 export const useUpdateSubscriptionMutation = () => {
   const queryClient = useQueryClient();
 
@@ -37,6 +55,7 @@ export const useUpdateUserStatusMutation = () => {
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
       queryClient.invalidateQueries({ queryKey: ["user", variables.userId] });
+      queryClient.invalidateQueries({ queryKey: ["moderators"] });
       toast.success(data.message || "User status updated successfully.");
     },
     onError: (error: unknown) => {

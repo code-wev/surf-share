@@ -6,6 +6,11 @@ export const usersService = {
     return response.data;
   },
 
+  update: async (userId: string, payload: Record<string, unknown>) => {
+    const response = await apiClient.patch(`/users/${userId}`, payload);
+    return response.data;
+  },
+
   updateSubscription: async (userId: string, subscriptionTier: string) => {
     const response = await apiClient.patch(`/users/${userId}/subscription`, {
       subscriptionTier,
