@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { X, Camera } from "lucide-react";
 import type { OrderListItem, OrderItemApi } from "./order-types";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 
 export default function OrderDetailsModal({
   order,
@@ -42,7 +43,7 @@ export default function OrderDetailsModal({
                   className="border-line-weaker bg-surface-muted-100 flex items-center gap-4 rounded-sm border p-3"
                 >
                   <Image
-                    src={item.photo.imageUrl}
+                    src={getAbsoluteImageUrl(item.photo.imageUrl)}
                     alt={item.photo.location.name}
                     width={80}
                     height={80}

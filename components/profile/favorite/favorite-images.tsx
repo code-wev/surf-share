@@ -3,6 +3,7 @@
 import CardView from "@/components/shared/card-view";
 import { useMyFavoritesQuery } from "@/hooks/api/useFavorites";
 import { Loader2 } from "lucide-react";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 
 type ApiPhoto = {
   id: string;
@@ -19,7 +20,7 @@ export default function FavoriteImages() {
   const mappedPhotos = photos.map((p: ApiPhoto) => ({
     id: p.id,
     slug: p.id,
-    src: p.imageUrl,
+    src: getAbsoluteImageUrl(p.imageUrl),
     alt: `Photo by ${p.photographer?.name}`,
     userName: p.photographer?.name || "Unknown",
     location: p.location?.name || "Unknown Location",

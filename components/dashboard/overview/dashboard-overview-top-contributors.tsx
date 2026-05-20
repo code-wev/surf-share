@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 import type { TopContributor } from "@/components/dashboard/overview/dashboard-overview-types";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 
 type DashboardOverviewTopContributorsProps = {
   contributors: TopContributor[];
@@ -24,7 +25,7 @@ export default function DashboardOverviewTopContributors({
             <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
               <Image
                 src={
-                  contributor.avatarSrc?.trim() ? contributor.avatarSrc : "/home/latest/latest1.jpg"
+                  contributor.avatarSrc?.trim() ? getAbsoluteImageUrl(contributor.avatarSrc) : ""
                 }
                 alt={contributor.name}
                 width={34}

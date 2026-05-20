@@ -6,10 +6,11 @@ import { Menu, ShoppingCart, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 
-import { getRoleHomePath, useAuth, getDemoUserProfile } from "@/lib/auth";
+import { getRoleHomePath, useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { getUserById } from "@/src/actions/user.action";
 import { useCartStore } from "@/store/cart.store";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 
 const navItems = [
   { label: "Map", href: "/map" },
@@ -30,10 +31,13 @@ export default function Navbar() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const avatarSrc =
-    fullProfile?.data?.profileImageUrl ||
-    getDemoUserProfile(session)?.avatarSrc ||
-    "/home/logo.png";
+  const avatarSrc = fullProfile?.data?.profileImageUrl
+    ? getAbsoluteImageUrl(fullProfile.data.profileImageUrl)
+    : null;
+
+  const userInitial = (fullProfile?.data?.name || session?.email || "U")
+    .charAt(0)
+    .toUpperCase();
 
   const { items } = useCartStore();
   const cartItemCount = items.length;
@@ -49,6 +53,32 @@ export default function Navbar() {
   const isProfileActive = pathname === "/profile" || pathname.startsWith("/profile/");
   const isProfileIconActive = isProfileActive || isDashboardRoute;
   const profileHref = session ? getRoleHomePath(session.role) : "/profile";
+
+  const renderProfileIcon = (sizeClass: string) => (
+    <Link
+      href={profileHref}
+      aria-label="Go to profile"
+      className={`inline-flex overflow-hidden rounded-full border transition-colors ${sizeClass} ${
+        isProfileIconActive
+          ? "border-brand-default"
+          : "border-line-weaker hover:border-brand-default/60"
+      }`}
+    >
+      {avatarSrc ? (
+        <Image
+          src={avatarSrc}
+          alt="Profile"
+          width={36}
+          height={36}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center bg-[#0C3173] text-sm font-semibold text-white">
+          {userInitial}
+        </div>
+      )}
+    </Link>
+  );
 
   return (
     <header
@@ -105,23 +135,7 @@ export default function Navbar() {
                     )}
                   </Link>
                 )}
-                <Link
-                  href={profileHref}
-                  aria-label="Go to profile"
-                  className={`inline-flex h-9 w-9 overflow-hidden rounded-full border transition-colors ${
-                    isProfileIconActive
-                      ? "border-brand-default"
-                      : "border-line-weaker hover:border-brand-default/60"
-                  }`}
-                >
-                  <Image
-                    src={avatarSrc}
-                    alt="Profile"
-                    width={36}
-                    height={36}
-                    className="h-full w-full object-cover"
-                  />
-                </Link>
+                {renderProfileIcon("h-9 w-9")}
               </>
             ) : session ? (
               <>
@@ -139,23 +153,7 @@ export default function Navbar() {
                     )}
                   </Link>
                 )}
-                <Link
-                  href={profileHref}
-                  aria-label="Go to profile"
-                  className={`inline-flex h-9 w-9 overflow-hidden rounded-full border transition-colors ${
-                    isProfileIconActive
-                      ? "border-brand-default"
-                      : "border-line-weaker hover:border-brand-default/60"
-                  }`}
-                >
-                  <Image
-                    src={avatarSrc}
-                    alt="Profile"
-                    width={36}
-                    height={36}
-                    className="h-full w-full object-cover"
-                  />
-                </Link>
+                {renderProfileIcon("h-9 w-9")}
               </>
             ) : (
               <>
@@ -193,23 +191,7 @@ export default function Navbar() {
                     )}
                   </Link>
                 )}
-                <Link
-                  href={profileHref}
-                  aria-label="Go to profile"
-                  className={`inline-flex h-8 w-8 overflow-hidden rounded-full border transition-colors ${
-                    isProfileIconActive
-                      ? "border-brand-default"
-                      : "border-line-weaker hover:border-brand-default/60"
-                  }`}
-                >
-                  <Image
-                    src={avatarSrc}
-                    alt="Profile"
-                    width={32}
-                    height={32}
-                    className="h-full w-full object-cover"
-                  />
-                </Link>
+                {renderProfileIcon("h-8 w-8")}
               </>
             ) : null}
 

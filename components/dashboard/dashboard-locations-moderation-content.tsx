@@ -7,10 +7,10 @@ import { useRouter } from "next/navigation";
 import AddLocationModal, {
   type AddLocationModalPayload,
 } from "@/components/dashboard/locations-moderation/add-location-modal";
-import LocationsModerationFeaturedCard from "@/components/dashboard/locations-moderation/locations-moderation-featured-card";
 import LocationsModerationSidebar from "@/components/dashboard/locations-moderation/locations-moderation-sidebar";
 import type { LocationModerationItem } from "@/components/dashboard/locations-moderation/locations-moderation-types";
 import { useLocationsQuery, useCreateLocationMutation, useDeleteLocationMutation, useUpdateLocationMutation } from "@/hooks/api/useLocations";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 
 const LocationsModerationMap = dynamic(
   () => import("@/components/dashboard/locations-moderation/locations-moderation-map"),
@@ -74,7 +74,7 @@ export default function DashboardLocationsModerationContent() {
       state: loc.state,
       coordinates: [loc.latitude, loc.longitude] as [number, number],
       photosAvailable: loc.photosAvailable,
-      previewImage: loc.previewImage,
+      previewImage: getAbsoluteImageUrl(loc.previewImage),
     })) || [];
   }, [data?.data]);
 
@@ -158,20 +158,16 @@ export default function DashboardLocationsModerationContent() {
                 locations={locations}
                 activeLocationId={resolvedActiveLocationId}
                 onActiveLocationChange={setActiveLocationId}
+                onViewGallery={handleViewGallery}
               />
 
-              {activeLocation ? (
-                <LocationsModerationFeaturedCard
-                  location={activeLocation}
-                  onViewGallery={handleViewGallery}
-                />
-              ) : (
+              {!activeLocation ? (
                 <div className="pointer-events-none absolute inset-0 z-600 flex items-center justify-center px-4">
                   <p className="rounded-sm bg-surface-muted-100/95 px-4 py-2 text-sm text-text-weak shadow-sm">
                     {isLoading ? "Loading locations..." : "No locations match the current search."}
                   </p>
                 </div>
-              )}
+              ) : null}
             </div>
 
             <LocationsModerationSidebar

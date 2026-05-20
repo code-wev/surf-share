@@ -109,28 +109,3 @@ export function isDashboardRole(role: Role) {
 export function getRoleHomePath(role: Role) {
   return isDashboardRole(role) ? "/dashboard" : "/profile";
 }
-
-// Temporary bridge for existing UI components
-export type DemoUserProfile = {
-  fullName: string;
-  country: string;
-  phone: string;
-  email: string;
-  address: string;
-  avatarSrc: string;
-};
-
-export function getDemoUserProfile(session: Session | null): DemoUserProfile | null {
-  if (!session) {
-    return null;
-  }
-
-  return {
-    fullName: session.name,
-    country: session.countryName || "",
-    phone: session.phoneNumber || "",
-    email: session.email,
-    address: session.address || "",
-    avatarSrc: "/home/latest/latest15.jpg",
-  };
-}
