@@ -1,66 +1,46 @@
+"use client";
+
 import Image from "next/image";
+import { useGoogleLogin } from "@react-oauth/google";
+import { useGoogleLoginMutation } from "@/hooks/api/useAuth";
+import { Role } from "@/lib/auth";
 
 type SocialLoginProps = {
-  onGoogleClick?: () => void;
-  onInstagramClick?: () => void;
-  onAppleClick?: () => void;
+  buttonText?: string;
+  role?: Role;
+  shouldCreate?: boolean;
 };
 
-function SocialButton({
-  onClick,
-  children,
-  label,
-}: {
-  onClick?: () => void;
-  children: React.ReactNode;
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      onClick={onClick}
-      className="inline-flex h-12 w-12 items-center justify-center rounded-full text-icon-strong transition-colors hover:bg-fill-weak"
-    >
-      {children}
-    </button>
-  );
-}
-
 export function SocialLogin({
-  onGoogleClick,
-  onInstagramClick,
-  onAppleClick,
+  buttonText = "Continue with Google",
+  role,
+  shouldCreate = true,
 }: SocialLoginProps) {
+  const googleLoginMutation = useGoogleLoginMutation();
+
+  const login = useGoogleLogin({
+    onSuccess: (codeResponse) => {
+      googleLoginMutation.mutate({
+        code: codeResponse.code,
+        role,
+        shouldCreate,
+      });
+    },
+    flow: "auth-code",
+  });
+
   return (
-    <div className="flex items-center justify-center gap-2">
-      <SocialButton label="Continue with Google" onClick={onGoogleClick}>
-        <Image
-          src="/auth/Google.svg"
-          alt="Google"
-          width={22}
-          height={22}
-          priority
-        />
-      </SocialButton>
-      <SocialButton label="Continue with Instagram" onClick={onInstagramClick}>
-        <Image
-          src="/auth/Instagram.svg"
-          alt="Instagram"
-          width={22}
-          height={22}
-          priority
-        />
-      </SocialButton>
-      <SocialButton label="Continue with Apple" onClick={onAppleClick}>
-        <Image
-          src="/auth/Apple.svg"
-          alt="Apple"
-          width={22}
-          height={22}
-          priority
-        />
-      </SocialButton>
+    <div className="flex items-center justify-center">
+      <button
+        type="button"
+        aria-label={buttonText}
+        onClick={() => login()}
+        disabled={googleLoginMutation.isPending}
+        className="border-line-weaker text-text-strong hover:bg-fill-weak inline-flex cursor-pointer items-center justify-center gap-3 rounded-full border bg-transparent px-7 py-3.5 text-sm font-medium transition-colors sm:px-6 disabled:opacity-50"
+      >
+        <Image src="/auth/Google.svg" alt="Google" width={20} height={20} priority />
+        <span>{googleLoginMutation.isPending ? "Connecting..." : buttonText}</span>
+      </button>
     </div>
   );
 }
