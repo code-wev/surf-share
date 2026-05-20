@@ -73,12 +73,11 @@ function GalleryPageContent() {
   const mappedPhotos = photos.map((p: ApiPhoto) => ({
     id: p.id,
     slug: p.id,
-    src: p.imageUrl,
+    src: getAbsoluteImageUrl(p.imageUrl),
     alt: `Photo by ${p.photographer?.name}`,
     userName: p.photographer?.name || "Unknown",
     location: p.location?.name || "Unknown Location",
     price: `$${p.price.toFixed(2)}`,
-    avatarSrc: "/home/logo.png",
   }));
 
   return (

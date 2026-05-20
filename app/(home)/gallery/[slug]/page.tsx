@@ -145,12 +145,11 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
       }) => ({
         id: p.id,
         slug: p.id,
-        src: p.imageUrl,
+        src: getAbsoluteImageUrl(p.imageUrl),
         alt: `Photo by ${p.photographer?.name}`,
         userName: p.photographer?.name || "Unknown",
         location: p.location?.name || "Unknown Location",
         price: `$${p.price.toFixed(2)}`,
-        avatarSrc: "/home/logo.png",
       }),
     );
 
@@ -169,7 +168,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
         <div className="mx-auto w-full max-w-80 sm:max-w-150 md:max-w-2xl lg:max-w-none">
           <div className="relative overflow-hidden rounded-md border border-(--color-line-weaker)">
             <Image
-              src={detailItem.imageUrl}
+              src={getAbsoluteImageUrl(detailItem.imageUrl)}
               alt={`Photo at ${locationName}`}
               width={1800}
               height={1200}
@@ -296,7 +295,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
           {adData?.data && (
             <div className="relative mt-8 overflow-hidden rounded-md border border-(--color-line-weaker)">
               <Image
-                src={adData.data.imageUrl}
+                src={getAbsoluteImageUrl(adData.data.imageUrl)}
                 alt="Advertisement"
                 width={960}
                 height={280}
