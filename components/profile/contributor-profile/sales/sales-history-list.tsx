@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { UploadStatus } from "../my-uploads/my-upload-data";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 
 export type SaleHistoryTableRow = {
   id: string;
@@ -48,7 +49,7 @@ export default function SaleHistoryTable<T extends SaleHistoryTableRow>({
               <tr key={item.id} className="border-line-weaker border-b last:border-b-0">
                 <td className="px-2 py-2">
                   <Image
-                    src={item.photoUrl}
+                    src={getAbsoluteImageUrl(item.photoUrl)}
                     alt={item.name}
                     width={56}
                     height={36}
