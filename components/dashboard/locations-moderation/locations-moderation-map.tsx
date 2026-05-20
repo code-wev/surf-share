@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import L from "leaflet";
-import { MapContainer, Marker, Pane, TileLayer, ZoomControl, useMap } from "react-leaflet";
+import { MapContainer, Marker, Pane, TileLayer, ZoomControl, useMap, Popup } from "react-leaflet";
 
 import type { LocationModerationItem } from "@/components/dashboard/locations-moderation/locations-moderation-types";
+import LocationsModerationFeaturedCard from "./locations-moderation-featured-card";
 
 type LocationsModerationMapProps = {
   locations: LocationModerationItem[];
   activeLocationId: string | null;
   onActiveLocationChange: (locationId: string) => void;
+  onViewGallery: () => void;
 };
 
 const defaultCenter: [number, number] = [-25.2744, 133.7751];
@@ -47,16 +49,9 @@ function FitToLocations({ locations }: { locations: LocationModerationItem[] }) 
   return null;
 }
 
-function getActiveLocationOffset(width: number) {
-  if (width < 768) {
-    return L.point(0, 160);
-  }
-
-  if (width < 1200) {
-    return L.point(80, 20);
-  }
-
-  return L.point(170, 10);
+// Fixed offset identical to surf-map-view.tsx
+function getActiveLocationOffset() {
+  return L.point(0, 160);
 }
 
 function KeepActiveLocationVisible({
@@ -72,8 +67,7 @@ function KeepActiveLocationVisible({
     }
 
     const panIntoView = () => {
-      const { x } = map.getSize();
-      const offset = getActiveLocationOffset(x);
+      const offset = getActiveLocationOffset();
 
       if (offset.x === 0 && offset.y === 0) {
         return;
@@ -100,10 +94,57 @@ function KeepActiveLocationVisible({
   return null;
 }
 
+function ActiveMarker({
+  location,
+  icon,
+  onClick,
+  onViewGallery,
+}: {
+  location: LocationModerationItem;
+  icon: L.DivIcon;
+  onClick: () => void;
+  onViewGallery: () => void;
+}) {
+  const markerRef = useRef<L.Marker>(null);
+
+  useEffect(() => {
+    const marker = markerRef.current;
+    if (marker) {
+      const timer = setTimeout(() => {
+        marker.openPopup();
+      }, 10);
+      return () => clearTimeout(timer);
+    }
+  }, [location.id]);
+
+  return (
+    <Marker
+      ref={markerRef}
+      key={`active-${location.id}`}
+      position={location.coordinates}
+      icon={icon}
+      zIndexOffset={600}
+      eventHandlers={{
+        click: onClick,
+      }}
+    >
+      <Popup
+        autoPan={false}
+        closeButton={false}
+        className="custom-map-popup"
+        offset={[0, -12]}
+      >
+        <LocationsModerationFeaturedCard location={location} onViewGallery={onViewGallery} />
+      </Popup>
+    </Marker>
+  );
+}
+
 export default function LocationsModerationMap({
   locations,
   activeLocationId,
   onActiveLocationChange,
+  onViewGallery,
 }: LocationsModerationMapProps) {
   const activeLocation = useMemo(
     () => locations.find((location) => location.id === activeLocationId) ?? null,
@@ -130,8 +171,8 @@ export default function LocationsModerationMap({
         attributionControl={false}
       >
         <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-          subdomains={["a", "b", "c", "d"]}
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          subdomains={["a", "b", "c"]}
         />
 
         <ZoomControl position="bottomright" />
@@ -153,13 +194,11 @@ export default function LocationsModerationMap({
 
         {activeLocation ? (
           <Pane name="active-location-pin" style={{ zIndex: 710 }}>
-            <Marker
-              position={activeLocation.coordinates}
+            <ActiveMarker
+              location={activeLocation}
               icon={activePinIcon}
-              zIndexOffset={600}
-              eventHandlers={{
-                click: () => onActiveLocationChange(activeLocation.id),
-              }}
+              onClick={() => onActiveLocationChange(activeLocation.id)}
+              onViewGallery={onViewGallery}
             />
           </Pane>
         ) : null}
