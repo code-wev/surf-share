@@ -11,6 +11,7 @@ import LocationsModerationFeaturedCard from "@/components/dashboard/locations-mo
 import LocationsModerationSidebar from "@/components/dashboard/locations-moderation/locations-moderation-sidebar";
 import type { LocationModerationItem } from "@/components/dashboard/locations-moderation/locations-moderation-types";
 import { useLocationsQuery, useCreateLocationMutation, useDeleteLocationMutation, useUpdateLocationMutation } from "@/hooks/api/useLocations";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 
 const LocationsModerationMap = dynamic(
   () => import("@/components/dashboard/locations-moderation/locations-moderation-map"),
@@ -74,7 +75,7 @@ export default function DashboardLocationsModerationContent() {
       state: loc.state,
       coordinates: [loc.latitude, loc.longitude] as [number, number],
       photosAvailable: loc.photosAvailable,
-      previewImage: loc.previewImage,
+      previewImage: getAbsoluteImageUrl(loc.previewImage),
     })) || [];
   }, [data?.data]);
 

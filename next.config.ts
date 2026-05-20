@@ -5,18 +5,19 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
   images: {
+    unoptimized: true,
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {
         protocol: "http",
         hostname: "localhost",
         port: "5000",
-        pathname: "**",
+        pathname: "/**",
       },
       {
         protocol: "https",
         hostname: "res.cloudinary.com",
-        pathname: "**",
+        pathname: "/**",
       },
     ],
   },

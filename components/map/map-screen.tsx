@@ -10,6 +10,7 @@ import {
 	type SurfSpot,
 	type TimeOptionValue,
 } from "@/components/map/map-demo-data";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 
 const SurfMapView = dynamic(() => import("@/components/map/surf-map-view"), {
 	ssr: false,
@@ -24,7 +25,11 @@ export default function MapScreen() {
 	const { data: mapDataResponse, isLoading } = useMapLocationsQuery();
 	
 	const liveSurfSpots = useMemo(() => {
-		return (mapDataResponse?.data || []) as SurfSpot[];
+		const spots = (mapDataResponse?.data || []) as SurfSpot[];
+		return spots.map(spot => ({
+			...spot,
+			imageSrc: getAbsoluteImageUrl(spot.imageSrc)
+		}));
 	}, [mapDataResponse?.data]);
 
 	const [selectedState, setSelectedState] = useState("all");
