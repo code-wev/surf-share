@@ -22,18 +22,35 @@ type DashboardNavItem = {
   label: string;
   Icon: typeof LayoutGrid;
   href: string;
+  permission?: string;
 };
 
-const moderatorDashboardNavItems: ReadonlyArray<DashboardNavItem> = [
+const commonDashboardNavItems: ReadonlyArray<DashboardNavItem> = [
   { label: "Overview", Icon: LayoutGrid, href: "/dashboard" },
-  { label: "User Management", Icon: UsersRound, href: "/dashboard/user-management" },
-  { label: "Photo Moderation", Icon: ImageIcon, href: "/dashboard/photo-moderation" },
-  { label: "Locations Moderation", Icon: MapPin, href: "/dashboard/locations-moderation" },
-  { label: "Profile Settings", Icon: Settings, href: "/dashboard/profile" },
+];
+
+const moderatorDashboardNavItems: ReadonlyArray<DashboardNavItem> = [
+  {
+    label: "User Management",
+    Icon: UsersRound,
+    href: "/dashboard/user-management",
+    permission: "ALL_ACCESS",
+  },
+  {
+    label: "Photo Moderation",
+    Icon: ImageIcon,
+    href: "/dashboard/photo-moderation",
+    permission: "APPROVE_PHOTO",
+  },
+  {
+    label: "Locations Moderation",
+    Icon: MapPin,
+    href: "/dashboard/locations-moderation",
+    permission: "ADD_LOCATION",
+  },
 ];
 
 const adminDashboardNavItems: ReadonlyArray<DashboardNavItem> = [
-  { label: "Overview", Icon: LayoutGrid, href: "/dashboard" },
   { label: "User Management", Icon: UsersRound, href: "/dashboard/user-management" },
   { label: "Moderator Management", Icon: Shield, href: "/dashboard/moderator-management" },
   {
@@ -41,6 +58,9 @@ const adminDashboardNavItems: ReadonlyArray<DashboardNavItem> = [
     Icon: Megaphone,
     href: "/dashboard/advertisement-settings",
   },
+];
+
+const finalDashboardNavItems: ReadonlyArray<DashboardNavItem> = [
   { label: "Profile Settings", Icon: Settings, href: "/dashboard/profile" },
 ];
 
@@ -63,10 +83,27 @@ export default function DashboardSidebar({
   const router = useRouter();
   const { logout, session } = useAuth();
   const isAdmin = session?.role === "ADMIN";
-  const dashboardNavItems = isAdmin ? adminDashboardNavItems : moderatorDashboardNavItems;
+  const userPermissions = session?.permissions || [];
+  const hasAllAccess = userPermissions.includes("ALL_ACCESS");
+
+  const getDashboardNavItems = () => {
+    if (isAdmin) {
+      return [...commonDashboardNavItems, ...adminDashboardNavItems, ...finalDashboardNavItems];
+    }
+
+    const filteredModeratorItems = moderatorDashboardNavItems.filter((item) => {
+      if (!item.permission) return true;
+      if (hasAllAccess) return true;
+      return userPermissions.includes(item.permission);
+    });
+
+    return [...commonDashboardNavItems, ...filteredModeratorItems, ...finalDashboardNavItems];
+  };
+
+  const dashboardNavItems = getDashboardNavItems();
 
   const roleLabel = session?.role
-    ? `${session.role[0].toUpperCase()}${session.role.slice(1)}`
+    ? `${session.role[0].toUpperCase()}${session.role.slice(1).toLowerCase()}`
     : "Moderator";
 
   const handleLogout = () => {

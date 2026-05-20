@@ -28,6 +28,7 @@ export default function AuthRouteGuard() {
       pathname === "/forgot-password" ||
       pathname === "/verify-identity" ||
       pathname === "/set-new-password";
+
     if (!session) {
       if (isProfileRoute || isDashboardRoute) {
         router.replace("/login");
@@ -51,6 +52,37 @@ export default function AuthRouteGuard() {
     if (isAdminOnlyDashboardRoute && session.role !== "ADMIN") {
       router.replace("/dashboard");
       return;
+    }
+
+    // Moderator Permission Checks
+    if (session.role === "MODERATOR") {
+      const userPermissions = session.permissions || [];
+      const hasAllAccess = userPermissions.includes("ALL_ACCESS");
+
+      const isUserManagement =
+        pathname === "/dashboard/user-management" ||
+        pathname.startsWith("/dashboard/user-management/");
+      const isPhotoModeration =
+        pathname === "/dashboard/photo-moderation" ||
+        pathname.startsWith("/dashboard/photo-moderation/");
+      const isLocationsModeration =
+        pathname === "/dashboard/locations-moderation" ||
+        pathname.startsWith("/dashboard/locations-moderation/");
+
+      if (isUserManagement && !hasAllAccess) {
+        router.replace("/dashboard");
+        return;
+      }
+
+      if (isPhotoModeration && !hasAllAccess && !userPermissions.includes("APPROVE_PHOTO")) {
+        router.replace("/dashboard");
+        return;
+      }
+
+      if (isLocationsModeration && !hasAllAccess && !userPermissions.includes("ADD_LOCATION")) {
+        router.replace("/dashboard");
+        return;
+      }
     }
 
     if (isProfileRoute && isDashboardRole(session.role)) {

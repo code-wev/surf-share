@@ -1,10 +1,13 @@
 import Image from "next/image";
-import { ChevronsRight, SquarePen } from "lucide-react";
+import { ChevronsRight, SquarePen, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 import type {
   ModeratorRow,
   ModeratorStatus,
+  AssignedPermission,
 } from "@/components/dashboard/moderator-management/moderator-management-types";
+import { useUpdateUserMutation, useUpdateUserStatusMutation } from "@/hooks/api/useUsers";
 
 type ModeratorDetailsModalProps = {
   moderator: ModeratorRow | null;
@@ -26,20 +29,56 @@ function ModeratorDetailRow({ label, value }: ModeratorDetailRowProps) {
   );
 }
 
-function InlineBadge({ className, children }: { className: string; children: React.ReactNode }) {
-  return (
-    <span className={`inline-flex items-center rounded-sm px-2 py-0.5 text-[10px] ${className}`}>
-      {children}
-    </span>
-  );
-}
+const PERMISSION_OPTIONS: { value: string; label: AssignedPermission }[] = [
+  { value: "ADD_LOCATION", label: "Add Location" },
+  { value: "APPROVE_PHOTO", label: "Approve Photo" },
+  { value: "ALL_ACCESS", label: "All Access" },
+];
 
-export default function ModeratorDetailsModal({
-  moderator,
-  statusClassNameMap,
-  onClose,
-}: ModeratorDetailsModalProps) {
+const PERMISSION_BACK_MAP: Record<AssignedPermission, string> = {
+  "Add Location": "ADD_LOCATION",
+  "Approve Photo": "APPROVE_PHOTO",
+  "All Access": "ALL_ACCESS",
+};
+
+export default function ModeratorDetailsModal({ moderator, onClose }: ModeratorDetailsModalProps) {
+  const [permissionOverridesByModeratorId, setPermissionOverridesByModeratorId] = useState<
+    Record<string, string[]>
+  >({});
+  const updateMutation = useUpdateUserMutation();
+  const statusMutation = useUpdateUserStatusMutation();
+
   if (!moderator) return null;
+
+  const selectedPermissions =
+    permissionOverridesByModeratorId[moderator.id] ??
+    moderator.assignedPermissions.map((permission) => PERMISSION_BACK_MAP[permission]);
+
+  const handlePermissionToggle = (value: string) => {
+    let newPermissions: string[];
+    if (selectedPermissions.includes(value)) {
+      newPermissions = selectedPermissions.filter((p) => p !== value);
+    } else {
+      newPermissions = [...selectedPermissions, value];
+    }
+    setPermissionOverridesByModeratorId((previous) => ({
+      ...previous,
+      [moderator.id]: newPermissions,
+    }));
+
+    updateMutation.mutate({
+      userId: moderator.id,
+      payload: { permissions: newPermissions },
+    });
+  };
+
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newStatus = e.target.value;
+    statusMutation.mutate({
+      userId: moderator.id,
+      status: newStatus,
+    });
+  };
 
   return (
     <div className="fixed inset-0 z-100 bg-[#0d1420]/30" onClick={onClose}>
@@ -89,25 +128,55 @@ export default function ModeratorDetailsModal({
             <ModeratorDetailRow label="Email" value={moderator.email} />
             <ModeratorDetailRow label="Phone Number" value={moderator.phone} />
             <ModeratorDetailRow label="Assigned Date" value={moderator.assignedDate} />
-            <ModeratorDetailRow 
-              label="Assigned Permissions" 
+
+            <ModeratorDetailRow
+              label="Permissions"
               value={
-                <div className="flex flex-wrap gap-1">
-                  {moderator.assignedPermissions.map((perm) => (
-                    <span key={perm} className="inline-flex rounded-sm bg-[#F3F4F6] px-2 py-1 text-[11px] text-[#6B7280]">
-                      {perm}
-                    </span>
-                  ))}
+                <div className="flex flex-col gap-2">
+                  <div className="flex flex-wrap gap-2">
+                    {PERMISSION_OPTIONS.map((opt) => (
+                      <label
+                        key={opt.value}
+                        className="flex cursor-pointer items-center gap-2 text-xs"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedPermissions.includes(opt.value)}
+                          onChange={() => handlePermissionToggle(opt.value)}
+                          disabled={updateMutation.isPending}
+                          className="border-line-weak text-brand-default focus:ring-brand-default size-3.5 rounded"
+                        />
+                        {opt.label}
+                      </label>
+                    ))}
+                  </div>
+                  {updateMutation.isPending && (
+                    <div className="text-brand-default flex items-center gap-1 text-[10px]">
+                      <Loader2 size={10} className="animate-spin" />
+                      Updating...
+                    </div>
+                  )}
                 </div>
-              } 
+              }
             />
+
             <ModeratorDetailRow
               label="Status"
               value={
-                <InlineBadge className={statusClassNameMap[moderator.status]}>
-                  {moderator.status === "Active" ? "✓ " : "✕ "}
-                  {moderator.status}
-                </InlineBadge>
+                <div className="flex items-center gap-2">
+                  <select
+                    className="border-line-weaker text-text-strong focus:ring-brand-default h-8 rounded-sm border bg-white px-2 text-xs focus:ring-1 focus:outline-none"
+                    value={moderator.status.toUpperCase()}
+                    onChange={handleStatusChange}
+                    disabled={statusMutation.isPending}
+                  >
+                    <option value="ACTIVE">ACTIVE</option>
+                    <option value="SUSPENDED">SUSPENDED</option>
+                  </select>
+                  {statusMutation.isPending && (
+                    <Loader2 size={12} className="text-brand-default animate-spin" />
+                  )}
+                </div>
               }
             />
           </div>
