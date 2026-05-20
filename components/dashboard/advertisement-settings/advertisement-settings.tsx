@@ -9,6 +9,7 @@ import {
   useUpsertAdvertisementMutation,
   useDeleteAdvertisementMutation,
 } from "@/hooks/api/useAdvertisement";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 
 export interface PhotoItem {
   id: string;
@@ -47,7 +48,7 @@ export default function AdvertisementSettingsContent() {
       setTimeout(() => {
         setPhoto({
           id: adData.data.id,
-          preview: adData.data.imageUrl,
+          preview: getAbsoluteImageUrl(adData.data.imageUrl),
         });
         setAdvertisementURL(adData.data.linkUrl);
       }, 0);
