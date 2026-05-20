@@ -10,9 +10,10 @@ import { toast } from "sonner";
 import ProfileInfoField from "@/components/profile/profile-info-field";
 import ProfilePasswordField from "@/components/profile/profile-password-field";
 import { Input } from "@/components/ui/input";
-import { getDemoUserProfile, useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth";
 import { getUserById, updateUserById, uploadProfileImage } from "@/src/actions/user.action";
 import { changePassword } from "@/src/actions/auth.action";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 
 type SocialAccountType = "facebook" | "instagram" | "twitter" | "x";
 
@@ -30,7 +31,6 @@ const SOCIAL_ACCOUNT_TYPES: { value: SocialAccountType; label: string }[] = [
 
 export default function ProfileSettingsContent() {
   const { session } = useAuth();
-  const profile = getDemoUserProfile(session);
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -116,12 +116,12 @@ export default function ProfileSettingsContent() {
   };
 
   const displayProfile = {
-    fullName: apiProfile?.name ?? profile?.fullName ?? "",
-    avatarSrc: apiProfile?.profileImageUrl ?? profile?.avatarSrc ?? "/home/logo.png",
-    country: apiProfile?.countryName ?? profile?.country ?? "",
-    phone: apiProfile?.phoneNumber ?? profile?.phone ?? "",
-    email: apiProfile?.email ?? profile?.email ?? "",
-    address: apiProfile?.address ?? profile?.address ?? "",
+    fullName: apiProfile?.name ?? session?.name ?? "",
+    avatarSrc: apiProfile?.profileImageUrl ? getAbsoluteImageUrl(apiProfile.profileImageUrl) : "",
+    country: apiProfile?.countryName ?? "",
+    phone: apiProfile?.phoneNumber ?? "",
+    email: apiProfile?.email ?? session?.email ?? "",
+    address: apiProfile?.address ?? "",
   };
 
   interface _ApiProfile {
