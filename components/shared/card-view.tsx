@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Camera, ExternalLink, Heart, Plus, Check } from "lucide-react";
 import { toast } from "sonner";
 
-import { cn } from "@/lib/utils";
+import { cn, getAbsoluteImageUrl } from "@/lib/utils";
 import ImageCard from "./image-card";
 import { useAuth } from "@/lib/auth";
 import { useFavoriteIdsQuery, useToggleFavoriteMutation } from "@/hooks/api/useFavorites";
@@ -116,7 +116,7 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
 
     addItem({
       id: String(item.id),
-      imageUrl: item.src,
+      imageUrl: getAbsoluteImageUrl(item.src),
       title: item.title || `Photo ${item.id}`,
       location: item.location || "Unknown Location",
       price: Number(item.price?.replace(/[^0-9.-]+/g, "")) || 0,
@@ -236,7 +236,7 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
           return (
             <div key={item.id} className="h-80">
               <ImageCard
-                src={item.src}
+                src={getAbsoluteImageUrl(item.src)}
                 alt={item.alt}
                 width={960}
                 height={1280}
@@ -273,7 +273,7 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
                 return (
                   <div key={item.id} className={getTabletHeightClass(resolvedSize)}>
                     <ImageCard
-                      src={item.src}
+                      src={getAbsoluteImageUrl(item.src)}
                       alt={item.alt}
                       width={960}
                       height={1280}
@@ -317,7 +317,7 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
                 {topItem ? (
                   <div className={getHeightClass(topItem.size ?? topSize)}>
                     <ImageCard
-                      src={topItem.src}
+                      src={getAbsoluteImageUrl(topItem.src)}
                       alt={topItem.alt}
                       width={960}
                       height={1280}
@@ -340,7 +340,7 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
                 {bottomItem ? (
                   <div className={getHeightClass(bottomItem.size ?? bottomSize)}>
                     <ImageCard
-                      src={bottomItem.src}
+                      src={getAbsoluteImageUrl(bottomItem.src)}
                       alt={bottomItem.alt}
                       width={960}
                       height={1280}

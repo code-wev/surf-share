@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Camera, MapPin, RefreshCw } from "lucide-react";
 
 import { useLocationsQuery } from "@/hooks/api/useLocations";
-import { cn } from "@/lib/utils";
+import { cn, getAbsoluteImageUrl } from "@/lib/utils";
 import ImageCard from "../shared/image-card";
 import { PageTitle } from "../shared/page-title";
 import { Button } from "../ui/button";
@@ -62,7 +62,7 @@ export default function FeaturedLocation() {
 
     return locations.map((location) => ({
       id: location.id,
-      src: location.previewImage,
+      src: getAbsoluteImageUrl(location.previewImage),
       alt: `${location.name} location preview`,
       title: location.name,
       subtitle: location.parentSpot || `${location.region}, ${location.state}`,
