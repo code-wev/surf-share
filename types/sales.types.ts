@@ -7,6 +7,11 @@ export type SalesStats = {
   totalDownloadsCount: number;
   totalPhotos: number;
   pendingPhotos: number;
+  trends?: {
+    earnings?: string;
+    photos?: string;
+    soldPhotos?: string;
+  };
 };
 
 export type SalesItem = {
