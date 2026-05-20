@@ -171,8 +171,8 @@ export default function LocationsModerationMap({
         attributionControl={false}
       >
         <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          subdomains={["a", "b", "c"]}
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+          subdomains={["a", "b", "c", "d"]}
         />
 
         <ZoomControl position="bottomright" />
