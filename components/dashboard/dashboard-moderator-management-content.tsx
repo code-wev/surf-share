@@ -150,7 +150,7 @@ export default function DashboardModeratorManagementContent() {
 
         return {
           id: mod.id,
-          photo: mod.profileImageUrl ? getAbsoluteImageUrl(mod.profileImageUrl as string) : "/home/latest/latest1.jpg",
+          photo: mod.profileImageUrl ? getAbsoluteImageUrl(mod.profileImageUrl as string) : "",
           name: mod.name,
           email: mod.email,
           phone: mod.phoneNumber || "-",
