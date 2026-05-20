@@ -1,9 +1,14 @@
+"use client";
+
 import { AuthLogo } from "@/components/auth/auth-logo";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { SignUpForm } from "@/components/auth/signup-form";
 import { SocialLogin } from "@/components/auth/social-login";
+import { useState } from "react";
 
 export default function SignupPage() {
+  const [accountType, setAccountType] = useState<"surfer" | "photographer">("surfer");
+
   return (
     <main className="bg-surface-muted-50 lg:h-screen lg:overflow-hidden">
       <AuthShell rightScrollable contentAlign="start">
@@ -20,7 +25,7 @@ export default function SignupPage() {
             Fill in the information below to get started:
           </p>
 
-          <SignUpForm />
+          <SignUpForm onAccountTypeChange={setAccountType} />
 
           <div className="mt-10 pb-8 sm:mt-11 sm:pb-9 md:mt-12 md:pb-10">
             <div className="relative">
@@ -32,7 +37,11 @@ export default function SignupPage() {
               </p>
             </div>
             <div className="mt-6">
-              <SocialLogin buttonText="Signup with Google" />
+              <SocialLogin
+                buttonText="Signup with Google"
+                role={accountType === "surfer" ? "SURFER" : "PHOTOGRAPHER"}
+                shouldCreate={true}
+              />
             </div>
           </div>
         </div>

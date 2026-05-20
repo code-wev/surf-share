@@ -34,7 +34,7 @@ export default function LoginPage() {
               </p>
             </div>
             <div className="mt-6">
-              <SocialLogin buttonText="Login with Google" />
+              <SocialLogin buttonText="Login with Google" shouldCreate={false} />
             </div>
           </div>
         </div>
