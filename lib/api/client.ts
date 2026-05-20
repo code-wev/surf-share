@@ -26,8 +26,13 @@ apiClient.interceptors.response.use(
     // If error is 401, token might be expired. Try to refresh.
     if (error.response?.status === 401 && !originalRequest._retry) {
       // Don't try to refresh if the failed request WAS the refresh request
-      // or if it was a login attempt
-      if (originalRequest.url === "/auth/refresh-token" || originalRequest.url === "/auth/login") {
+      // or if it was an authentication attempt (login, google-login, etc.)
+      const isAuthRequest =
+        originalRequest.url?.includes("/auth/login") ||
+        originalRequest.url?.includes("/auth/google-login") ||
+        originalRequest.url?.includes("/auth/refresh-token");
+
+      if (isAuthRequest) {
         return Promise.reject(error);
       }
 

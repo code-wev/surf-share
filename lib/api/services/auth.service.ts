@@ -5,6 +5,10 @@ export const authService = {
     const response = await apiClient.post("/auth/login", payload);
     return response.data;
   },
+  googleLogin: async (payload: { code: string; role?: string; shouldCreate?: boolean }) => {
+    const response = await apiClient.post("/auth/google-login", payload);
+    return response.data;
+  },
   registerSurfer: async (payload: Record<string, string>) => {
     const response = await apiClient.post("/auth/register/surfer", payload);
     return response.data;

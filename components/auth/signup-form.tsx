@@ -8,7 +8,11 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { useRegisterSurferMutation, useRegisterPhotographerMutation } from "@/hooks/api/useAuth";
 
-export function SignUpForm() {
+export function SignUpForm({
+  onAccountTypeChange,
+}: {
+  onAccountTypeChange?: (value: "surfer" | "photographer") => void;
+}) {
   const [accountType, setAccountType] = useState<"surfer" | "photographer">("surfer");
   const [step, setStep] = useState<1 | 2>(1);
 
@@ -79,6 +83,9 @@ export function SignUpForm() {
 
   const onChangeAccountType = (value: "surfer" | "photographer") => {
     setAccountType(value);
+    if (onAccountTypeChange) {
+      onAccountTypeChange(value);
+    }
     if (value === "surfer") {
       setStep(1);
     }

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { authService } from "../../lib/api/services/auth.service";
 import { useAuth, getRoleHomePath } from "../../lib/auth";
 import { queryKeys } from "../../lib/api/query-keys";
+import { getErrorMessage } from "../../lib/utils/error-handler";
 
 export const useLoginMutation = () => {
   const { setSessionData } = useAuth();
@@ -20,11 +21,40 @@ export const useLoginMutation = () => {
       router.push(getRoleHomePath(user.role));
     },
     onError: (error: unknown) => {
-      const errorMessage =
-        isAxiosError(error) && error.response?.data?.message
-          ? error.response.data.message
-          : "Invalid email or password.";
-      toast.error(errorMessage);
+      toast.error(getErrorMessage(error, "Invalid email or password."));
+    },
+  });
+};
+
+export const useGoogleLoginMutation = () => {
+  const { setSessionData } = useAuth();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: authService.googleLogin,
+    retry: false, // Critical: prevent retrying since Google Auth codes can only be used once
+    onSuccess: (data) => {
+      const { accessToken, user } = data.data;
+      setSessionData(user, accessToken);
+      toast.success(`Logged in with Google successfully.`);
+      router.push(getRoleHomePath(user.role));
+    },
+    onError: (error: unknown) => {
+      const isNotFound = isAxiosError(error) && error.response?.status === 404;
+
+      // Specifically look for the message in the expected response structure
+      let message = "Google authentication failed.";
+      if (isAxiosError(error) && error.response?.data?.message) {
+        message = error.response.data.message;
+      } else {
+        message = getErrorMessage(error, message);
+      }
+
+      toast.error(message);
+
+      if (isNotFound) {
+        router.push("/signup");
+      }
     },
   });
 };
@@ -37,11 +67,7 @@ export const useRegisterSurferMutation = () => {
       window.location.assign("/login");
     },
     onError: (error: unknown) => {
-      const errorMessage =
-        isAxiosError(error) && error.response?.data?.message
-          ? error.response.data.message
-          : "An error occurred during registration.";
-      toast.error(errorMessage);
+      toast.error(getErrorMessage(error, "An error occurred during registration."));
     },
   });
 };
@@ -54,11 +80,7 @@ export const useRegisterPhotographerMutation = () => {
       window.location.assign("/login");
     },
     onError: (error: unknown) => {
-      const errorMessage =
-        isAxiosError(error) && error.response?.data?.message
-          ? error.response.data.message
-          : "An error occurred during registration.";
-      toast.error(errorMessage);
+      toast.error(getErrorMessage(error, "An error occurred during registration."));
     },
   });
 };
@@ -74,11 +96,7 @@ export const useRegisterModeratorMutation = (onSuccessCallback?: () => void) => 
       queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
     },
     onError: (error: unknown) => {
-      const errorMessage =
-        isAxiosError(error) && error.response?.data?.message
-          ? error.response.data.message
-          : "Failed to register moderator.";
-      toast.error(errorMessage);
+      toast.error(getErrorMessage(error, "Failed to register moderator."));
     },
   });
 };
