@@ -57,9 +57,7 @@ export default function ContentProtectionGuard() {
     };
 
     const onContextMenu = (event: MouseEvent) => {
-      if (isMediaTarget(event.target)) {
-        event.preventDefault();
-      }
+      event.preventDefault();
     };
 
     const onDragStart = (event: DragEvent) => {

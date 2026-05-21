@@ -5,6 +5,7 @@ import { siteConfig } from "@/config/site";
 
 import "./globals.css";
 import { Providers } from "./providers";
+import ContentProtectionGuard from "@/components/shared/content-protection-guard";
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -56,6 +57,7 @@ export default function RootLayout({
     >
       <body className="bg-background text-foreground min-h-full">
         <Providers>
+          <ContentProtectionGuard />
           <div className="relative flex min-h-full flex-col">
             <div className="flex-1">{children}</div>
           </div>
