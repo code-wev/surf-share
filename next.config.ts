@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {
+        protocol: "https",
+        hostname: "surfshare.com.au",
+        pathname: "/**",
+      },
+      {
         protocol: "http",
         hostname: "localhost",
         port: "5000",
@@ -22,7 +27,7 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "lh3.googleusercontent.com",
-        pathname: "**",
+        pathname: "/**",
       },
     ],
   },
