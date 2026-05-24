@@ -78,7 +78,7 @@ export default function ProfileSidebar({ className, onNavigate }: ProfileSidebar
     >
       <div className="p-4">
         <p className="text-text-weaker text-xs font-medium">
-          {isContributor ? "Contributor Dashboard" : "Profile Overview"}
+          {isContributor ? "Photographer Dashboard" : "Profile Overview"}
         </p>
 
         <ul className="mt-2">
