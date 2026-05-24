@@ -17,6 +17,11 @@ type LocationsModerationMapProps = {
 const defaultCenter: [number, number] = [-25.2744, 133.7751];
 const defaultZoom = 4;
 
+const australiaBounds = L.latLngBounds(
+  L.latLng(-44.0, 112.0),
+  L.latLng(-9.0, 154.0)
+);
+
 function createMarkerIcon(isActive: boolean) {
   return L.divIcon({
     className: "surf-map-pin-icon",
@@ -164,6 +169,9 @@ export default function LocationsModerationMap({
       <MapContainer
         center={defaultCenter}
         zoom={defaultZoom}
+        minZoom={4}
+        maxBounds={australiaBounds}
+        maxBoundsViscosity={1.0}
         className="h-full w-full"
         dragging
         scrollWheelZoom={true}
