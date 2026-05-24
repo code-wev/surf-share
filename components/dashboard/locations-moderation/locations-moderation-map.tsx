@@ -18,8 +18,8 @@ const defaultCenter: [number, number] = [-25.2744, 133.7751];
 const defaultZoom = 4;
 
 const australiaBounds = L.latLngBounds(
-  L.latLng(-44.0, 112.0),
-  L.latLng(-9.0, 154.0)
+  L.latLng(-55.0, 95.0),
+  L.latLng(0.0, 165.0)
 );
 
 function createMarkerIcon(isActive: boolean) {
