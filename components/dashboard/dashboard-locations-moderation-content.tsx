@@ -42,6 +42,7 @@ export default function DashboardLocationsModerationContent() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isAddLocationModalOpen, setIsAddLocationModalOpen] = useState(false);
   const [locationToEdit, setLocationToEdit] = useState<LocationModerationItem | null>(null);
+  const [locationToDelete, setLocationToDelete] = useState<LocationModerationItem | null>(null);
   const [activeLocationId, setActiveLocationId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -134,7 +135,15 @@ export default function DashboardLocationsModerationContent() {
   };
 
   const handleDeleteLocation = (location: LocationModerationItem) => {
-    deleteMutation.mutate(location.id);
+    setLocationToDelete(location);
+  };
+
+  const confirmDelete = () => {
+    if (locationToDelete) {
+      deleteMutation.mutate(locationToDelete.id, {
+        onSuccess: () => setLocationToDelete(null),
+      });
+    }
   };
 
   const handleViewGallery = () => {
@@ -199,6 +208,35 @@ export default function DashboardLocationsModerationContent() {
           onSubmit={handleCreateLocation}
           isPending={createMutation.isPending || updateMutation.isPending}
         />
+      ) : null}
+
+      {locationToDelete ? (
+        <div className="fixed inset-0 z-1200 flex items-center justify-center bg-black/45 p-4" onClick={() => setLocationToDelete(null)}>
+          <div className="w-full max-w-sm rounded-md bg-white p-6 shadow-[0_26px_70px_rgba(15,23,42,0.25)]" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold text-text-strong">Delete Location</h3>
+            <p className="mt-2 text-sm text-text-weak">
+              Are you sure you want to delete <strong>{locationToDelete.name}</strong>? This action cannot be undone and will remove all associated data.
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setLocationToDelete(null)}
+                disabled={deleteMutation.isPending}
+                className="rounded-sm border border-line-weaker px-4 py-2 text-sm font-medium text-text-strong transition-colors hover:bg-fill-hover disabled:opacity-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDelete}
+                disabled={deleteMutation.isPending}
+                className="inline-flex items-center gap-2 rounded-sm bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50 cursor-pointer"
+              >
+                {deleteMutation.isPending ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
       ) : null}
     </section>
   );
