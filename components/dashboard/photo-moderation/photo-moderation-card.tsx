@@ -29,7 +29,7 @@ export default function PhotoModerationCard({
             type="checkbox"
             checked={selected}
             onChange={() => onToggleSelected(item.id)}
-            className="border-line-weaker accent-text-strong h-3 w-3 rounded-xs border bg-white"
+            className="border-line-weaker accent-text-strong h-5 w-5 rounded-xs border bg-white"
             aria-label={`Select ${item.photographer} submission`}
           />
         </label>
