@@ -70,8 +70,8 @@ export const adminOverviewStats: OverviewStat[] = [
     trendTone: "positive",
   },
   {
-    label: "Total Contributor",
-    value: "10",
+    label: "Total Photographers",
+    value: "1",
     Icon: Camera,
     trendLabel: "+ 12%",
     trendTone: "positive",
