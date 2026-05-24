@@ -128,14 +128,13 @@ export default function ProfileSettingsContent() {
     socialAccounts?: { platform: string; url: string }[];
   }
   const incoming = (apiProfile as unknown as _ApiProfile)?.socialAccounts || [];
-  const displaySocialLinks: SocialAccountLink[] =
-    socialLinks.length > 0
-      ? socialLinks
-      : (incoming || []).map((s, i) => ({
-          id: `${s.platform}-${i}`,
-          type: s.platform as SocialAccountType,
-          url: s.url,
-        }));
+  const parsedIncomingLinks: SocialAccountLink[] = incoming.map((s, i) => ({
+    id: `${s.platform}-${i}`,
+    type: s.platform as SocialAccountType,
+    url: s.url,
+  }));
+
+  const displaySocialLinks: SocialAccountLink[] = isEditingProfile ? socialLinks : parsedIncomingLinks;
 
   return (
     <div className="h-full px-4 py-4 sm:px-6 sm:py-6 md:px-0 md:py-0">
@@ -194,6 +193,7 @@ export default function ProfileSettingsContent() {
                   email: displayProfile.email,
                   address: displayProfile.address,
                 });
+                setSocialLinks(parsedIncomingLinks);
                 setIsEditingProfile(true);
               }}
               className="border-line-weaker bg-fill-weak text-text-weak hover:bg-surface-muted-100 inline-flex h-9 cursor-pointer items-center gap-2 rounded-sm border px-4 text-sm font-medium transition-colors"
@@ -365,7 +365,8 @@ export default function ProfileSettingsContent() {
                     onChange={(event) =>
                       setSocialType(event.target.value as SocialAccountType | "")
                     }
-                    className="border-line-weaker bg-surface-muted-100 text-text-weak focus-visible:ring-brand-default/30 h-11 w-full appearance-none rounded-md border px-3 pr-8 text-sm focus-visible:ring-2 focus-visible:outline-none"
+                    disabled={!isEditingProfile}
+                    className="border-line-weaker bg-surface-muted-100 text-text-weak focus-visible:ring-brand-default/30 h-11 w-full appearance-none rounded-md border px-3 pr-8 text-sm focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <option value="">Account</option>
                     {SOCIAL_ACCOUNT_TYPES.map((type) => (
@@ -383,13 +384,14 @@ export default function ProfileSettingsContent() {
                   value={socialUrl}
                   onChange={(event) => setSocialUrl(event.target.value)}
                   placeholder="Enter profile link"
+                  disabled={!isEditingProfile || !socialType}
                 />
 
                 <button
                   type="button"
                   onClick={addSocialLink}
                   aria-label="Add social media link"
-                  disabled={!socialType || !socialUrl.trim()}
+                  disabled={!isEditingProfile || !socialType || !socialUrl.trim()}
                   className="text-text-weak hover:bg-surface-muted-100 inline-flex h-10 w-10 items-center justify-center gap-x-1 rounded-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <Plus className="h-5 w-5" /> <span className="text-[10px]">Add</span>
