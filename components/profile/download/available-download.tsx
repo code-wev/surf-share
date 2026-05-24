@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getDownloadablePhotos } from "@/src/actions/download.action";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Clock, Download, Loader2 } from "lucide-react";
+import { Download, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { getAbsoluteImageUrl } from "@/lib/utils";
 
@@ -86,9 +86,9 @@ export default function AvailableDownload() {
                       {item.location.name}
                     </span>
                   </h2>
-                  <p className="inline-flex items-center gap-x-2 text-base text-(--color-text-weak)">
+                  {/* <p className="inline-flex items-center gap-x-2 text-base text-(--color-text-weak)">
                     <Clock className="h-4 w-4" color="#0D1420" /> Expires in: 30 days
-                  </p>
+                  </p> */}
 
                   <div className="mt-3 w-full">
                     <Button
