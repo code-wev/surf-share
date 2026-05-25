@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { CalendarDays, Camera, MapPin, X } from "lucide-react";
+import { CalendarDays, Camera, Clock3, MapPin, X } from "lucide-react";
 import { PageTitle } from "@/components/shared/page-title";
 
 type ContributorUploadDetails = {
@@ -10,6 +10,7 @@ type ContributorUploadDetails = {
   photoUrl: string;
   location: string;
   dateLabel: string;
+  timeLabel: string;
   priceLabel: string;
   photographer: string;
   resolution: string;
@@ -85,7 +86,7 @@ export default function UploadDetailsModal({
               subtitlePosition="top"
               subtitle={upload.name}
               subtitleClassName="text-lg! leading-tight text-(--color-text-weak) sm:text-2xl! lg:text-[28px]!"
-              title={`${upload.priceLabel}.00`}
+              title={upload.priceLabel}
               titleClassName="text-(--color-text-brand-strong) text-[34px]! leading-none sm:text-[46px]! lg:text-[58px]!"
             />
 
@@ -103,6 +104,14 @@ export default function UploadDetailsModal({
                 <div>
                   <p className="text-text-weaker text-xs">Date Taken</p>
                   <p className="text-text-strong text-sm">{upload.dateLabel}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2">
+                <Clock3 size={14} className="text-text-weaker mt-0.5" />
+                <div>
+                  <p className="text-text-weaker text-xs">Time Taken</p>
+                  <p className="text-text-strong text-sm">{upload.timeLabel}</p>
                 </div>
               </div>
 

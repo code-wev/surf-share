@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useCallback, useRef, useState } from "react";
+import exifr from "exifr";
 import PhotoCard, { PhotoItem } from "./photo-card";
 import { AlertCircle, ChevronDown, Loader2, Plus, Upload, XIcon } from "lucide-react";
 import { useLocationsQuery } from "@/hooks/api/useLocations";
@@ -9,26 +10,82 @@ import { useUploadPhotosMutation } from "@/hooks/api/usePhotos";
 import { toast } from "sonner";
 
 // Accepted MIME types for upload
-const ACCEPTED_MIME = [
-  "image/jpeg",
-  "image/jpg",
-  "image/png",
-  "image/webp"
-];
+const ACCEPTED_MIME = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 // Unique ID generator for photo items
 function uid() {
   return Math.random().toString(36).slice(2, 10);
 }
 
+function toLocalDateInputValue(date: Date): string {
+  const offsetMs = date.getTimezoneOffset() * 60_000;
+  return new Date(date.getTime() - offsetMs).toISOString().slice(0, 10);
+}
+
+function toLocalTimeInputValue(date: Date): string {
+  const offsetMs = date.getTimezoneOffset() * 60_000;
+  return new Date(date.getTime() - offsetMs).toISOString().slice(11, 16);
+}
+
+function combineDateAndTime(dateValue: string, timeValue: string): Date | null {
+  if (!dateValue || !timeValue) {
+    return null;
+  }
+
+  const dateTime = new Date(`${dateValue}T${timeValue}:00`);
+  return Number.isNaN(dateTime.getTime()) ? null : dateTime;
+}
+
+function formatDateTimeWithOffset(date: Date): string {
+  const pad = (value: number) => String(value).padStart(2, "0");
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  const seconds = pad(date.getSeconds());
+  const offsetMinutes = -date.getTimezoneOffset();
+  const offsetSign = offsetMinutes >= 0 ? "+" : "-";
+  const offsetHours = pad(Math.floor(Math.abs(offsetMinutes) / 60));
+  const offsetRemainder = pad(Math.abs(offsetMinutes) % 60);
+
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${offsetSign}${offsetHours}:${offsetRemainder}`;
+}
+
+async function getCaptureDate(file: File): Promise<Date> {
+  try {
+    const parsedExif = await exifr.parse(file, {
+      pick: ["DateTimeOriginal", "CreateDate", "ModifyDate"],
+    });
+
+    const rawCaptureDate =
+      parsedExif?.DateTimeOriginal || parsedExif?.CreateDate || parsedExif?.ModifyDate;
+
+    if (rawCaptureDate) {
+      const captureDate = new Date(rawCaptureDate);
+      if (!Number.isNaN(captureDate.getTime())) {
+        return captureDate;
+      }
+    }
+  } catch {
+    // Fall back to the file's last modified time when EXIF data is unavailable.
+  }
+
+  return new Date(file.lastModified);
+}
+
 // Convert a File object to a PhotoItem with preview URL
-function toPhotoItem(file: File): PhotoItem {
+async function toPhotoItem(file: File): Promise<PhotoItem> {
+  const captureDate = await getCaptureDate(file);
+
   return {
     id: uid(),
     file,
     preview: URL.createObjectURL(file),
     locationId: "",
     price: "",
+    capturedDate: toLocalDateInputValue(captureDate),
+    capturedTime: toLocalTimeInputValue(captureDate),
   };
 }
 
@@ -50,12 +107,13 @@ export default function ImageUploadContentPage() {
   // ── File ingestion ────────────────────────────────────────────────────────
 
   // New files stay pending in the top strip until Apply is clicked.
-  const addFiles = useCallback((files: FileList | File[]) => {
+  const addFiles = useCallback(async (files: FileList | File[]) => {
     const valid = Array.from(files).filter((f) => ACCEPTED_MIME.includes(f.type));
     if (valid.length !== files.length) {
       toast.error("Some files were skipped. Only JPG, PNG, and WEBP images are allowed.");
     }
-    setPendingPhotos((prev) => [...prev, ...valid.map((f) => toPhotoItem(f))]);
+    const photoItems = await Promise.all(valid.map((file) => toPhotoItem(file)));
+    setPendingPhotos((prev) => [...prev, ...photoItems]);
   }, []);
 
   // Drag & drop handlers
@@ -73,7 +131,7 @@ export default function ImageUploadContentPage() {
     (e: React.DragEvent) => {
       e.preventDefault();
       setIsDragging(false);
-      if (e.dataTransfer.files) addFiles(e.dataTransfer.files);
+      if (e.dataTransfer.files) void addFiles(e.dataTransfer.files);
     },
     [addFiles],
   );
@@ -96,7 +154,11 @@ export default function ImageUploadContentPage() {
     });
   };
 
-  const updatePhoto = (id: string, field: "locationId" | "price", value: string) => {
+  const updatePhoto = (
+    id: string,
+    field: "locationId" | "price" | "capturedDate" | "capturedTime",
+    value: string,
+  ) => {
     setPhotos((prev) => prev.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
   };
 
@@ -109,12 +171,22 @@ export default function ImageUploadContentPage() {
       // Stage mode - APPLY TO ONLY PENDING PHOTOS
       setPhotos((prev) => [
         ...prev,
-        ...pendingPhotos.map((p) => ({ ...p, locationId: bulkLocationId, price: bulkPrice })),
+        ...pendingPhotos.map((p) => ({
+          ...p,
+          locationId: bulkLocationId,
+          price: bulkPrice,
+        })),
       ]);
       setPendingPhotos([]);
     } else {
       // No pending files - APPLY TO ALL PHOTOS IN UPLOADED GRID
-      setPhotos((prev) => prev.map((p) => ({ ...p, locationId: bulkLocationId, price: bulkPrice })));
+      setPhotos((prev) =>
+        prev.map((p) => ({
+          ...p,
+          locationId: bulkLocationId,
+          price: bulkPrice,
+        })),
+      );
     }
 
     setBulkLocationId("");
@@ -127,18 +199,28 @@ export default function ImageUploadContentPage() {
     if (!photos.length) return;
 
     // Validation
-    const invalidPhotos = photos.filter(p => !p.locationId || !p.price);
+    const invalidPhotos = photos.filter(
+      (p) => !p.locationId || !p.price || !p.capturedDate || !p.capturedTime,
+    );
     if (invalidPhotos.length > 0) {
-      toast.error("Please ensure all photos have a location and a price before uploading.");
+      toast.error(
+        "Please ensure all photos have a location, date, time, and price before uploading.",
+      );
       return;
     }
 
     const body = new FormData();
-    photos.forEach(({ file, locationId, price }) => {
+    photos.forEach(({ file, locationId, price, capturedDate, capturedTime }) => {
+      const capturedAt = combineDateAndTime(capturedDate, capturedTime);
+
+      if (!capturedAt) {
+        return;
+      }
+
       body.append("photos", file);
       body.append("locations", locationId);
       body.append("prices", price);
-      body.append("lastModifiedDates", file.lastModified.toString());
+      body.append("capturedAts", formatDateTimeWithOffset(capturedAt));
     });
 
     uploadMutation.mutate(body, {
@@ -149,7 +231,7 @@ export default function ImageUploadContentPage() {
         setPendingPhotos([]);
         setBulkLocationId("");
         setBulkPrice("");
-      }
+      },
     });
   };
 
@@ -193,7 +275,7 @@ export default function ImageUploadContentPage() {
               accept=".jpg,.jpeg,.png,.webp"
               className="hidden"
               onChange={(e) => {
-                if (e.target.files) addFiles(e.target.files);
+                if (e.target.files) void addFiles(e.target.files);
                 e.target.value = "";
               }}
             />
@@ -248,6 +330,17 @@ export default function ImageUploadContentPage() {
                 className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-[#0a2463] focus:ring-1 focus:ring-[#0a2463] focus:outline-none"
               />
             </div>
+
+            <div className="flex justify-end pt-1 sm:col-span-2">
+              <button
+                type="button"
+                onClick={applyToAllPhotos}
+                disabled={!bulkLocationId || !bulkPrice}
+                className="min-w-28 rounded-md bg-[#0a2463] px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+              >
+                Apply
+              </button>
+            </div>
           </div>
 
           <p className="mt-4 flex items-center gap-1.5 text-xs text-[#c47a1e]">
@@ -270,7 +363,10 @@ export default function ImageUploadContentPage() {
             }`}
           >
             {pendingPhotos.map((p) => (
-              <div key={p.id} className="relative group h-16 w-20 overflow-hidden rounded-md bg-gray-100">
+              <div
+                key={p.id}
+                className="group relative h-16 w-20 overflow-hidden rounded-md bg-gray-100"
+              >
                 <Image
                   src={p.preview}
                   alt={p.file.name}
@@ -313,7 +409,7 @@ export default function ImageUploadContentPage() {
 
           {/* ── Bulk apply row ── */}
           {hasAnyPhotos && (
-            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-800">
                   Apply Location to All Photos

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { CalendarIcon, ChevronDown, FileIcon, HardDriveIcon, XIcon } from "lucide-react";
+import { CalendarDays, ChevronDown, Clock3, FileIcon, HardDriveIcon, XIcon } from "lucide-react";
 
 export interface PhotoItem {
   id: string;
@@ -9,6 +9,8 @@ export interface PhotoItem {
   preview: string;
   locationId: string;
   price: string;
+  capturedDate: string;
+  capturedTime: string;
 }
 
 interface LocationOption {
@@ -20,7 +22,11 @@ interface PhotoCardProps {
   photo: PhotoItem;
   locations: LocationOption[];
   onRemove: (id: string) => void;
-  onChange: (id: string, field: "locationId" | "price", value: string) => void;
+  onChange: (
+    id: string,
+    field: "locationId" | "price" | "capturedDate" | "capturedTime",
+    value: string,
+  ) => void;
 }
 
 function formatBytes(bytes: number): string {
@@ -40,11 +46,23 @@ function formatDate(date: Date): string {
   });
 }
 
+function toDateTime(dateValue: string, timeValue: string): Date | null {
+  if (!dateValue || !timeValue) {
+    return null;
+  }
+
+  const dateTime = new Date(`${dateValue}T${timeValue}:00`);
+  return Number.isNaN(dateTime.getTime()) ? null : dateTime;
+}
+
 function fileExt(name: string): string {
   return name.split(".").pop()?.toUpperCase() ?? "FILE";
 }
 
 export default function PhotoCard({ photo, locations, onRemove, onChange }: PhotoCardProps) {
+  const capturedAt =
+    toDateTime(photo.capturedDate, photo.capturedTime) ?? new Date(photo.file.lastModified);
+
   return (
     <div className="relative overflow-hidden rounded-xl border border-gray-100 bg-[#EFF6FF] shadow-sm">
       {/* Remove button */}
@@ -77,8 +95,16 @@ export default function PhotoCard({ photo, locations, onRemove, onChange }: Phot
         {/* Stats row */}
         <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#4B5563]">
           <span className="flex items-center gap-1">
-            <CalendarIcon className="h-3 w-3" color="#020617" />
-            {formatDate(new Date(photo.file.lastModified))}
+            <CalendarDays className="h-3 w-3" color="#020617" />
+            {formatDate(capturedAt)}
+          </span>
+          <span className="flex items-center gap-1">
+            <Clock3 className="h-3 w-3" color="#020617" />
+            {capturedAt.toLocaleTimeString("en-US", {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+            })}
           </span>
           <span className="flex items-center gap-1">
             <FileIcon className="h-3 w-3" color="#020617" />
@@ -109,6 +135,29 @@ export default function PhotoCard({ photo, locations, onRemove, onChange }: Phot
             <span className="pointer-events-none absolute inset-y-0 right-2.5 flex items-center text-gray-400">
               <ChevronDown className="h-3 w-3" color="#9CA3AF" />
             </span>
+          </div>
+        </div>
+
+        {/* Date and Time */}
+        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-base font-medium text-[#0D1420]">Date</label>
+            <input
+              type="date"
+              value={photo.capturedDate}
+              onChange={(e) => onChange(photo.id, "capturedDate", e.target.value)}
+              className="w-full rounded-md border border-gray-200 bg-[#EFF6FF] px-3 py-2 text-sm text-gray-700 focus:border-[#0a2463] focus:ring-1 focus:ring-[#0a2463] focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-base font-medium text-[#0D1420]">Time</label>
+            <input
+              type="time"
+              value={photo.capturedTime}
+              onChange={(e) => onChange(photo.id, "capturedTime", e.target.value)}
+              className="w-full rounded-md border border-gray-200 bg-[#EFF6FF] px-3 py-2 text-sm text-gray-700 focus:border-[#0a2463] focus:ring-1 focus:ring-[#0a2463] focus:outline-none"
+            />
           </div>
         </div>
 
