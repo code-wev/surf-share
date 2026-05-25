@@ -72,7 +72,7 @@ const HomeBanner = () => {
             {/* Buttons */}
             <div className="mt-12 flex flex-col items-start justify-start gap-3 sm:flex-row sm:gap-6">
               <Link
-                href="/properties"
+                href="/gallery"
                 className="inline-flex min-w-10 items-center justify-center gap-x-2 rounded-lg border border-(--color-icon-weaker) bg-(--color-fill-brand-strong) px-5 py-2 text-base text-white shadow-md transition-colors duration-200 hover:bg-(--color-brand-hover) hover:shadow-lg"
               >
                 Browse Gallery
@@ -80,7 +80,7 @@ const HomeBanner = () => {
               </Link>
 
               <Link
-                href="/services"
+                href="/map"
                 className="inline-flex min-w-10 items-center justify-center gap-x-2 rounded-lg border border-(--color-line-brand-strong) bg-(--color-fill-inverse-weak) px-5 py-2.5 text-sm text-(--color-line-brand-strong) transition-colors duration-200 hover:bg-white/30"
               >
                 Explore Locations
