@@ -30,6 +30,14 @@ function formatApiDate(dateValue: string) {
   });
 }
 
+function formatApiTime(dateValue: string) {
+  return new Date(dateValue).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
 const uploadStatuses = ["all", "approved", "rejected", "pending"] as const;
 type UploadStatusFilter = (typeof uploadStatuses)[number];
 
@@ -42,6 +50,7 @@ const uploadStatusLabels: Record<UploadStatusFilter, string> = {
 
 type EnrichedUploadRow = ContributorListTableRow & {
   uploadedAt: string;
+  timeLabel: string;
   priceValue: number;
   locationId: string;
   photographer: string;
@@ -61,15 +70,18 @@ function mapStatus(dbStatus: string): "approved" | "rejected" | "pending" {
 }
 
 function mapApiPhotoToRow(item: IPhotoResponse): EnrichedUploadRow {
+  const takenAt = item.capturedAt || item.createdAt;
+
   return {
     id: item.id,
     photoUrl: getAbsoluteImageUrl(item.imageUrl),
     name: "Photo",
     location: `${item.location.name}, ${item.location.state}`,
-    dateLabel: formatApiDate(item.createdAt),
-    priceLabel: `$${item.price}`,
+    dateLabel: formatApiDate(takenAt),
+    timeLabel: formatApiTime(takenAt),
+    priceLabel: `$${item.price.toFixed(2)}`,
     status: mapStatus(item.status),
-    uploadedAt: item.createdAt,
+    uploadedAt: takenAt,
     priceValue: item.price,
     locationId: item.locationId,
     photographer: "You",

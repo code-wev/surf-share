@@ -92,7 +92,7 @@ export default function ProfileSettingsContent() {
   });
 
   const apiProfile = data?.data;
-  
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !session?.id) return;
@@ -134,7 +134,9 @@ export default function ProfileSettingsContent() {
     url: s.url,
   }));
 
-  const displaySocialLinks: SocialAccountLink[] = isEditingProfile ? socialLinks : parsedIncomingLinks;
+  const displaySocialLinks: SocialAccountLink[] = isEditingProfile
+    ? socialLinks
+    : parsedIncomingLinks;
 
   return (
     <div className="h-full px-4 py-4 sm:px-6 sm:py-6 md:px-0 md:py-0">
@@ -177,7 +179,7 @@ export default function ProfileSettingsContent() {
           </div>
           <p className="text-text-strong mt-4 text-lg font-medium">{displayProfile.fullName}</p>
         </div>
-        
+
         {/* Profile details section... */}
         <div className="mt-6 flex items-center justify-between md:mt-9">
           <h2 className="text-text-strong text-[18px] font-semibold">Profile Details</h2>

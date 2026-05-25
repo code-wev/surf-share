@@ -9,6 +9,12 @@ export interface IPhotoResponse {
   status: PhotoStatus;
   photographerId: string;
   locationId: string;
+  capturedAt?: string | null;
+  timeKey?: string | null;
+  width?: number | null;
+  height?: number | null;
+  format?: string | null;
+  fileSize?: number | null;
   location: {
     id: string;
     name: string;
@@ -35,7 +41,7 @@ export const photoService = {
     });
     return response.data;
   },
-  
+
   getAllPublic: async (params: Record<string, unknown>) => {
     const response = await apiClient.get("/photos", { params });
     return response.data;

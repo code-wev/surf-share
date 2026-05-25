@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use } from "react";
-import { Calendar, Camera, ExternalLink, Heart, MapPin, ShoppingCart } from "lucide-react";
+import { Calendar, Camera, Clock3, ExternalLink, Heart, MapPin, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 
 import RelatedImagesSection from "@/components/home/gallery/related-images-section";
@@ -120,11 +120,13 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   const format = detailItem.format ? detailItem.format.toUpperCase() : "JPEG";
 
   const takenDate = new Date(detailItem.capturedAt || detailItem.createdAt);
-  const formattedDate = takenDate.toLocaleString("en-US", {
+  const formattedDate = takenDate.toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
     year: "numeric",
-    hour: "2-digit",
+  });
+  const formattedTime = takenDate.toLocaleTimeString("en-US", {
+    hour: "numeric",
     minute: "2-digit",
     hour12: true,
   });
@@ -220,6 +222,14 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
               subtitle="Date Taken"
               subtitlePosition="top"
               title={formattedDate}
+              titleClassName="text-base! text-(--color-text-strong) -mt-4 font-medium!"
+              subtitleClassName="text-sm! text-(--color-text-weak)"
+            />
+            <PageTitle
+              beforeTitle={<Clock3 className="h-5 w-5" color="#0C3173" />}
+              subtitle="Time Taken"
+              subtitlePosition="top"
+              title={formattedTime}
               titleClassName="text-base! text-(--color-text-strong) -mt-4 font-medium!"
               subtitleClassName="text-sm! text-(--color-text-weak)"
             />
