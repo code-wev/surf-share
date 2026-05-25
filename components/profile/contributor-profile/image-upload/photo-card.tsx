@@ -5,6 +5,7 @@ import { CalendarDays, ChevronDown, Clock3, FileIcon, HardDriveIcon, XIcon } fro
 
 export interface PhotoItem {
   id: string;
+  title: string;
   file: File;
   preview: string;
   locationId: string;
@@ -24,7 +25,7 @@ interface PhotoCardProps {
   onRemove: (id: string) => void;
   onChange: (
     id: string,
-    field: "locationId" | "price" | "capturedDate" | "capturedTime",
+    field: "locationId" | "price" | "capturedDate" | "capturedTime" | "title",
     value: string,
   ) => void;
 }
@@ -89,8 +90,16 @@ export default function PhotoCard({ photo, locations, onRemove, onChange }: Phot
 
       {/* Meta */}
       <div className="p-4">
-        {/* File name */}
-        <p className="truncate text-xl font-semibold text-gray-900">{photo.file.name}</p>
+        {/* Title Input */}
+        <div className="mb-3">
+          <input
+            type="text"
+            placeholder="Enter photo title..."
+            value={photo.title}
+            onChange={(e) => onChange(photo.id, "title", e.target.value)}
+            className="w-full truncate rounded-md border border-transparent bg-transparent px-2 py-1 text-xl font-semibold text-gray-900 transition-colors hover:border-gray-200 focus:border-[#0a2463] focus:bg-white focus:ring-1 focus:ring-[#0a2463] focus:outline-none"
+          />
+        </div>
 
         {/* Stats row */}
         <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#4B5563]">

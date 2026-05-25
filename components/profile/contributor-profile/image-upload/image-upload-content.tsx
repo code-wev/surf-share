@@ -80,6 +80,7 @@ async function toPhotoItem(file: File): Promise<PhotoItem> {
 
   return {
     id: uid(),
+    title: file.name.split(".")[0] || "Untitled Photo",
     file,
     preview: URL.createObjectURL(file),
     locationId: "",
@@ -156,7 +157,7 @@ export default function ImageUploadContentPage() {
 
   const updatePhoto = (
     id: string,
-    field: "locationId" | "price" | "capturedDate" | "capturedTime",
+    field: "locationId" | "price" | "capturedDate" | "capturedTime" | "title",
     value: string,
   ) => {
     setPhotos((prev) => prev.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
@@ -200,17 +201,17 @@ export default function ImageUploadContentPage() {
 
     // Validation
     const invalidPhotos = photos.filter(
-      (p) => !p.locationId || !p.price || !p.capturedDate || !p.capturedTime,
+      (p) => !p.locationId || !p.price || !p.capturedDate || !p.capturedTime || !p.title?.trim(),
     );
     if (invalidPhotos.length > 0) {
       toast.error(
-        "Please ensure all photos have a location, date, time, and price before uploading.",
+        "Please ensure all photos have a title, location, date, time, and price before uploading.",
       );
       return;
     }
 
     const body = new FormData();
-    photos.forEach(({ file, locationId, price, capturedDate, capturedTime }) => {
+    photos.forEach(({ file, locationId, price, capturedDate, capturedTime, title }) => {
       const capturedAt = combineDateAndTime(capturedDate, capturedTime);
 
       if (!capturedAt) {
@@ -221,6 +222,7 @@ export default function ImageUploadContentPage() {
       body.append("locations", locationId);
       body.append("prices", price);
       body.append("capturedAts", formatDateTimeWithOffset(capturedAt));
+      body.append("titles", title.trim());
     });
 
     uploadMutation.mutate(body, {

@@ -8,6 +8,7 @@ interface ApiErrorResponse {
 
 export interface PhotoModerationApiPhoto {
   id: string;
+  title?: string | null;
   imageUrl: string;
   price: number;
   createdAt: string;

@@ -19,6 +19,7 @@ const PAGE_SIZE = 16;
 
 type ApiPhoto = {
   id: string;
+  title?: string | null;
   imageUrl: string;
   price: number;
   photographer?: { name?: string };
@@ -69,16 +70,17 @@ function GalleryPageContent() {
 
   const photos = photosData?.data || [];
   const meta = photosData?.meta || { total: 0, totalPages: 1 };
-
-  const mappedPhotos = photos.map((p: ApiPhoto) => ({
-    id: p.id,
-    slug: p.id,
-    src: getAbsoluteImageUrl(p.imageUrl),
-    alt: `Photo by ${p.photographer?.name}`,
-    userName: p.photographer?.name || "Unknown",
-    location: p.location?.name || "Unknown Location",
-    price: `$${p.price.toFixed(2)}`,
-  }));
+const mappedPhotos = photos.map((p: ApiPhoto) => ({
+  id: p.id,
+  slug: p.id,
+  src: getAbsoluteImageUrl(p.imageUrl),
+  alt: p.title || `Photo by ${p.photographer?.name}`,
+  userName: p.photographer?.name || "Unknown",
+  location: p.location?.name || "Unknown Location",
+  price: `$${p.price.toFixed(2)}`,
+  avatarSrc: "/home/logo.png",
+  title: p.title || `Photo by ${p.photographer?.name}`,
+}));
 
   return (
     <>

@@ -80,7 +80,7 @@ export default function DashboardPhotoModerationContent() {
         id: photo.id,
         imageSrc: toAbsoluteImageUrl(photo.imageUrl),
         images: [toAbsoluteImageUrl(photo.imageUrl)],
-        title: `${photo.photographer?.name || "Photographer"}'s upload`,
+        title: photo.title || `${photo.photographer?.name || "Photographer"}'s upload`,
         priceLabel: `$${photo.price}`,
         photographer: photo.photographer?.name || "Unknown",
         location: photo.location?.name || "Unknown Location",
