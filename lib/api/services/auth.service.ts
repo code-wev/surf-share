@@ -13,7 +13,9 @@ type RegisterBasePayload = {
 };
 
 type RegisterPhotographerPayload = RegisterBasePayload & {
-  paypalEmail: string;
+  paypalEmail?: string;
+  acceptedApproval: boolean;
+  acceptedContributor: boolean;
 };
 
 export const authService = {
