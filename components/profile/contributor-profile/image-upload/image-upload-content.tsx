@@ -289,7 +289,7 @@ export default function ImageUploadContentPage() {
               Browse Photos
             </button>
             <p className="mt-4 px-2 text-xs text-gray-400">
-              Supported formats: JPG, JPEG, PNG, WEBP (Max 10MB)
+              Supported formats: JPG, JPEG, PNG, WEBP
             </p>
           </div>
 

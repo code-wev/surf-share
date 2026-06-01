@@ -17,18 +17,44 @@ export default function ModeratorManagementTable({
   statusClassNameMap,
   onViewDetails,
 }: ModeratorManagementTableProps) {
+  const getInitials = (name?: string) => {
+    if (!name) return "";
+    return name
+      .split(" ")
+      .map((n) => n.charAt(0))
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+  };
   return (
     <>
       <div className="mt-6 grid grid-cols-1 gap-3 lg:hidden">
         {rows.map((row) => (
-          <article key={row.id} className="border-line-weaker bg-surface-muted-100 rounded-sm border p-3">
+          <article
+            key={row.id}
+            className="border-line-weaker bg-surface-muted-100 rounded-sm border p-3"
+          >
             <div className="flex items-start gap-3">
-              <Image src={row.photo} alt={row.name} width={44} height={44} className="h-11 w-11 rounded-full object-cover" />
+              {row.photo ? (
+                <Image
+                  src={row.photo}
+                  alt={row.name}
+                  width={44}
+                  height={44}
+                  className="h-11 w-11 rounded-full object-cover"
+                />
+              ) : (
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#E5E7EB] text-xs text-[#6B7280]">
+                  {getInitials(row.name)}
+                </div>
+              )}
               <div className="min-w-0 flex-1">
                 <p className="text-text-strong truncate text-sm font-semibold">{row.name}</p>
                 <p className="text-text-weak mt-0.5 truncate text-xs">{row.email}</p>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <span className={`inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[11px] ${statusClassNameMap[row.status]}`}>
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[11px] ${statusClassNameMap[row.status]}`}
+                  >
                     {row.status === "Active" ? "✓" : "✕"} {row.status}
                   </span>
                 </div>
@@ -37,24 +63,35 @@ export default function ModeratorManagementTable({
 
             <div className="text-text-weak mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
               <p>
-                <span className="text-text-weaker block text-[11px] tracking-wide uppercase">Phone</span>
+                <span className="text-text-weaker block text-[11px] tracking-wide uppercase">
+                  Phone
+                </span>
                 <span className="mt-0.5 block">{row.phone}</span>
               </p>
               <p>
-                <span className="text-text-weaker block text-[11px] tracking-wide uppercase">Assigned Date</span>
+                <span className="text-text-weaker block text-[11px] tracking-wide uppercase">
+                  Assigned Date
+                </span>
                 <span className="mt-0.5 block">{row.assignedDate}</span>
               </p>
             </div>
 
             <div className="mt-2 flex flex-wrap gap-2">
-               {row.assignedPermissions.map((perm) => (
-                  <span key={perm} className="inline-flex rounded-sm bg-[#F3F4F6] px-2 py-0.5 text-[11px] text-[#6B7280]">
-                    {perm}
-                  </span>
-               ))}
+              {row.assignedPermissions.map((perm) => (
+                <span
+                  key={perm}
+                  className="inline-flex rounded-sm bg-[#F3F4F6] px-2 py-0.5 text-[11px] text-[#6B7280]"
+                >
+                  {perm}
+                </span>
+              ))}
             </div>
 
-            <button type="button" onClick={() => onViewDetails(row)} className="mt-3 inline-flex items-center gap-1 text-xs text-[#0EA5E9] hover:underline">
+            <button
+              type="button"
+              onClick={() => onViewDetails(row)}
+              className="mt-3 inline-flex items-center gap-1 text-xs text-[#0EA5E9] hover:underline"
+            >
               <Eye size={12} /> View details
             </button>
           </article>
@@ -79,7 +116,19 @@ export default function ModeratorManagementTable({
             {rows.map((row) => (
               <tr key={row.id} className="border-line-weaker border-b last:border-b-0">
                 <td className="p-2">
-                  <Image src={row.photo} alt={row.name} width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
+                  {row.photo ? (
+                    <Image
+                      src={row.photo}
+                      alt={row.name}
+                      width={40}
+                      height={40}
+                      className="h-10 w-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#E5E7EB] text-[11px] text-[#6B7280]">
+                      {getInitials(row.name)}
+                    </div>
+                  )}
                 </td>
                 <td className="p-2">{row.name}</td>
                 <td className="p-2">{row.email}</td>
@@ -88,19 +137,28 @@ export default function ModeratorManagementTable({
                 <td className="p-2">
                   <div className="flex flex-wrap gap-1">
                     {row.assignedPermissions.map((perm) => (
-                      <span key={perm} className="inline-flex rounded-sm bg-[#F3F4F6] px-2 py-1 text-[11px] text-[#6B7280]">
+                      <span
+                        key={perm}
+                        className="inline-flex rounded-sm bg-[#F3F4F6] px-2 py-1 text-[11px] text-[#6B7280]"
+                      >
                         {perm}
                       </span>
                     ))}
                   </div>
                 </td>
                 <td className="p-2">
-                  <span className={`inline-flex items-center gap-1 rounded-sm px-2 py-0.5 ${statusClassNameMap[row.status]}`}>
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-sm px-2 py-0.5 ${statusClassNameMap[row.status]}`}
+                  >
                     {row.status === "Active" ? "✓" : "✕"} {row.status}
                   </span>
                 </td>
                 <td className="p-2">
-                  <button type="button" onClick={() => onViewDetails(row)} className="inline-flex items-center gap-1 text-[#0EA5E9] hover:underline">
+                  <button
+                    type="button"
+                    onClick={() => onViewDetails(row)}
+                    className="inline-flex items-center gap-1 text-[#0EA5E9] hover:underline"
+                  >
                     <Eye size={12} /> View details
                   </button>
                 </td>

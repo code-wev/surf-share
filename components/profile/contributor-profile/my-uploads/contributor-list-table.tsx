@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Check, Clock3, Eye, X } from "lucide-react";
+import { Check, Clock3, Eye, Pencil, Trash2, X } from "lucide-react";
 
 import { type UploadStatus } from "./my-upload-data";
 
@@ -22,11 +22,15 @@ export type ContributorListTableRow = {
 type ContributorListTableProps<T extends ContributorListTableRow> = {
   rows: T[];
   onViewDetails: (row: T) => void;
+  onEdit: (row: T) => void;
+  onDelete: (row: T) => void;
 };
 
 export default function ContributorListTable<T extends ContributorListTableRow>({
   rows,
   onViewDetails,
+  onEdit,
+  onDelete,
 }: ContributorListTableProps<T>) {
   const statusStyleMap: Record<UploadStatus, string> = {
     approved: "bg-[#EAF9EF] text-[#22C55E]",
@@ -92,14 +96,30 @@ export default function ContributorListTable<T extends ContributorListTableRow>(
                 </td>
 
                 <td className="px-2 py-2">
-                  <button
-                    type="button"
-                    onClick={() => onViewDetails(item)}
-                    className="inline-flex cursor-pointer items-center gap-1 text-sm text-[#0EA5E9] hover:underline"
-                  >
-                    <Eye size={14} />
-                    View details
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => onViewDetails(item)}
+                      className="inline-flex cursor-pointer items-center gap-1 text-sm text-[#0EA5E9] hover:underline"
+                    >
+                      <Eye size={14} />
+                      View details
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onEdit(item)}
+                      className="text-brand-default inline-flex cursor-pointer items-center gap-1 text-sm hover:underline"
+                    >
+                      <Pencil size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onDelete(item)}
+                      className="text-danger-strong inline-flex cursor-pointer items-center gap-1 text-sm hover:underline"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             );

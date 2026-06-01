@@ -9,7 +9,7 @@ import GalleryTitle from "@/components/home/gallery/gallery-title";
 import { usePublicPhotosQuery } from "@/hooks/api/usePhotos";
 import { useLocationsQuery } from "@/hooks/api/useLocations";
 import { Loader2 } from "lucide-react";
-import { getAbsoluteImageUrl } from "@/lib/utils";
+import { getAbsoluteImageUrl, formatFileSize } from "@/lib/utils";
 
 export type GalleryTab = "all" | "today" | "yesterday" | "last7days" | "last14days";
 export type GalleryTime = "all" | "FIRST_LIGHT" | "MORNING" | "LUNCH" | "AFTERNOON";
@@ -22,6 +22,7 @@ type ApiPhoto = {
   title?: string | null;
   imageUrl: string;
   price: number;
+  fileSize?: number | null;
   photographer?: { name?: string };
   location?: { name?: string };
 };
@@ -70,17 +71,18 @@ function GalleryPageContent() {
 
   const photos = photosData?.data || [];
   const meta = photosData?.meta || { total: 0, totalPages: 1 };
-const mappedPhotos = photos.map((p: ApiPhoto) => ({
-  id: p.id,
-  slug: p.id,
-  src: getAbsoluteImageUrl(p.imageUrl),
-  alt: p.title || `Photo by ${p.photographer?.name}`,
-  userName: p.photographer?.name || "Unknown",
-  location: p.location?.name || "Unknown Location",
-  price: `$${p.price.toFixed(2)}`,
-  avatarSrc: "/home/logo.png",
-  title: p.title || `Photo by ${p.photographer?.name}`,
-}));
+  const mappedPhotos = photos.map((p: ApiPhoto) => ({
+    id: p.id,
+    slug: p.id,
+    src: getAbsoluteImageUrl(p.imageUrl),
+    alt: p.title || `Photo by ${p.photographer?.name}`,
+    userName: p.photographer?.name || "Unknown",
+    location: p.location?.name || "Unknown Location",
+    price: `$${p.price.toFixed(2)}`,
+    avatarSrc: "/home/logo.png",
+    title: p.title || `Photo by ${p.photographer?.name}`,
+    fileSize: formatFileSize(p.fileSize),
+  }));
 
   return (
     <>

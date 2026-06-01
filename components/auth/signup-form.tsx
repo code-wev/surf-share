@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { AlertCircle, ArrowLeft, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,9 @@ export function SignUpForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [paypalEmail, setPaypalEmail] = useState("");
+  const [promotionEmail, setPromotionEmail] = useState(true);
+  const [acceptedApproval, setAcceptedApproval] = useState(false);
+  const [acceptedContributor, setAcceptedContributor] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -33,29 +35,13 @@ export function SignUpForm({
   const isPending = isPhotographer ? photographerMutation.isPending : surferMutation.isPending;
 
   const ctaLabel = useMemo(() => {
-    if (step === 1 && isPhotographer) return "Next";
     return "Sign up";
-  }, [isPhotographer, step]);
+  }, []);
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (step === 1 && isPhotographer) {
-      if (!name || !email || !password || !confirmPassword) {
-        toast.error("Please fill in all fields.");
-        return;
-      }
-      if (password !== confirmPassword) {
-        toast.error("Passwords do not match.");
-        return;
-      }
-      if (password.length < 8) {
-        toast.error("Password must be at least 8 characters long.");
-        return;
-      }
-      setStep(2);
-      return;
-    }
+    // continue to submission
 
     if (!isPhotographer) {
       if (!name || !email || !password || !confirmPassword) {
@@ -70,14 +56,37 @@ export function SignUpForm({
         toast.error("Password must be at least 8 characters long.");
         return;
       }
-      surferMutation.mutate({ name, email, password });
+      surferMutation.mutate({ name, email, password, promotionEmail });
     } else {
-      // Step 2 Photographer
-      if (!paypalEmail) {
-        toast.error("PayPal email is required for photographers.");
+      // Photographer registration: require both agreements
+      if (!name || !email || !password || !confirmPassword) {
+        toast.error("Please fill in all fields.");
         return;
       }
-      photographerMutation.mutate({ name, email, password, paypalEmail });
+      if (password !== confirmPassword) {
+        toast.error("Passwords do not match.");
+        return;
+      }
+      if (password.length < 8) {
+        toast.error("Password must be at least 8 characters long.");
+        return;
+      }
+      if (!acceptedApproval) {
+        toast.error("You must accept the approval requirement.");
+        return;
+      }
+      if (!acceptedContributor) {
+        toast.error("You must accept the contributor agreement.");
+        return;
+      }
+      photographerMutation.mutate({
+        name,
+        email,
+        password,
+        promotionEmail,
+        acceptedApproval,
+        acceptedContributor,
+      });
     }
   };
 
@@ -127,95 +136,7 @@ export function SignUpForm({
         </div>
       </fieldset>
 
-      {step === 2 && isPhotographer ? (
-        <div className="space-y-5 p-4 sm:p-5">
-          <div className="space-y-3">
-            <div className="text-text-weaker flex items-center justify-between text-[10px] font-semibold tracking-[0.14em] uppercase">
-              <span>Step 2 of 2</span>
-              <span className="tracking-normal normal-case">Payment Setup</span>
-            </div>
-            <div className="bg-line-weaker h-0.5 w-full">
-              <div className="bg-brand-default h-full w-full" />
-            </div>
-          </div>
-
-          <p className="text-text-weak text-xs leading-5 sm:text-sm">
-            Enter your PayPal email to receive payments. Payouts are processed automatically when
-            your photos sell.
-          </p>
-
-          <div className="space-y-2">
-            <label htmlFor="paypal-email" className="text-text-strong text-base font-medium">
-              PayPal Email
-            </label>
-            <Input
-              id="paypal-email"
-              type="email"
-              placeholder="Enter your PayPal Email"
-              value={paypalEmail}
-              onChange={(e) => setPaypalEmail(e.target.value)}
-              disabled={isPending}
-            />
-          </div>
-
-          <p className="text-alert-strong inline-flex items-start gap-1.5 text-xs">
-            <AlertCircle size={14} className="mt-0.5 shrink-0" />
-            <span>
-              Note: Ensure this email matches your active PayPal account. Platform commission is
-              deducted automatically before payout.
-            </span>
-          </p>
-
-          <div className="space-y-2">
-            <label className="text-text-weak inline-flex items-start gap-2 text-xs">
-              <input
-                type="checkbox"
-                defaultChecked
-                className="border-line-weak text-brand-default focus:ring-brand-default mt-0.5 size-3.5 rounded"
-              />
-              I understand that my first 10 uploads will require approval before going live.
-            </label>
-
-            <label className="text-text-weak inline-flex items-start gap-2 text-xs">
-              <input
-                type="checkbox"
-                defaultChecked
-                className="border-line-weak text-brand-default focus:ring-brand-default mt-0.5 size-3.5 rounded"
-              />
-              I agree to the{" "}
-              <Link href="#" className="text-brand-default underline-offset-2 hover:underline">
-                pricing structure
-              </Link>{" "}
-              and{" "}
-              <Link href="#" className="text-brand-default underline-offset-2 hover:underline">
-                contributor agreement
-              </Link>
-              .
-            </label>
-          </div>
-
-          <div className="flex flex-col gap-3 pt-3 sm:flex-row sm:items-center sm:justify-between">
-            <button
-              type="button"
-              onClick={() => setStep(1)}
-              disabled={isPending}
-              className="border-line-weaker text-text-weak hover:bg-fill-weak inline-flex w-full items-center justify-center gap-2 rounded-md border px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 sm:w-auto"
-            >
-              <ArrowLeft size={16} />
-              Back
-            </button>
-
-            <button
-              type="submit"
-              disabled={isPending}
-              className="bg-brand-default text-text-inverse-strong hover:bg-brand-hover inline-flex w-full items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 sm:w-auto"
-            >
-              {isPending ? "Signing up..." : "Sign up"}
-              <ArrowRight size={18} />
-            </button>
-          </div>
-        </div>
-      ) : null}
+      {/* Photographer agreements moved into main signup step */}
 
       {step === 1 ? (
         <>
@@ -303,11 +224,54 @@ export function SignUpForm({
           <label className="text-text-weak inline-flex items-center gap-2 text-xs">
             <input
               type="checkbox"
-              defaultChecked
+              checked={promotionEmail}
+              onChange={(e) => setPromotionEmail(e.target.checked)}
+              disabled={isPending}
               className="border-line-weak text-brand-default focus:ring-brand-default size-3.5 rounded"
             />
             Allow promotions and updates to be sent via email.
           </label>
+          {isPhotographer && (
+            <div className="flex flex-col space-y-2 pt-4">
+              <label className="text-text-weak inline-flex items-start gap-2 text-xs">
+                <input
+                  type="checkbox"
+                  checked={acceptedApproval}
+                  onChange={(e) => setAcceptedApproval(e.target.checked)}
+                  disabled={isPending}
+                  className="border-line-weak text-brand-default focus:ring-brand-default mt-0.5 size-3.5 rounded"
+                />
+                I understand that my first 10 uploads will require approval before going live.
+              </label>
+
+              <label className="text-text-weak inline-flex items-start gap-2 text-xs">
+                <input
+                  type="checkbox"
+                  checked={acceptedContributor}
+                  onChange={(e) => setAcceptedContributor(e.target.checked)}
+                  disabled={isPending}
+                  className="border-line-weak text-brand-default focus:ring-brand-default mt-0.5 size-3.5 rounded"
+                />
+                <span>
+                  I agree to the{" "}
+                  <Link
+                    href="/terms-conditions"
+                    className="text-brand-default underline-offset-2 hover:underline"
+                  >
+                    Terms & Conditions
+                  </Link>{" "}
+                  and{" "}
+                  <Link
+                    href="/privacy-policy"
+                    className="text-brand-default underline-offset-2 hover:underline"
+                  >
+                    Privacy Policy
+                  </Link>
+                  .
+                </span>
+              </label>
+            </div>
+          )}
         </>
       ) : null}
 
@@ -332,4 +296,3 @@ export function SignUpForm({
     </form>
   );
 }
-

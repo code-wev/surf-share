@@ -66,7 +66,7 @@ export default function ProfileSidebar({ className, onNavigate }: ProfileSidebar
         { label: "Profile", href: "/profile", Icon: UserRound },
         { label: "Order", href: "/profile/order", Icon: Package },
         { label: "Downloads", href: "/profile/download", Icon: Download },
-        { label: "Favorites", href: "/profile/favorite", Icon: Heart },
+        { label: "Favourites", href: "/profile/favorite", Icon: Heart },
       ];
 
   return (

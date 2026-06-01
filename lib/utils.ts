@@ -28,3 +28,14 @@ export function getAbsoluteImageUrl(value: string | undefined | null): string {
 
   return `${origin}/${value}`;
 }
+
+export function formatFileSize(bytes: number | null | undefined): string {
+  if (bytes === null || bytes === undefined) return "N/A";
+  if (bytes === 0) return "0 Bytes";
+
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+}
