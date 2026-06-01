@@ -20,7 +20,7 @@ export default function HowItWorks() {
       icon: <Download className="h-5 w-5 text-(--color-text-inverse-strong)" />,
       title: "Purchase your waves",
       description:
-        "Pay securely via PayPal and instantly download your high-resolution, watermark-free photo. Yours to keep, share, and relive.",
+        "Pay securely via Stripe and instantly download your high-resolution, watermark-free photo. Yours to keep, share, and relive.",
     },
   ];
 
