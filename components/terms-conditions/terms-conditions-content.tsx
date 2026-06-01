@@ -122,7 +122,7 @@ export default function TermsConditionsContent() {
             <li>
               If automated payments fail, SurfShare will process payouts manually on a monthly basis
             </li>
-            <li>All payouts are currently made via PayPal</li>
+            <li>All payouts are currently made via Stripe</li>
             <li>Contributors are responsible for providing accurate payment details</li>
           </ul>
           <p>SurfShare is not responsible for delays caused by third-party payment providers.</p>

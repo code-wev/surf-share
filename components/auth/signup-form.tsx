@@ -136,7 +136,7 @@ export function SignUpForm({
         </div>
       </fieldset>
 
-      {/* Photographer agreements moved into main signup step; PayPal step removed */}
+      {/* Photographer agreements moved into main signup step */}
 
       {step === 1 ? (
         <>
