@@ -138,6 +138,7 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
                   alt={item.userName ?? "Uploader"}
                   width={30}
                   height={30}
+                  loading="eager"
                   className="h-7 w-7 rounded-full border border-white/50 object-cover"
                 />
               ) : null}
