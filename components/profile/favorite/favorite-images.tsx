@@ -26,17 +26,17 @@ export default function FavoriteImages() {
     location: p.location?.name || "Unknown Location",
     price: `$${p.price.toFixed(2)}`,
     avatarSrc: "/home/logo.png",
-    favoriteActive: true, // They are definitely favorited on this page!
+    favoriteActive: true, // They are definitely favorite on this page!
   }));
 
   return (
     <section className="h-full px-4 py-4 sm:px-6 sm:py-6 md:px-0 md:py-0">
       <div className="flex h-full flex-col">
-        <h1 className="text-(--color-text-brand-strong) inline-flex w-fit border-b-2 border-[#0C3173] pb-2.5 text-lg font-semibold md:text-[18px] md:leading-tight">
+        <h1 className="inline-flex w-fit border-b-2 border-[#0C3173] pb-2.5 text-lg font-semibold text-(--color-text-brand-strong) md:text-[18px] md:leading-tight">
           Favorite Photos
         </h1>
 
-        <p className="text-(--color-text-weak) mt-6 text-sm leading-relaxed md:mt-10 md:max-w-140">
+        <p className="mt-6 text-sm leading-relaxed text-(--color-text-weak) md:mt-10 md:max-w-140">
           Save your preferred photos here so you can access them quickly anytime.
         </p>
 
@@ -47,8 +47,10 @@ export default function FavoriteImages() {
             </div>
           ) : mappedPhotos.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-(--color-line-weaker) py-20 text-center">
-              <p className="text-(--color-text-strong) font-medium">No favorites yet</p>
-              <p className="text-(--color-text-weak) mt-1 text-sm">Photos you favorite will appear here.</p>
+              <p className="font-medium text-(--color-text-strong)">No favorites yet</p>
+              <p className="mt-1 text-sm text-(--color-text-weak)">
+                Photos you favorite will appear here.
+              </p>
             </div>
           ) : (
             <CardView items={mappedPhotos} desktopColumns={3} />
