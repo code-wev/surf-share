@@ -17,7 +17,7 @@ const companyLinks = [
 const legalLinks = [
   { label: "Privacy Policy", href: "/privacy-policy" },
   { label: "Terms and Conditions", href: "/terms-conditions" },
-  { label: "Cookie Settings", href: "/cookies" },
+  // { label: "Cookie Settings", href: "/cookies" },
 ];
 
 const Footer = () => {
