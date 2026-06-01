@@ -254,12 +254,18 @@ export function SignUpForm({
                 />
                 <span>
                   I agree to the{" "}
-                  <Link href="#" className="text-brand-default underline-offset-2 hover:underline">
-                    Pricing Structure
+                  <Link
+                    href="/terms-conditions"
+                    className="text-brand-default underline-offset-2 hover:underline"
+                  >
+                    Terms & Conditions
                   </Link>{" "}
                   and{" "}
-                  <Link href="#" className="text-brand-default underline-offset-2 hover:underline">
-                    Contributor Agreement
+                  <Link
+                    href="/privacy-policy"
+                    className="text-brand-default underline-offset-2 hover:underline"
+                  >
+                    Privacy Policy
                   </Link>
                   .
                 </span>
