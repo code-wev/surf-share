@@ -191,7 +191,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
                 alt="Surfshare watermark"
                 width={1000}
                 height={500}
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-20deg] drop-shadow-[0_8px_22px_rgba(0,0,0,0.45)]"
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-20deg] opacity-165 brightness-[0.2] drop-shadow-[0_15px_50px_rgba(0,0,0,0.95)] grayscale"
                 draggable={false}
               />
             </div>
