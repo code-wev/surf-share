@@ -24,6 +24,7 @@ export type CardViewItem = {
   price?: string;
   avatarSrc?: string;
   size?: "tall" | "short";
+  fileSize?: string;
   favoriteActive?: boolean; // Keep for backwards compatibility, but overridden by backend
   plusActive?: boolean;
   showInfoByDefault?: boolean;
@@ -87,7 +88,7 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
     e.stopPropagation();
 
     if (!isHydrated) return;
-    
+
     if (!session) {
       toast.error("Please login to add to favorites");
       router.push("/login");
@@ -143,9 +144,17 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
               <p className="truncate text-[20px] leading-none font-medium">{item.userName}</p>
             </div>
 
-            <div className="mt-1 flex items-center gap-1 text-[13px] text-white/85">
-              <span>{item.location}</span>
-              <ExternalLink className="h-3 w-3" />
+            <div className="mt-1 flex flex-wrap items-center gap-2 text-[13px] text-white/85">
+              <div className="flex items-center gap-1">
+                <span>{item.location}</span>
+                <ExternalLink className="h-3 w-3" />
+              </div>
+              {item.fileSize && (
+                <>
+                  <span className="opacity-50">|</span>
+                  <span>{item.fileSize}</span>
+                </>
+              )}
             </div>
           </div>
 
@@ -163,12 +172,15 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
         {item.title ? (
           <p className="text-[26px] leading-none font-medium sm:text-[36px]">{item.title}</p>
         ) : null}
-        {typeof item.photoCount === "number" ? (
-          <div className="flex items-center gap-1.5 text-sm text-white/90">
-            <Camera className="h-3.5 w-3.5" />
-            <span>{item.photoCount}</span>
-          </div>
-        ) : null}
+        <div className="flex items-center gap-3">
+          {typeof item.photoCount === "number" ? (
+            <div className="flex items-center gap-1.5 text-sm text-white/90">
+              <Camera className="h-3.5 w-3.5" />
+              <span>{item.photoCount}</span>
+            </div>
+          ) : null}
+          {item.fileSize && <span className="text-sm text-white/90">{item.fileSize}</span>}
+        </div>
       </div>
     );
   }

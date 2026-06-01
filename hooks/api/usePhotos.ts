@@ -40,3 +40,40 @@ export const usePhotoDetailQuery = (id: string) => {
     enabled: !!id,
   });
 };
+
+export const useUpdatePhotoMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: Partial<{ title: string; price: number; locationId: string; capturedAt: string }>;
+    }) => photoService.update(id, payload),
+    onSuccess: (_, variables) => {
+      toast.success("Photo updated successfully.");
+      queryClient.invalidateQueries({ queryKey: queryKeys.photos.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.photos.detail(variables.id) });
+    },
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, "Failed to update photo."));
+    },
+  });
+};
+
+export const useDeletePhotoMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: photoService.delete,
+    onSuccess: () => {
+      toast.success("Photo deleted successfully.");
+      queryClient.invalidateQueries({ queryKey: queryKeys.photos.all });
+    },
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, "Failed to delete photo."));
+    },
+  });
+};

@@ -9,13 +9,16 @@ import {
   MapPin,
   SlidersHorizontal,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import ContributorListTable, { type ContributorListTableRow } from "./contributor-list-table";
 import UploadDetailsModal from "./upload-details-modal";
-import { useMyPhotosQuery } from "@/hooks/api/usePhotos";
+import EditUploadModal from "./edit-upload-modal";
+import DeleteUploadModal from "./delete-upload-modal";
+import { useMyPhotosQuery, useDeletePhotoMutation } from "@/hooks/api/usePhotos";
 import type { IPhotoResponse } from "@/lib/api/services/photo.service";
 import { useLocationsQuery } from "@/hooks/api/useLocations";
-import { getAbsoluteImageUrl } from "@/lib/utils";
+import { getAbsoluteImageUrl, formatFileSize } from "@/lib/utils";
 
 type Location = {
   id: string;
@@ -75,7 +78,7 @@ function mapApiPhotoToRow(item: IPhotoResponse): EnrichedUploadRow {
   return {
     id: item.id,
     photoUrl: getAbsoluteImageUrl(item.imageUrl),
-    name: "Photo",
+    name: item.title || "Photo",
     location: `${item.location.name}, ${item.location.state}`,
     dateLabel: formatApiDate(takenAt),
     timeLabel: formatApiTime(takenAt),
@@ -85,9 +88,9 @@ function mapApiPhotoToRow(item: IPhotoResponse): EnrichedUploadRow {
     priceValue: item.price,
     locationId: item.locationId,
     photographer: "You",
-    resolution: "4K",
-    format: "JPEG",
-    size: "N/A",
+    resolution: item.width && item.height ? `${item.width}x${item.height}` : "Unknown",
+    format: item.format?.toUpperCase() || "JPEG",
+    size: formatFileSize(item.fileSize),
   };
 }
 
@@ -98,6 +101,8 @@ export default function ContributorMyUploadsPage() {
   const [activeSubmenu, setActiveSubmenu] = useState<"location" | "status" | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUpload, setSelectedUpload] = useState<EnrichedUploadRow | null>(null);
+  const [editingUpload, setEditingUpload] = useState<EnrichedUploadRow | null>(null);
+  const [deletingUpload, setDeletingUpload] = useState<EnrichedUploadRow | null>(null);
 
   // Dynamic Location Data for Filter
   const { data: locationsData } = useLocationsQuery({ page: 1, limit: 100 });
@@ -132,6 +137,14 @@ export default function ContributorMyUploadsPage() {
     setCurrentPage(1);
     setShowFilterPanel(false);
     setActiveSubmenu(null);
+  };
+
+  const handleDelete = (row: EnrichedUploadRow) => {
+    setDeletingUpload(row);
+  };
+
+  const handleEdit = (row: EnrichedUploadRow) => {
+    setEditingUpload(row);
   };
 
   if (isLoading) {
@@ -252,7 +265,12 @@ export default function ContributorMyUploadsPage() {
         </div>
       </div>
 
-      <ContributorListTable rows={uploads} onViewDetails={setSelectedUpload} />
+      <ContributorListTable
+        rows={uploads}
+        onViewDetails={setSelectedUpload}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
 
       {/* Pagination - Only shown if needed */}
       {totalPages > 1 ? (
@@ -300,6 +318,12 @@ export default function ContributorMyUploadsPage() {
 
       {/* View Details Modal */}
       <UploadDetailsModal upload={selectedUpload} onClose={() => setSelectedUpload(null)} />
+
+      {/* Edit Details Modal */}
+      <EditUploadModal upload={editingUpload} onClose={() => setEditingUpload(null)} />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteUploadModal upload={deletingUpload} onClose={() => setDeletingUpload(null)} />
     </section>
   );
 }
