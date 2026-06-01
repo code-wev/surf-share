@@ -15,7 +15,7 @@ const contributorSteps = [
   },
   {
     title: "Earn Money",
-    description: "Receive a commission on every sale, paid directly to your PayPal account.",
+    description: "Receive a commission on every sale, paid directly to your Stripe account.",
     Icon: DollarSign,
   },
 ] as const;
@@ -24,10 +24,10 @@ export default function HowItWorksSection() {
   return (
     <section className="bg-surface-muted-100">
       <div className="mx-auto max-w-470 px-4 py-14 sm:px-6 sm:py-16 md:px-10 md:py-20 lg:px-12.5 lg:py-22 2xl:py-25">
-        <h2 className="text-center text-4xl font-semibold text-text-strong sm:text-5xl lg:text-[64px]">
+        <h2 className="text-text-strong text-center text-4xl font-semibold sm:text-5xl lg:text-[64px]">
           How It Works
         </h2>
-        <p className="mt-6 text-center text-sm text-text-weak sm:mt-7 sm:text-base lg:mt-9 lg:text-[28px]">
+        <p className="text-text-weak mt-6 text-center text-sm sm:mt-7 sm:text-base lg:mt-9 lg:text-[28px]">
           Start selling your surf photography in three simple steps
         </p>
 

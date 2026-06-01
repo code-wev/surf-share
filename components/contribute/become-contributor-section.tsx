@@ -3,7 +3,8 @@ import ContributorPlanCard from "@/components/contribute/contributor-plan-card";
 const contributorPlans = [
   {
     title: "Bronze Status",
-    description: "Lorem Lorem LoremLorem LoremLorem LoremLoremLoremLorem Lorem Lorem Lorem",
+    // description:
+    //   "Bronze status is perfect for new contributors starting out on their surf photography journey.",
     tone: "bronze",
     features: [
       { label: "Payment Split", value: "70% (You) / 30% (Platform)" },
@@ -14,23 +15,25 @@ const contributorPlans = [
   },
   {
     title: "Silver Status",
-    description: "Lorem Lorem LoremLorem LoremLorem LoremLoremLoremLorem Lorem Lorem Lorem",
+    // description:
+    //   "Silver status is ideal for contributors who have established themselves in the surf photography community.",
     tone: "silver",
     // highlighted: true,
     features: [
       { label: "Payment Split", value: "80% (You) / 20% (Platform)" },
-      { label: "Max Photo Price", value: "Unlimited" },
+      { label: "Max Photo Price", value: "$50" },
       { label: "Max Uploads", value: "No daily limit" },
       { label: "Upload Limit", value: "No limit" },
     ],
   },
   {
     title: "Gold Status",
-    description: "Lorem Lorem LoremLorem LoremLorem LoremLoremLoremLorem Lorem Lorem Lorem",
+    // description:
+    //   "Gold status is for top-tier contributors who have made significant impact in the surf photography community.",
     tone: "gold",
     features: [
       { label: "Payment Split", value: "90% (You) / 10% (Platform)" },
-      { label: "Max Photo Price", value: "Unlimited" },
+      { label: "Max Photo Price", value: "$50" },
       { label: "Max Uploads", value: "No restrictions" },
       { label: "Upload Limit", value: "No limit" },
     ],
@@ -39,12 +42,13 @@ const contributorPlans = [
 
 export default function BecomeContributorSection() {
   return (
-    <section className="border-t border-brand-default bg-white">
+    <section className="bg-white">
+      {/* border-t border-brand-default */}
       <div className="mx-auto max-w-470 px-4 py-14 sm:px-6 sm:py-16 md:px-8 md:py-20 lg:px-12.5 lg:py-22 2xl:py-25">
-        <h2 className="text-center text-4xl font-bold text-text-strong sm:text-5xl lg:text-[64px]">
+        <h2 className="text-text-strong text-center text-4xl font-bold sm:text-5xl lg:text-[64px]">
           Become A Contributor
         </h2>
-        <p className="mt-6 text-center text-sm text-text-weak sm:mt-7 sm:text-base lg:mt-9 lg:text-[28px]">
+        <p className="text-text-weak mt-6 text-center text-sm sm:mt-7 sm:text-base lg:mt-9 lg:text-[28px]">
           Start with Bronze and get upgraded as you grow
         </p>
 
@@ -53,7 +57,7 @@ export default function BecomeContributorSection() {
             <ContributorPlanCard
               key={plan.title}
               title={plan.title}
-              description={plan.description}
+              // description={plan.description}
               features={plan.features}
               tone={plan.tone}
               // highlighted={"highlighted" in plan ? plan.highlighted : false}

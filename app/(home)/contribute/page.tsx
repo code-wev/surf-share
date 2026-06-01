@@ -11,7 +11,7 @@ export default function ContributePage() {
       <ContributeHeroSection />
       <HowItWorksSection />
       <WhyJoinSection />
-      <ContributorStatsSection />
+      {/* <ContributorStatsSection /> */}
       <BecomeContributorSection />
       <ContributorReadyCtaSection />
     </>
