@@ -40,6 +40,7 @@ type ApiUser = {
   subscriptionTier?: string | null;
   countryName?: string | null;
   address?: string | null;
+  promotionEmail: boolean;
 };
 
 export default function DashboardUserManagementContent() {
@@ -133,6 +134,7 @@ export default function DashboardUserManagementContent() {
         status: user.status === "ACTIVE" ? "Active" : "Suspended",
         country: user.countryName ?? undefined,
         address: user.address ?? undefined,
+        promotionEmail: user.promotionEmail,
       })) || []
     );
   }, [data?.data]);

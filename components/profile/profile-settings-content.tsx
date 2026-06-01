@@ -50,6 +50,8 @@ export default function ProfileSettingsContent() {
     address: string;
   } | null>(null);
 
+  const [isPromotionLoading, setIsPromotionLoading] = useState(false);
+
   // Password change form state
   const [passwordFormValues, setPasswordFormValues] = useState({
     currentPassword: "",
@@ -115,6 +117,26 @@ export default function ProfileSettingsContent() {
     }
   };
 
+  const handleTogglePromotion = async () => {
+    if (!session?.id || !apiProfile) return;
+    setIsPromotionLoading(true);
+    try {
+      const result = await updateUserById(session.id, {
+        promotionEmail: !(apiProfile as any).promotionEmail,
+      });
+      if (result.success) {
+        toast.success("Promotion preference updated!");
+        await queryClient.invalidateQueries({ queryKey: ["profile", session.id] });
+      } else {
+        toast.error(result.message || "Failed to update preference.");
+      }
+    } catch (error) {
+      toast.error("An error occurred.");
+    } finally {
+      setIsPromotionLoading(false);
+    }
+  };
+
   const displayProfile = {
     fullName: apiProfile?.name ?? session?.name ?? "",
     avatarSrc: apiProfile?.profileImageUrl ? getAbsoluteImageUrl(apiProfile.profileImageUrl) : "",
@@ -122,6 +144,7 @@ export default function ProfileSettingsContent() {
     phone: apiProfile?.phoneNumber ?? "",
     email: apiProfile?.email ?? session?.email ?? "",
     address: apiProfile?.address ?? "",
+    promotionEmail: (apiProfile as any)?.promotionEmail ?? false,
   };
 
   interface _ApiProfile {
@@ -354,6 +377,29 @@ export default function ProfileSettingsContent() {
             }
             className="md:col-span-2"
           />
+
+          <div className="flex flex-col gap-2 md:col-span-2">
+            <span className="text-text-strong text-base font-medium">Promotions & Updates</span>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleTogglePromotion}
+                disabled={isPromotionLoading}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  displayProfile.promotionEmail ? "bg-brand-default" : "bg-gray-200"
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                    displayProfile.promotionEmail ? "translate-x-5" : "translate-x-0"
+                  }`}
+                />
+              </button>
+              <span className="text-text-weak text-sm">Receive Promotional Emails</span>
+              {isPromotionLoading && (
+                <Loader2 className="text-brand-default h-4 w-4 animate-spin" />
+              )}
+            </div>
+          </div>
 
           {isContributor && (
             <div className="md:col-span-2">

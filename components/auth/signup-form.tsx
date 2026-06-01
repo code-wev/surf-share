@@ -21,6 +21,7 @@ export function SignUpForm({
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [paypalEmail, setPaypalEmail] = useState("");
+  const [promotionEmail, setPromotionEmail] = useState(true);
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -70,14 +71,14 @@ export function SignUpForm({
         toast.error("Password must be at least 8 characters long.");
         return;
       }
-      surferMutation.mutate({ name, email, password });
+      surferMutation.mutate({ name, email, password, promotionEmail });
     } else {
       // Step 2 Photographer
       if (!paypalEmail) {
         toast.error("PayPal email is required for photographers.");
         return;
       }
-      photographerMutation.mutate({ name, email, password, paypalEmail });
+      photographerMutation.mutate({ name, email, password, paypalEmail, promotionEmail });
     }
   };
 
@@ -303,7 +304,9 @@ export function SignUpForm({
           <label className="text-text-weak inline-flex items-center gap-2 text-xs">
             <input
               type="checkbox"
-              defaultChecked
+              checked={promotionEmail}
+              onChange={(e) => setPromotionEmail(e.target.checked)}
+              disabled={isPending}
               className="border-line-weak text-brand-default focus:ring-brand-default size-3.5 rounded"
             />
             Allow promotions and updates to be sent via email.
