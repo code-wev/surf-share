@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Calendar, Check, X } from "lucide-react";
+import { Calendar, Check, X, Pencil, Trash2 } from "lucide-react";
 
 import type {
   ModerationAction,
@@ -24,15 +24,33 @@ export default function PhotoModerationCard({
   return (
     <article className="border-line-weaker bg-surface-muted-100 overflow-hidden rounded-sm border">
       <div className="relative overflow-hidden">
-        <label className="absolute top-1.5 left-1.5 z-10 inline-flex cursor-pointer items-center">
-          <input
-            type="checkbox"
-            checked={selected}
-            onChange={() => onToggleSelected(item.id)}
-            className="border-line-weaker accent-text-strong h-5 w-5 rounded-xs border bg-white"
-            aria-label={`Select ${item.photographer} submission`}
-          />
-        </label>
+        <div className="absolute top-1.5 left-1.5 z-10 flex items-center gap-1">
+          <label className="inline-flex cursor-pointer items-center">
+            <input
+              type="checkbox"
+              checked={selected}
+              onChange={() => onToggleSelected(item.id)}
+              className="border-line-weaker accent-text-strong h-5 w-5 rounded-xs border bg-white"
+              aria-label={`Select ${item.photographer} submission`}
+            />
+          </label>
+          <button
+            type="button"
+            onClick={() => onAction(item.id, "edit")}
+            className="text-brand-default hover:bg-fill-hover flex h-5 w-5 items-center justify-center rounded-xs bg-white shadow-sm"
+            aria-label="Edit photo"
+          >
+            <Pencil size={12} />
+          </button>
+          <button
+            type="button"
+            onClick={() => onAction(item.id, "delete")}
+            className="text-danger-strong hover:bg-fill-hover flex h-5 w-5 items-center justify-center rounded-xs bg-white shadow-sm"
+            aria-label="Delete photo"
+          >
+            <Trash2 size={12} />
+          </button>
+        </div>
 
         <div className="text-brand-default absolute top-1.5 right-1.5 z-10 rounded-sm bg-white/95 px-2 py-1 text-xs font-semibold shadow-sm sm:text-sm">
           {item.priceLabel}
@@ -72,7 +90,7 @@ export default function PhotoModerationCard({
           <button
             type="button"
             onClick={() => onAction(item.id, "reject")}
-            className="inline-flex h-8 items-center justify-center gap-1 rounded-sm bg-[#FCE7E7] px-2 text-[11px] font-medium text-[#D85B5B] sm:h-7"
+            className="inline-flex h-8 items-center justify-center gap-1 rounded-sm bg-[#FDE7E7] px-2 text-[11px] font-medium text-[#D85B5B] sm:h-7"
           >
             Reject
             <X size={10} />
