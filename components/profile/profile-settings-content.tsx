@@ -23,6 +23,17 @@ type SocialAccountLink = {
   url: string;
 };
 
+type ProfileApiUser = {
+  name?: string;
+  profileImageUrl?: string | null;
+  countryName?: string | null;
+  phoneNumber?: string | null;
+  email?: string;
+  address?: string | null;
+  promotionEmail?: boolean;
+  socialAccounts?: { platform: string; url: string }[];
+};
+
 const SOCIAL_ACCOUNT_TYPES: { value: SocialAccountType; label: string }[] = [
   { value: "facebook", label: "Facebook" },
   { value: "instagram", label: "Instagram" },
@@ -93,7 +104,7 @@ export default function ProfileSettingsContent() {
     enabled: Boolean(session?.id),
   });
 
-  const apiProfile = data?.data;
+  const apiProfile = data?.data as ProfileApiUser | undefined;
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -122,7 +133,7 @@ export default function ProfileSettingsContent() {
     setIsPromotionLoading(true);
     try {
       const result = await updateUserById(session.id, {
-        promotionEmail: !(apiProfile as any).promotionEmail,
+        promotionEmail: !Boolean(apiProfile.promotionEmail),
       });
       if (result.success) {
         toast.success("Promotion preference updated!");
@@ -132,6 +143,7 @@ export default function ProfileSettingsContent() {
       }
     } catch (error) {
       toast.error("An error occurred.");
+      console.error("Error updating promotion preference:", error);
     } finally {
       setIsPromotionLoading(false);
     }
@@ -139,18 +151,17 @@ export default function ProfileSettingsContent() {
 
   const displayProfile = {
     fullName: apiProfile?.name ?? session?.name ?? "",
-    avatarSrc: apiProfile?.profileImageUrl ? getAbsoluteImageUrl(apiProfile.profileImageUrl) : "",
+    avatarSrc: apiProfile?.profileImageUrl
+      ? getAbsoluteImageUrl(apiProfile.profileImageUrl)
+      : "/home/logo.png",
     country: apiProfile?.countryName ?? "",
     phone: apiProfile?.phoneNumber ?? "",
     email: apiProfile?.email ?? session?.email ?? "",
     address: apiProfile?.address ?? "",
-    promotionEmail: (apiProfile as any)?.promotionEmail ?? false,
+    promotionEmail: apiProfile?.promotionEmail ?? false,
   };
 
-  interface _ApiProfile {
-    socialAccounts?: { platform: string; url: string }[];
-  }
-  const incoming = (apiProfile as unknown as _ApiProfile)?.socialAccounts || [];
+  const incoming = apiProfile?.socialAccounts || [];
   const parsedIncomingLinks: SocialAccountLink[] = incoming.map((s, i) => ({
     id: `${s.platform}-${i}`,
     type: s.platform as SocialAccountType,
