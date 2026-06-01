@@ -141,7 +141,11 @@ export default function DashboardProfileSettingsContent() {
                 </div>
               ) : (
                 <Image
-                  src={displayProfile.profileImageUrl ? getAbsoluteImageUrl(displayProfile.profileImageUrl) : ""}
+                  src={
+                    displayProfile.profileImageUrl
+                      ? getAbsoluteImageUrl(displayProfile.profileImageUrl)
+                      : "/home/logo.png"
+                  }
                   alt="Profile photo"
                   width={100}
                   height={100}

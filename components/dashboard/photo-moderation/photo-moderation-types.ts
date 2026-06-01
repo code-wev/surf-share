@@ -4,10 +4,13 @@ export type PhotoModerationItem = {
   images: string[];
   title: string;
   priceLabel: string;
+  priceValue: number;
   photographer: string;
   location: string;
+  locationId: string;
   imageCount: number;
   dateTaken: string;
+  uploadedAt: string;
   resolution: string;
   format: string;
   size: string;
@@ -16,4 +19,5 @@ export type PhotoModerationItem = {
   relatedPhotos?: PhotoModerationItem[];
 };
 
-export type ModerationAction = "approve" | "reject";
+export type ModerationAction = "approve" | "reject" | "edit" | "delete";
+

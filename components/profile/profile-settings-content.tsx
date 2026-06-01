@@ -306,6 +306,7 @@ export default function ProfileSettingsContent() {
                     if (result.success) {
                       setMessage({ type: "success", text: "Profile updated successfully!" });
                       await queryClient.invalidateQueries({ queryKey: ["profile", session.id] });
+                      await queryClient.invalidateQueries({ queryKey: ["user", session.id] });
                       setIsEditingProfile(false);
                       setEditValues(null);
                     } else {

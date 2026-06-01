@@ -1,10 +1,19 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
+import { getUserById } from "@/src/actions/user.action";
 
 export default function DashboardOverviewHeader() {
   const { session } = useAuth();
-  const userName = session?.name || "Admin";
+  
+  const { data: userResponse } = useQuery({
+    queryKey: ["user", session?.id],
+    queryFn: () => getUserById(session!.id),
+    enabled: !!session?.id,
+  });
+
+  const userName = userResponse?.data?.name || session?.name || "User";
 
   return (
     <>

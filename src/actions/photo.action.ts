@@ -18,6 +18,7 @@ export interface PhotoModerationApiPhoto {
   height?: number | null;
   format?: string | null;
   fileSize?: number | null;
+  locationId: string;
   photographer?: {
     name?: string | null;
   } | null;

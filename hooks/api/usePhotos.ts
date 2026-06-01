@@ -71,6 +71,7 @@ export const useDeletePhotoMutation = () => {
     onSuccess: () => {
       toast.success("Photo deleted successfully.");
       queryClient.invalidateQueries({ queryKey: queryKeys.photos.all });
+      queryClient.invalidateQueries({ queryKey: ["pending-photos"] });
     },
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error, "Failed to delete photo."));
