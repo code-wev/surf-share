@@ -1,11 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import { PageTitle } from "@/components/shared/page-title";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Clock4, Funnel, MapPin, SlidersHorizontal } from "lucide-react";
-import type { GallerySort, GalleryTab, GalleryTime } from "@/app/(home)/gallery/page";
+import type { GallerySort, GalleryTab } from "@/app/(home)/gallery/page";
+import LocationFilter from "./location-filter";
+import { apiClient } from "@/lib/api/client";
 
 export const galleryTabs: GalleryTab[] = ["all", "today", "yesterday", "last7days", "last14days"];
 export const galleryTabLabels: Record<GalleryTab, string> = {
@@ -16,13 +19,26 @@ export const galleryTabLabels: Record<GalleryTab, string> = {
   last14days: "Last 14 Days",
 };
 
-export const galleryTimes: GalleryTime[] = ["all", "FIRST_LIGHT", "MORNING", "LUNCH", "AFTERNOON"];
-export const galleryTimeLabels: Record<GalleryTime, string> = {
+// Updated time ranges
+export const galleryTimes: string[] = [
+  "all",
+  "5_8",
+  "8_11",
+  "11_14",
+  "14_17",
+  "17_20",
+  "20_23",
+  "23_5",
+];
+export const galleryTimeLabels: Record<string, string> = {
   all: "Any Time",
-  FIRST_LIGHT: "First Light (4-8 AM)",
-  MORNING: "Morning (8-11 AM)",
-  LUNCH: "Lunch (11 AM-2 PM)",
-  AFTERNOON: "Afternoon (2-7 PM)",
+  "5_8": "5 AM – 8 AM",
+  "8_11": "8 AM – 11 AM",
+  "11_14": "11 AM – 2 PM",
+  "14_17": "2 PM – 5 PM",
+  "17_20": "5 PM – 8 PM",
+  "20_23": "8 PM – 11 PM",
+  "23_5": "11 PM – 5 AM",
 };
 
 export const gallerySorts: GallerySort[] = ["latest", "priceLow", "priceHigh"];
@@ -37,12 +53,11 @@ type GalleryTitleProps = {
   onTabChange: (tab: GalleryTab) => void;
   selectedLocation: string;
   onLocationChange: (locationId: string) => void;
-  selectedTime: GalleryTime;
-  onTimeChange: (time: GalleryTime) => void;
+  selectedTime: string; // Updated from GalleryTime
+  onTimeChange: (time: string) => void;
   selectedSort: GallerySort;
   onSortChange: (sort: GallerySort) => void;
   totalCount: number;
-  liveLocations: { id: string; name: string }[];
 };
 
 type ActiveSubmenu = "location" | "time" | "sort" | null;
@@ -57,10 +72,20 @@ export default function GalleryTitle({
   selectedSort,
   onSortChange,
   totalCount,
-  liveLocations,
 }: GalleryTitleProps) {
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<ActiveSubmenu>(null);
+
+  const { data: hierarchyResponse } = useQuery({
+    queryKey: ["locations-hierarchy"],
+    queryFn: async () => {
+      const response = await apiClient.get("/locations/hierarchy");
+      return response.data;
+    },
+    enabled: showFilterPanel && activeSubmenu === "location",
+  });
+
+  const hierarchyData = hierarchyResponse?.data;
 
   const imagesLabel = useMemo(() => `${totalCount} Images`, [totalCount]);
 
@@ -68,13 +93,13 @@ export default function GalleryTitle({
     setActiveSubmenu((prev) => (prev === menu ? null : menu));
   };
 
-  const handleLocationSelect = (value: string) => {
-    onLocationChange(value);
+  const handleLocationSelect = (locationId: string) => {
+    onLocationChange(locationId);
     setActiveSubmenu(null);
     setShowFilterPanel(false);
   };
 
-  const handleTimeSelect = (value: GalleryTime) => {
+  const handleTimeSelect = (value: string) => {
     onTimeChange(value);
     setActiveSubmenu(null);
     setShowFilterPanel(false);
@@ -86,16 +111,12 @@ export default function GalleryTitle({
     setShowFilterPanel(false);
   };
 
-  const selectedLocationName = selectedLocation === "all" 
-    ? "All Locations" 
-    : liveLocations.find(l => l.id === selectedLocation)?.name || "Unknown Location";
-
   return (
     <section className="bg-(--color-surface-muted-100) px-4 pt-10 pb-6 sm:px-6 md:mx-12.5 md:px-6 md:pt-16">
       <div className="mx-auto flex max-w-480 flex-col items-center justify-between gap-6 lg:flex-row lg:items-start">
         <div>
           <PageTitle
-            subtitle={`${selectedLocationName} Photos`}
+            subtitle="Explore our gallery"
             subtitleClassName="mt-1 text-[22px]! text-(--color-text-weak)!"
           />
         </div>
@@ -138,44 +159,26 @@ export default function GalleryTitle({
           </Button>
 
           {showFilterPanel ? (
-            <div className="absolute top-16 right-0 z-20 flex w-[92vw] max-w-105 flex-col gap-2 sm:w-105 md:top-16 md:w-auto md:max-w-none md:flex-row md:items-start md:gap-0">
-              {/* Location submenu */}
-              {activeSubmenu === "location" && (
-                <div className="w-full overflow-hidden rounded-md border border-(--color-line-weaker) bg-white shadow-lg md:mt-6 md:mr-1 md:w-52">
-                  <p className="px-4 pt-3 pb-1 text-xs font-semibold tracking-wide text-(--color-text-weak) uppercase">
-                    Regions
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => handleLocationSelect("all")}
-                    className={`w-full px-4 py-2 text-left text-sm hover:bg-(--color-surface-muted-100) ${
-                      selectedLocation === "all"
-                        ? "font-medium text-(--color-text-strong)"
-                        : "text-(--color-text-weak)"
-                    }`}
-                  >
-                    All States
-                  </button>
-                  {liveLocations.map((location) => (
-                    <button
-                      key={location.id}
-                      type="button"
-                      onClick={() => handleLocationSelect(location.id)}
-                      className={`w-full px-4 py-2 text-left text-sm hover:bg-(--color-surface-muted-100) ${
-                        selectedLocation === location.id
-                          ? "font-medium text-(--color-text-strong)"
-                          : "text-(--color-text-weak)"
-                      }`}
-                    >
-                      {location.name}
-                    </button>
-                  ))}
+            <div className="absolute top-10 right-0 z-20 flex items-start gap-1">
+              {/* Location submenu — shown to the LEFT of the main panel */}
+              {activeSubmenu === "location" && hierarchyData && (
+                <div className="w-48 overflow-hidden rounded-md border border-(--color-line-weaker) bg-white shadow-lg">
+                  <LocationFilter
+                    hierarchy={hierarchyData}
+                    onSelect={handleLocationSelect}
+                    selectedId={selectedLocation}
+                  />
+                </div>
+              )}
+              {activeSubmenu === "location" && !hierarchyData && (
+                <div className="w-48 overflow-hidden rounded-md border border-(--color-line-weaker) bg-white shadow-lg">
+                  <p className="px-4 py-3 text-sm text-(--color-text-weak)">Loading…</p>
                 </div>
               )}
 
-              {/* Time submenu */}
+              {/* Time submenu — shown to the LEFT of the main panel */}
               {activeSubmenu === "time" && (
-                <div className="w-full overflow-hidden rounded-md border border-(--color-line-weaker) bg-white shadow-lg md:mt-6 md:mr-1 md:w-44">
+                <div className="w-44 overflow-hidden rounded-md border border-(--color-line-weaker) bg-white shadow-lg">
                   {galleryTimes.map((time) => (
                     <button
                       key={time}
@@ -193,9 +196,9 @@ export default function GalleryTitle({
                 </div>
               )}
 
-              {/* Sort submenu */}
+              {/* Sort submenu — shown to the LEFT of the main panel */}
               {activeSubmenu === "sort" && (
-                <div className="w-full overflow-hidden rounded-md border border-(--color-line-weaker) bg-white shadow-lg md:mt-6 md:mr-1 md:w-44">
+                <div className="w-44 overflow-hidden rounded-md border border-(--color-line-weaker) bg-white shadow-lg">
                   {gallerySorts.map((sort) => (
                     <button
                       key={sort}
@@ -213,13 +216,17 @@ export default function GalleryTitle({
                 </div>
               )}
 
-              {/* Main filter panel */}
-              <div className="w-full overflow-hidden rounded-md border border-(--color-line-weaker) bg-white shadow-lg md:w-56">
+              {/* Main filter panel — always visible while showFilterPanel is true */}
+              <div className="w-56 overflow-hidden rounded-md border border-(--color-line-weaker) bg-white shadow-lg">
                 <div className="flex items-center justify-between border-b border-(--color-line-weaker) px-4 py-3">
                   <span className="text-sm font-medium text-(--color-text-brand-strong)">
                     Filter &amp; Sort
                   </span>
-                  <SlidersHorizontal size={16} className="text-(--color-text-weak)" color="#0C3173" />
+                  <SlidersHorizontal
+                    size={16}
+                    className="text-(--color-text-weak)"
+                    color="#0C3173"
+                  />
                 </div>
 
                 <button
