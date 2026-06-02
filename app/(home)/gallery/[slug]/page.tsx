@@ -190,7 +190,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
               alt={`Photo at ${locationName}`}
               width={1800}
               height={1200}
-              className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-[1.02] sm:h-80 lg:h-175"
+              className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-[1.02] sm:h-80 lg:h-205"
               quality={100}
               sizes="(max-width: 640px) 100vw, (max-width: 1200px) 70vw, 1200px"
               unoptimized
@@ -322,29 +322,29 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
 
           {/* Advertisement Section */}
           {adData?.data && (
-            <div className="relative mt-8 overflow-hidden rounded-md border border-(--color-line-weaker)">
+            <Link
+              href={adData.data.linkUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative mt-8 mt-20 block overflow-hidden rounded-md border border-(--color-line-weaker) transition-opacity hover:opacity-95"
+            >
               <Image
                 src={getAbsoluteImageUrl(adData.data.imageUrl)}
                 alt="Advertisement"
                 width={960}
-                height={280}
-                className="h-28 w-full object-cover sm:h-34"
+                height={412}
+                style={{ height: "206px" }}
+                className="w-full object-cover"
                 quality={100}
                 sizes="(max-width: 640px) 100vw, 480px"
                 unoptimized
                 draggable={false}
                 onContextMenu={(event) => event.preventDefault()}
               />
-              <Link
-                href={adData.data.linkUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Open advertisement"
-                className="absolute top-2 right-2 z-30 inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-(--color-text-brand-strong) sm:h-8 sm:w-8"
-              >
+              <div className="absolute top-2 right-2 z-30 inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-(--color-text-brand-strong) sm:h-8 sm:w-8">
                 <ExternalLink className="h-4 w-4" />
-              </Link>
-            </div>
+              </div>
+            </Link>
           )}
         </div>
       </div>
