@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { PageTitle } from "@/components/shared/page-title";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Clock4, Funnel, MapPin, SlidersHorizontal } from "lucide-react";
+import { ChevronRight, Clock4, Funnel, MapPin, RotateCcw, SlidersHorizontal } from "lucide-react";
 import type { GallerySort, GalleryTab } from "@/app/(home)/gallery/page";
 import LocationFilter from "./location-filter";
 import { apiClient } from "@/lib/api/client";
@@ -58,6 +58,7 @@ type GalleryTitleProps = {
   selectedSort: GallerySort;
   onSortChange: (sort: GallerySort) => void;
   totalCount: number;
+  onResetFilters: () => void;
 };
 
 type ActiveSubmenu = "location" | "time" | "sort" | null;
@@ -72,6 +73,7 @@ export default function GalleryTitle({
   selectedSort,
   onSortChange,
   totalCount,
+  onResetFilters,
 }: GalleryTitleProps) {
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<ActiveSubmenu>(null);
@@ -144,6 +146,16 @@ export default function GalleryTitle({
             type="button"
             variant="secondary"
             size="sm"
+            onClick={onResetFilters}
+            className="border border-(--color-line-weaker) bg-(--color-surface-base) text-(--color-text-weak) hover:bg-[#F5F5F4]"
+          >
+            <RotateCcw size={14} />
+            <span className="hidden md:flex">Reset</span>
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
             className={
               showFilterPanel
                 ? "border border-(--color-line-weaker) bg-white text-(--color-text-brand-strong)"
@@ -162,13 +174,11 @@ export default function GalleryTitle({
             <div className="absolute top-10 right-0 z-20 flex items-start gap-1">
               {/* Location submenu — shown to the LEFT of the main panel */}
               {activeSubmenu === "location" && hierarchyData && (
-                <div className="w-48 overflow-hidden rounded-md border border-(--color-line-weaker) bg-white shadow-lg">
-                  <LocationFilter
-                    hierarchy={hierarchyData}
-                    onSelect={handleLocationSelect}
-                    selectedId={selectedLocation}
-                  />
-                </div>
+                <LocationFilter
+                  hierarchy={hierarchyData}
+                  onSelect={handleLocationSelect}
+                  selectedId={selectedLocation}
+                />
               )}
               {activeSubmenu === "location" && !hierarchyData && (
                 <div className="w-48 overflow-hidden rounded-md border border-(--color-line-weaker) bg-white shadow-lg">
