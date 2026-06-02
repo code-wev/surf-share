@@ -55,6 +55,14 @@ function GalleryPageContent() {
     setCurrentPage(1);
   };
 
+  const handleResetFilters = () => {
+    setActiveTab("all");
+    setSelectedLocation("all");
+    setSelectedTime("all");
+    setSelectedSort("latest");
+    setCurrentPage(1);
+  };
+
   const { data: photosData, isLoading } = usePublicPhotosQuery({
     tab: activeTab,
     locationId: selectedLocation === "all" ? undefined : selectedLocation,
@@ -91,6 +99,7 @@ function GalleryPageContent() {
         selectedSort={selectedSort}
         onSortChange={handleSortChange}
         totalCount={meta.total}
+        onResetFilters={handleResetFilters}
       />
       {isLoading ? (
         <div className="flex h-64 items-center justify-center">

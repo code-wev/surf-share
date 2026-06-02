@@ -19,78 +19,89 @@ export default function LocationFilter({ hierarchy, onSelect, selectedId }: Prop
   const [activeState, setActiveState] = useState<string | null>(null);
   const [activeRegion, setActiveRegion] = useState<string | null>(null);
 
+  const states = Object.keys(hierarchy);
+  const regions = activeState ? Object.keys(hierarchy[activeState]) : [];
+  const spots = activeState && activeRegion ? hierarchy[activeState][activeRegion] : [];
+
   return (
-    <div className="max-h-75 w-full overflow-y-auto">
-      {/* States */}
-      {Object.keys(hierarchy).map((state) => (
-        <div key={state}>
+    <div className="flex items-start">
+      {/* Box 4: Spots — leftmost, appears when a region is selected */}
+      {activeState && activeRegion && spots.length > 0 && (
+        <div className="mr-1 max-h-75 w-48 overflow-y-auto rounded-md border border-(--color-line-weaker) bg-white shadow-lg">
+          <div className="border-b border-(--color-line-weaker) px-4 py-2.5">
+            <span className="text-sm font-medium text-(--color-text-brand-strong)">
+              {activeRegion}
+            </span>
+          </div>
+          {spots.map((spot) => (
+            <button
+              key={spot.id}
+              type="button"
+              onClick={() => onSelect(spot.id)}
+              className={`w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-(--color-surface-muted-100) ${
+                selectedId === spot.id
+                  ? "font-medium text-(--color-text-strong)"
+                  : "text-(--color-text-weak)"
+              }`}
+            >
+              {spot.name}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Box 3: Regions — appears when a state is selected */}
+      {activeState && (
+        <div className="mr-1 max-h-75 w-48 overflow-y-auto rounded-md border border-(--color-line-weaker) bg-white shadow-lg">
+          <div className="border-b border-(--color-line-weaker) px-4 py-2.5">
+            <span className="text-sm font-medium text-(--color-text-brand-strong)">
+              {activeState}
+            </span>
+          </div>
+          {regions.map((region) => (
+            <button
+              key={region}
+              type="button"
+              onClick={() => setActiveRegion(region === activeRegion ? null : region)}
+              className={`flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors hover:bg-(--color-surface-muted-100) ${
+                activeRegion === region
+                  ? "bg-(--color-surface-muted-100) font-medium text-(--color-text-brand-strong)"
+                  : "text-(--color-text-weak)"
+              }`}
+            >
+              {region}
+              {hierarchy[activeState][region].length > 0 && (
+                <ChevronRight size={13} className="shrink-0" />
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Box 2: All States — always visible once location is opened (rendered by parent) */}
+      <div className="max-h-75 w-48 overflow-y-auto rounded-md border border-(--color-line-weaker) bg-white shadow-lg">
+        <div className="border-b border-(--color-line-weaker) px-4 py-2.5">
+          <span className="text-sm font-medium text-(--color-text-brand-strong)">All States</span>
+        </div>
+        {states.map((state) => (
           <button
+            key={state}
             type="button"
-            className={`flex w-full items-center justify-between px-4 py-2.5 text-sm transition-colors hover:bg-(--color-surface-muted-100) ${
-              activeState === state
-                ? "font-medium text-(--color-text-brand-strong)"
-                : "text-(--color-text-weak)"
-            }`}
             onClick={() => {
               setActiveState(state === activeState ? null : state);
               setActiveRegion(null);
             }}
+            className={`flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors hover:bg-(--color-surface-muted-100) ${
+              activeState === state
+                ? "bg-(--color-surface-muted-100) font-medium text-(--color-text-brand-strong)"
+                : "text-(--color-text-weak)"
+            }`}
           >
             {state}
-            <ChevronRight
-              size={14}
-              className={`transition-transform ${activeState === state ? "rotate-90" : ""}`}
-            />
+            <ChevronRight size={13} className="shrink-0" />
           </button>
-
-          {/* Regions — shown inline under their state */}
-          {activeState === state && (
-            <div>
-              {Object.entries(hierarchy[state]).map(([region, spots]) => (
-                <div key={region}>
-                  <button
-                    type="button"
-                    className={`flex w-full items-center justify-between py-2.5 pr-4 pl-7 text-sm transition-colors hover:bg-(--color-surface-muted-100) ${
-                      activeRegion === region
-                        ? "font-medium text-(--color-text-brand-strong)"
-                        : "text-(--color-text-weak)"
-                    }`}
-                    onClick={() => {
-                      setActiveRegion(region === activeRegion ? null : region);
-                    }}
-                  >
-                    {region}
-                    <ChevronRight
-                      size={13}
-                      className={`transition-transform ${activeRegion === region ? "rotate-90" : ""}`}
-                    />
-                  </button>
-
-                  {/* Spots — shown inline under their region */}
-                  {activeRegion === region && (
-                    <div>
-                      {spots.map((spot) => (
-                        <button
-                          key={spot.id}
-                          type="button"
-                          className={`w-full py-2 pr-4 pl-11 text-left text-sm transition-colors hover:bg-(--color-surface-muted-100) ${
-                            selectedId === spot.id
-                              ? "font-medium text-(--color-text-strong)"
-                              : "text-(--color-text-weak)"
-                          }`}
-                          onClick={() => onSelect(spot.id)}
-                        >
-                          {spot.name}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
