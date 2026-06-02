@@ -3,11 +3,22 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { use } from "react";
-import { Calendar, Camera, Clock3, ExternalLink, Heart, MapPin, ShoppingCart } from "lucide-react";
+import { use, useState } from "react";
+import {
+  Calendar,
+  Camera,
+  Clock3,
+  ExternalLink,
+  Heart,
+  MapPin,
+  ShoppingCart,
+  ZoomIn,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import RelatedImagesSection from "@/components/home/gallery/related-images-section";
+import ThumbnailFilmstrip from "@/components/home/gallery/thumbnail-filmstrip";
+import FullscreenImageViewer from "@/components/home/gallery/fullscreen-viewer";
 import { Button } from "@/components/ui/button";
 import { PageTitle } from "@/components/shared/page-title";
 import { usePhotoDetailQuery, usePublicPhotosQuery } from "@/hooks/api/usePhotos";
@@ -27,6 +38,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   const router = useRouter();
   const { session, isHydrated } = useAuth();
   const { addItem, items: cartItems } = useCartStore();
+  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
 
   // The slug is the photo ID based on our mapping in gallery/page.tsx
   const photoId = slug;
@@ -166,15 +178,19 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
       </div>
 
       <div className="mx-5 grid gap-9 md:mx-12.5 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
-        {/* Left Side Content (Image Only) */}
+        {/* Left Side Content (Image and Filmstrip) */}
         <div className="mx-auto w-full max-w-80 sm:max-w-150 md:max-w-2xl lg:max-w-none">
-          <div className="relative overflow-hidden rounded-md border border-(--color-line-weaker)">
+          <div
+            className="group relative cursor-zoom-in overflow-hidden rounded-md border border-(--color-line-weaker)"
+            style={{ containerType: "inline-size" }}
+            onClick={() => setIsFullscreenOpen(true)}
+          >
             <Image
               src={getAbsoluteImageUrl(detailItem.imageUrl)}
               alt={`Photo at ${locationName}`}
               width={1800}
               height={1200}
-              className="h-56 w-full object-cover sm:h-80 lg:h-175"
+              className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-[1.02] sm:h-80 lg:h-175"
               quality={100}
               sizes="(max-width: 640px) 100vw, (max-width: 1200px) 70vw, 1200px"
               unoptimized
@@ -183,19 +199,22 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
               priority
             />
 
+            <div className="absolute top-4 right-4 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-black/20 text-white opacity-0 transition-opacity group-hover:opacity-100">
+              <ZoomIn className="h-6 w-6" />
+            </div>
+
             <div aria-hidden className="pointer-events-none absolute inset-0 z-10 bg-black/10" />
 
-            <div className="pointer-events-none absolute inset-0 z-20 select-none">
-              <Image
-                src="/surfshare.png"
-                alt="Surfshare watermark"
-                width={1000}
-                height={500}
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-20deg] opacity-165 brightness-[0.2] drop-shadow-[0_15px_50px_rgba(0,0,0,0.95)] grayscale"
-                draggable={false}
-              />
+            {/* Text Watermark - Using cqw to scale proportionally with image width */}
+            <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center overflow-hidden px-[5cqw] select-none">
+              <span className="rotate-[-20deg] text-[20cqw] font-black tracking-tight text-white/35 drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)]">
+                surfshare
+              </span>
             </div>
           </div>
+
+          {/* Thumbnail Filmstrip */}
+          <ThumbnailFilmstrip currentPhotoId={photoId} />
         </div>
 
         {/* Right Side Content (Details) */}
@@ -331,6 +350,17 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
       </div>
 
       {relatedImages.length > 0 && <RelatedImagesSection items={relatedImages} />}
+
+      {/* Fullscreen Viewer */}
+      {isFullscreenOpen && (
+        <FullscreenImageViewer
+          src={getAbsoluteImageUrl(detailItem.imageUrl)}
+          alt={`Photo at ${locationName}`}
+          width={detailItem.width}
+          height={detailItem.height}
+          onClose={() => setIsFullscreenOpen(false)}
+        />
+      )}
     </section>
   );
 }
