@@ -22,6 +22,11 @@ export interface IPhotoResponse {
     state: string;
     region: string;
   };
+  photographer?: {
+    id: string;
+    name: string;
+    email: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
