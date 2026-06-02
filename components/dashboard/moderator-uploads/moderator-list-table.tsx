@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { Check, Clock3, Eye, Pencil, Trash2, X } from "lucide-react";
-
-import { type UploadStatus } from "./my-upload-data";
+import { UploadStatus } from "@/components/profile/contributor-profile/my-uploads/my-upload-data";
 
 export type ContributorListTableRow = {
   id: string;
