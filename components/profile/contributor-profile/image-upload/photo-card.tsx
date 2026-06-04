@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { CalendarDays, ChevronDown, Clock3, FileIcon, HardDriveIcon, XIcon } from "lucide-react";
+import { PHOTO_PRICES } from "./image-upload-content";
 
 export interface PhotoItem {
   id: string;
@@ -177,20 +178,21 @@ export default function PhotoCard({ photo, locations, onRemove, onChange }: Phot
             <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-xs text-gray-400">
               $
             </span>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="0.00"
+            <select
               value={photo.price}
-              onKeyDown={(e) => {
-                if (e.key === "-" || e.key === "e") {
-                  e.preventDefault();
-                }
-              }}
               onChange={(e) => onChange(photo.id, "price", e.target.value)}
-              className="w-full rounded-md border border-gray-200 bg-[#EFF6FF] py-2 pr-3 pl-6 text-sm text-gray-700 placeholder-[#9CA3AF] focus:border-[#0a2463] focus:ring-1 focus:ring-[#0a2463] focus:outline-none"
-            />
+              className="w-full appearance-none rounded-md border border-gray-200 bg-[#EFF6FF] py-2 pr-7 pl-6 text-sm text-gray-700 focus:border-[#0a2463] focus:ring-1 focus:ring-[#0a2463] focus:outline-none"
+            >
+              <option value="">Select price</option>
+              {PHOTO_PRICES.map((priceOption) => (
+                <option key={priceOption} value={priceOption}>
+                  {priceOption}
+                </option>
+              ))}
+            </select>
+            <span className="pointer-events-none absolute inset-y-0 right-2.5 flex items-center text-gray-400">
+              <ChevronDown className="h-3 w-3" color="#9CA3AF" />
+            </span>
           </div>
         </div>
       </div>

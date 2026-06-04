@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useLocationsQuery } from "@/hooks/api/useLocations";
 import { useUpdatePhotoMutation } from "@/hooks/api/usePhotos";
 import { Input } from "@/components/ui/input";
+import { PHOTO_PRICES } from "../image-upload/image-upload-content";
 
 type Location = {
   id: string;
@@ -131,13 +132,19 @@ export default function EditUploadModal({ upload, onClose }: EditUploadModalProp
               <DollarSign size={16} className="text-text-weaker" />
               Price ($)
             </label>
-            <Input
-              type="number"
+            <select
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              placeholder="0.00"
               disabled={updateMutation.isPending}
-            />
+              className="border-line-weaker bg-surface-muted-100 text-text-weak focus-visible:ring-brand-default/30 h-10 w-full appearance-none rounded-md border px-3 text-sm focus-visible:ring-2 focus-visible:outline-none"
+            >
+              <option value="">Select Price</option>
+              {PHOTO_PRICES.map((priceOption) => (
+                <option key={priceOption} value={priceOption}>
+                  {priceOption}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="space-y-2">

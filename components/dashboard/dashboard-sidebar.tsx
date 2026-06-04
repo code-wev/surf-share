@@ -3,6 +3,7 @@
 import {
   ChevronsLeft,
   ChevronsRight,
+  Crown,
   ImageIcon,
   Images,
   LayoutGrid,
@@ -64,6 +65,11 @@ const adminDashboardNavItems: ReadonlyArray<DashboardNavItem> = [
     label: "Advertisement Settings",
     Icon: Megaphone,
     href: "/dashboard/advertisement-settings",
+  },
+  {
+    label: "Subscription Settings",
+    Icon: Crown,
+    href: "/dashboard/subscription-settings",
   },
 ];
 

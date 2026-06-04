@@ -9,13 +9,12 @@ import {
   MapPin,
   SlidersHorizontal,
 } from "lucide-react";
-import { toast } from "sonner";
 
 import ContributorListTable, { type ContributorListTableRow } from "./contributor-list-table";
 import UploadDetailsModal from "./upload-details-modal";
 import EditUploadModal from "./edit-upload-modal";
 import DeleteUploadModal from "./delete-upload-modal";
-import { useMyPhotosQuery, useDeletePhotoMutation } from "@/hooks/api/usePhotos";
+import { useMyPhotosQuery } from "@/hooks/api/usePhotos";
 import type { IPhotoResponse } from "@/lib/api/services/photo.service";
 import { useLocationsQuery } from "@/hooks/api/useLocations";
 import { getAbsoluteImageUrl, formatFileSize } from "@/lib/utils";

@@ -17,6 +17,8 @@ function uid() {
   return Math.random().toString(36).slice(2, 10);
 }
 
+export const PHOTO_PRICES = ["0.00", "2.99", "4.99", "9.99", "14.99", "19.99", "29.99", "39.99", "49.99"];
+
 function toLocalDateInputValue(date: Date): string {
   const offsetMs = date.getTimezoneOffset() * 60_000;
   return new Date(date.getTime() - offsetMs).toISOString().slice(0, 10);
@@ -317,20 +319,26 @@ export default function ImageUploadContentPage() {
 
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-800">Price</label>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="Enter Price"
-                value={bulkPrice}
-                onKeyDown={(e) => {
-                  if (e.key === "-" || e.key === "e") {
-                    e.preventDefault();
-                  }
-                }}
-                onChange={(e) => setBulkPrice(e.target.value)}
-                className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-[#0a2463] focus:ring-1 focus:ring-[#0a2463] focus:outline-none"
-              />
+              <div className="relative">
+                <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-xs text-gray-400">
+                  $
+                </span>
+                <select
+                  value={bulkPrice}
+                  onChange={(e) => setBulkPrice(e.target.value)}
+                  className="w-full appearance-none rounded-md border border-gray-200 bg-white py-2.5 pr-8 pl-6 text-sm text-gray-700 focus:border-[#0a2463] focus:ring-1 focus:ring-[#0a2463] focus:outline-none"
+                >
+                  <option value="">Select price</option>
+                  {PHOTO_PRICES.map((price) => (
+                    <option key={price} value={price}>
+                      {price}
+                    </option>
+                  ))}
+                </select>
+                <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
+                  <ChevronDown className="h-4 w-4" />
+                </span>
+              </div>
             </div>
 
             <div className="flex justify-end pt-1 sm:col-span-2">
@@ -441,20 +449,26 @@ export default function ImageUploadContentPage() {
                   Apply Pricing to All Photos
                 </label>
                 <div className="flex gap-2">
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="Enter Price"
-                    value={bulkPrice}
-                    onKeyDown={(e) => {
-                      if (e.key === "-" || e.key === "e") {
-                        e.preventDefault();
-                      }
-                    }}
-                    onChange={(e) => setBulkPrice(e.target.value)}
-                    className="flex-1 rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-[#0a2463] focus:ring-1 focus:ring-[#0a2463] focus:outline-none"
-                  />
+                  <div className="relative flex-1">
+                    <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-xs text-gray-400">
+                      $
+                    </span>
+                    <select
+                      value={bulkPrice}
+                      onChange={(e) => setBulkPrice(e.target.value)}
+                      className="w-full appearance-none rounded-md border border-gray-200 bg-white py-2.5 pr-8 pl-6 text-sm text-gray-700 focus:border-[#0a2463] focus:ring-1 focus:ring-[#0a2463] focus:outline-none"
+                    >
+                      <option value="">Select price</option>
+                      {PHOTO_PRICES.map((price) => (
+                        <option key={price} value={price}>
+                          {price}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
+                      <ChevronDown className="h-4 w-4" />
+                    </span>
+                  </div>
                   <button
                     type="button"
                     onClick={applyToAllPhotos}
