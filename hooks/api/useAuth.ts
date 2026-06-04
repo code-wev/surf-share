@@ -8,6 +8,19 @@ import { useAuth, getRoleHomePath } from "../../lib/auth";
 import { queryKeys } from "../../lib/api/query-keys";
 import { getErrorMessage } from "../../lib/utils/error-handler";
 
+type RegisterBasePayload = {
+  name: string;
+  email: string;
+  password: string;
+  promotionEmail?: boolean;
+};
+
+type RegisterPhotographerPayload = RegisterBasePayload & {
+  paypalEmail?: string;
+  acceptedApproval: boolean;
+  acceptedContributor: boolean;
+};
+
 export const useLoginMutation = () => {
   const { setSessionData } = useAuth();
   const router = useRouter();
@@ -60,7 +73,7 @@ export const useGoogleLoginMutation = () => {
 };
 
 export const useRegisterSurferMutation = () => {
-  return useMutation({
+  return useMutation<unknown, unknown, RegisterBasePayload>({
     mutationFn: authService.registerSurfer,
     onSuccess: () => {
       toast.success("Account created successfully! Please log in.");
@@ -73,7 +86,7 @@ export const useRegisterSurferMutation = () => {
 };
 
 export const useRegisterPhotographerMutation = () => {
-  return useMutation({
+  return useMutation<unknown, unknown, RegisterPhotographerPayload>({
     mutationFn: authService.registerPhotographer,
     onSuccess: () => {
       toast.success("Account created successfully! Please log in.");
@@ -87,7 +100,7 @@ export const useRegisterPhotographerMutation = () => {
 
 export const useRegisterModeratorMutation = (onSuccessCallback?: () => void) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: authService.registerModerator,
     onSuccess: () => {

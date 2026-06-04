@@ -9,6 +9,7 @@ export interface IPhotoResponse {
   status: PhotoStatus;
   photographerId: string;
   locationId: string;
+  title?: string | null;
   capturedAt?: string | null;
   timeKey?: string | null;
   width?: number | null;
@@ -20,6 +21,11 @@ export interface IPhotoResponse {
     name: string;
     state: string;
     region: string;
+  };
+  photographer?: {
+    id: string;
+    name: string;
+    email: string;
   };
   createdAt: string;
   updatedAt: string;
@@ -54,6 +60,19 @@ export const photoService = {
 
   getById: async (id: string) => {
     const response = await apiClient.get(`/photos/detail/${id}`);
+    return response.data;
+  },
+
+  update: async (
+    id: string,
+    payload: Partial<{ title: string; price: number; locationId: string; capturedAt: string }>,
+  ) => {
+    const response = await apiClient.patch(`/photos/${id}`, payload);
+    return response.data;
+  },
+
+  delete: async (id: string) => {
+    const response = await apiClient.delete(`/photos/${id}`);
     return response.data;
   },
 };

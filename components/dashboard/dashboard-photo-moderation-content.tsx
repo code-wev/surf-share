@@ -18,6 +18,9 @@ import {
   type PhotoModerationApiPhoto,
 } from "@/src/actions/photo.action";
 import { Loader2 } from "lucide-react";
+import { formatFileSize } from "@/lib/utils";
+import EditUploadModal from "../profile/contributor-profile/my-uploads/edit-upload-modal";
+import DeleteUploadModal from "../profile/contributor-profile/my-uploads/delete-upload-modal";
 
 const getApiOrigin = () => {
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -55,6 +58,8 @@ export default function DashboardPhotoModerationContent() {
   const queryClient = useQueryClient();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [activeItem, setActiveItem] = useState<PhotoModerationItem | null>(null);
+  const [editingUpload, setEditingUpload] = useState<PhotoModerationItem | null>(null);
+  const [deletingUpload, setDeletingUpload] = useState<PhotoModerationItem | null>(null);
 
   // Fetch pending photos
   const {
@@ -74,7 +79,10 @@ export default function DashboardPhotoModerationContent() {
 
       const format = photo.format ? photo.format.toUpperCase() : "N/A";
 
-      const size = photo.fileSize ? `${(photo.fileSize / 1024 / 1024).toFixed(2)} MB` : "N/A";
+      const size = formatFileSize(photo.fileSize);
+
+      const takenDate = new Date(photo.capturedAt || photo.createdAt);
+      const perfectDate = `${takenDate.toLocaleDateString()} at ${takenDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
 
       return {
         id: photo.id,
@@ -82,10 +90,13 @@ export default function DashboardPhotoModerationContent() {
         images: [toAbsoluteImageUrl(photo.imageUrl)],
         title: photo.title || `${photo.photographer?.name || "Photographer"}'s upload`,
         priceLabel: `$${photo.price}`,
+        priceValue: photo.price,
         photographer: photo.photographer?.name || "Unknown",
         location: photo.location?.name || "Unknown Location",
+        locationId: photo.locationId,
         imageCount: 1,
-        dateTaken: new Date(photo.createdAt).toLocaleDateString(),
+        dateTaken: perfectDate,
+        uploadedAt: photo.capturedAt || photo.createdAt,
         resolution,
         format,
         size,
@@ -93,7 +104,6 @@ export default function DashboardPhotoModerationContent() {
         status: photo.status,
       };
     });
-
     // Add related photos from same photographer (max 5)
     return items.map((item: PhotoModerationItem) => ({
       ...item,
@@ -118,6 +128,7 @@ export default function DashboardPhotoModerationContent() {
 
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
+        setSelectedIds(new Set());
         setActiveItem(null);
       }
     };
@@ -179,6 +190,19 @@ export default function DashboardPhotoModerationContent() {
   });
 
   const handleSingleAction = (id: string, action: ModerationAction) => {
+    const item = photoItems.find((i) => i.id === id);
+    if (!item) return;
+
+    if (action === "edit") {
+      setEditingUpload(item);
+      return;
+    }
+
+    if (action === "delete") {
+      setDeletingUpload(item);
+      return;
+    }
+
     const status = action === "approve" ? "APPROVED" : "REJECTED";
     singleActionMutation.mutate({ id, status });
   };
@@ -230,6 +254,26 @@ export default function DashboardPhotoModerationContent() {
         onClose={() => setActiveItem(null)}
         onAction={handleSingleAction}
         onSelectImage={(item) => setActiveItem(item)}
+      />
+
+      <EditUploadModal
+        upload={
+          editingUpload
+            ? {
+                id: editingUpload.id,
+                name: editingUpload.title,
+                locationId: editingUpload.locationId,
+                priceValue: editingUpload.priceValue,
+                uploadedAt: editingUpload.uploadedAt,
+              }
+            : null
+        }
+        onClose={() => setEditingUpload(null)}
+      />
+
+      <DeleteUploadModal
+        upload={deletingUpload ? { id: deletingUpload.id, name: deletingUpload.title } : null}
+        onClose={() => setDeletingUpload(null)}
       />
     </section>
   );

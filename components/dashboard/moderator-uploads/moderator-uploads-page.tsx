@@ -8,14 +8,14 @@ import {
   Clock3,
   MapPin,
   SlidersHorizontal,
+  User,
 } from "lucide-react";
-import { toast } from "sonner";
 
-import ContributorListTable, { type ContributorListTableRow } from "./contributor-list-table";
+import ModeratorListTable, { type ContributorListTableRow } from "./moderator-list-table";
 import UploadDetailsModal from "./upload-details-modal";
 import EditUploadModal from "./edit-upload-modal";
 import DeleteUploadModal from "./delete-upload-modal";
-import { useMyPhotosQuery, useDeletePhotoMutation } from "@/hooks/api/usePhotos";
+import { useModeratorPhotosQuery } from "@/hooks/api/usePhotos";
 import type { IPhotoResponse } from "@/lib/api/services/photo.service";
 import { useLocationsQuery } from "@/hooks/api/useLocations";
 import { getAbsoluteImageUrl, formatFileSize } from "@/lib/utils";
@@ -87,18 +87,21 @@ function mapApiPhotoToRow(item: IPhotoResponse): EnrichedUploadRow {
     uploadedAt: takenAt,
     priceValue: item.price,
     locationId: item.locationId,
-    photographer: "You",
+    photographer: item.photographer?.name || "Unknown",
     resolution: item.width && item.height ? `${item.width}x${item.height}` : "Unknown",
     format: item.format?.toUpperCase() || "JPEG",
     size: formatFileSize(item.fileSize),
   };
 }
 
-export default function ContributorMyUploadsPage() {
+export default function ModeratorUploadedPhotosPage() {
   const [selectedLocationId, setSelectedLocationId] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<UploadStatusFilter>("all");
+  const [photographerId, setPhotographerId] = useState<string>("");
   const [showFilterPanel, setShowFilterPanel] = useState(false);
-  const [activeSubmenu, setActiveSubmenu] = useState<"location" | "status" | null>(null);
+  const [activeSubmenu, setActiveSubmenu] = useState<"location" | "status" | "photographer" | null>(
+    null,
+  );
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUpload, setSelectedUpload] = useState<EnrichedUploadRow | null>(null);
   const [editingUpload, setEditingUpload] = useState<EnrichedUploadRow | null>(null);
@@ -106,14 +109,18 @@ export default function ContributorMyUploadsPage() {
 
   // Dynamic Location Data for Filter
   const { data: locationsData } = useLocationsQuery({ page: 1, limit: 100 });
-  const locations = useMemo(() => locationsData?.data || [], [locationsData]);
+  const locations = useMemo(() => {
+    console.log("Locations Data:", locationsData);
+    return locationsData?.data || [];
+  }, [locationsData]);
 
   // Dynamic Photo Data
-  const { data, isLoading } = useMyPhotosQuery({
+  const { data, isLoading } = useModeratorPhotosQuery({
     page: currentPage,
     limit: PAGE_SIZE,
     status: selectedStatus === "all" ? undefined : selectedStatus.toUpperCase(),
     locationId: selectedLocationId === "all" ? undefined : selectedLocationId,
+    photographerId: photographerId || undefined,
   });
 
   const meta = data?.meta;
@@ -139,6 +146,11 @@ export default function ContributorMyUploadsPage() {
     setActiveSubmenu(null);
   };
 
+  const handlePhotographerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPhotographerId(e.target.value);
+    setCurrentPage(1);
+  };
+
   const handleDelete = (row: EnrichedUploadRow) => {
     setDeletingUpload(row);
   };
@@ -148,14 +160,14 @@ export default function ContributorMyUploadsPage() {
   };
 
   if (isLoading) {
-    return <div className="py-20 text-center">Loading your uploads...</div>;
+    return <div className="py-20 text-center">Loading platform uploads...</div>;
   }
 
   return (
     <section className="pt-10 [font-family:var(--font-sf-pro)] md:pt-0">
       <div className="flex items-center justify-between gap-3">
         <h1 className="border-brand-default text-brand-default inline-flex border-b pb-1 text-base font-medium sm:text-lg">
-          My Uploads
+          Platform Uploads
         </h1>
 
         <div className="relative flex items-center gap-3 text-sm">
@@ -226,6 +238,18 @@ export default function ContributorMyUploadsPage() {
                 </div>
               ) : null}
 
+              {activeSubmenu === "photographer" ? (
+                <div className="border-line-weaker bg-surface-muted-100 w-full overflow-hidden rounded-md border p-4 shadow-lg md:mt-6 md:mr-1 md:w-52">
+                  <input
+                    type="text"
+                    placeholder="Enter Photographer ID"
+                    value={photographerId}
+                    onChange={handlePhotographerChange}
+                    className="border-line-weaker w-full rounded-sm border p-2 text-sm"
+                  />
+                </div>
+              ) : null}
+
               <div className="border-line-weaker bg-surface-muted-100 w-full overflow-hidden rounded-md border shadow-lg md:w-56">
                 <div className="border-line-weaker flex items-center justify-between border-b px-4 py-3">
                   <span className="text-brand-default text-sm font-medium">Filter &amp; Sort</span>
@@ -259,13 +283,29 @@ export default function ContributorMyUploadsPage() {
                   <span className="text-text-strong flex-1 text-left">Status</span>
                   <ChevronRightSmall size={16} />
                 </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setActiveSubmenu((previous) =>
+                      previous === "photographer" ? null : "photographer",
+                    )
+                  }
+                  className={`hover:bg-fill-hover flex w-full items-center gap-3 px-4 py-3 text-sm ${
+                    activeSubmenu === "photographer" ? "bg-fill-hover" : ""
+                  }`}
+                >
+                  <User size={16} />
+                  <span className="text-text-strong flex-1 text-left">Photographer ID</span>
+                  <ChevronRightSmall size={16} />
+                </button>
               </div>
             </div>
           ) : null}
         </div>
       </div>
 
-      <ContributorListTable
+      <ModeratorListTable
         rows={uploads}
         onViewDetails={setSelectedUpload}
         onEdit={handleEdit}

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { photoService } from "../../lib/api/services/photo.service";
+import { photoService as moderatorPhotoService } from "../../lib/api/services/photo-moderator.service";
 import { queryKeys } from "../../lib/api/query-keys";
 import { getErrorMessage } from "../../lib/utils/error-handler";
 
@@ -33,10 +34,57 @@ export const useMyPhotosQuery = (filters: { page: number; limit: number; status?
   });
 };
 
+export const useModeratorPhotosQuery = (filters: { page: number; limit: number; status?: string; locationId?: string; photographerId?: string }) => {
+  return useQuery({
+    queryKey: ["moderator-photos", filters],
+    queryFn: () => moderatorPhotoService.getModeratorPhotos(filters),
+  });
+};
+
 export const usePhotoDetailQuery = (id: string) => {
   return useQuery({
     queryKey: queryKeys.photos.detail(id),
     queryFn: () => photoService.getById(id),
     enabled: !!id,
+  });
+};
+
+export const useUpdatePhotoMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: Partial<{ title: string; price: number; locationId: string; capturedAt: string }>;
+    }) => photoService.update(id, payload),
+    onSuccess: (_, variables) => {
+      toast.success("Photo updated successfully.");
+      queryClient.invalidateQueries({ queryKey: queryKeys.photos.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.photos.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: ["moderator-photos"] });
+    },
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, "Failed to update photo."));
+    },
+  });
+};
+
+export const useDeletePhotoMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: photoService.delete,
+    onSuccess: () => {
+      toast.success("Photo deleted successfully.");
+      queryClient.invalidateQueries({ queryKey: queryKeys.photos.all });
+      queryClient.invalidateQueries({ queryKey: ["pending-photos"] });
+      queryClient.invalidateQueries({ queryKey: ["moderator-photos"] });
+    },
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, "Failed to delete photo."));
+    },
   });
 };

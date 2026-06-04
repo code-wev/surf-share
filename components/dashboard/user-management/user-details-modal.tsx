@@ -2,7 +2,11 @@ import Image from "next/image";
 import { ChevronsRight, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getUserById, getUserPhotos } from "@/src/actions/user.action";
-import { useUpdateSubscriptionMutation, useUpdateUserStatusMutation } from "@/hooks/api/useUsers";
+import {
+  useUpdateSubscriptionMutation,
+  useUpdateUserStatusMutation,
+  useUpdateUserMutation,
+} from "@/hooks/api/useUsers";
 import { getAbsoluteImageUrl } from "@/lib/utils";
 
 type UserDetailsModalProps = {
@@ -43,6 +47,7 @@ export default function UserDetailsModal({ userId, onClose }: UserDetailsModalPr
 
   const updateSubscriptionMutation = useUpdateSubscriptionMutation();
   const updateStatusMutation = useUpdateUserStatusMutation();
+  const updateUserMutation = useUpdateUserMutation();
 
   const handleSubscriptionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (!userId) return;
@@ -54,6 +59,14 @@ export default function UserDetailsModal({ userId, onClose }: UserDetailsModalPr
     if (!userId) return;
     const newStatus = e.target.value;
     updateStatusMutation.mutate({ userId, status: newStatus });
+  };
+
+  const handleTogglePromotion = () => {
+    if (!userId || !user) return;
+    updateUserMutation.mutate({
+      userId,
+      payload: { promotionEmail: !user.promotionEmail },
+    });
   };
 
   const user = userResponse?.data;
@@ -129,6 +142,30 @@ export default function UserDetailsModal({ userId, onClose }: UserDetailsModalPr
                         <option value="SUSPENDED">SUSPENDED</option>
                       </select>
                       {updateStatusMutation.isPending && (
+                        <Loader2 className="text-brand-default h-4 w-4 animate-spin" />
+                      )}
+                    </div>
+                  }
+                />
+
+                <UserDetailRow
+                  label="Promotion Email"
+                  value={
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={handleTogglePromotion}
+                        disabled={updateUserMutation.isPending}
+                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                          user.promotionEmail ? "bg-brand-default" : "bg-gray-200"
+                        }`}
+                      >
+                        <span
+                          className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                            user.promotionEmail ? "translate-x-4" : "translate-x-0"
+                          }`}
+                        />
+                      </button>
+                      {updateUserMutation.isPending && (
                         <Loader2 className="text-brand-default h-4 w-4 animate-spin" />
                       )}
                     </div>

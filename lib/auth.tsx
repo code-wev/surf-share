@@ -24,6 +24,7 @@ export type Session = {
   phoneNumber?: string | null;
   paypalEmail?: string | null;
   permissions?: string[];
+  promotionEmail: boolean;
 };
 
 const AUTH_STORAGE_KEY = "surf-share-auth-session";

@@ -12,15 +12,15 @@ export default function HowItWorks() {
     },
     {
       icon: <GalleryHorizontalEnd className="h-5 w-5 text-(--color-text-inverse-strong)" />,
-      title: "Pick your shot",
+      title: "Pick your shots",
       description:
         "Browse quality watermarked previews from talented local photographers. Favourite your waves and add to cart.",
     },
     {
       icon: <Download className="h-5 w-5 text-(--color-text-inverse-strong)" />,
-      title: "Purchase and ride",
+      title: "Purchase your waves",
       description:
-        "Pay securely via PayPal and instantly download your high-resolution, watermark-free photo. Yours to keep, share, and relive.",
+        "Pay securely via Stripe and instantly download your high-resolution, watermark-free photo. Yours to keep, share, and relive.",
     },
   ];
 
@@ -75,7 +75,7 @@ export default function HowItWorks() {
                 titleClassName="mt-2 text-4xl text-(--color-text-strong) sm:text-[42px] md:text-5xl lg:text-[64px]"
               />
             </div>
-            <div className="mt-20 space-y-8 lg:mt-60">
+            <div className="mt-20 space-y-8 lg:mt-20">
               {contentData.map((item, index) => (
                 <div key={index} className="flex items-start gap-4">
                   <div>

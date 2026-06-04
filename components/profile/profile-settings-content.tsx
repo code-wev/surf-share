@@ -23,6 +23,17 @@ type SocialAccountLink = {
   url: string;
 };
 
+type ProfileApiUser = {
+  name?: string;
+  profileImageUrl?: string | null;
+  countryName?: string | null;
+  phoneNumber?: string | null;
+  email?: string;
+  address?: string | null;
+  promotionEmail?: boolean;
+  socialAccounts?: { platform: string; url: string }[];
+};
+
 const SOCIAL_ACCOUNT_TYPES: { value: SocialAccountType; label: string }[] = [
   { value: "facebook", label: "Facebook" },
   { value: "instagram", label: "Instagram" },
@@ -49,6 +60,8 @@ export default function ProfileSettingsContent() {
     email: string;
     address: string;
   } | null>(null);
+
+  const [isPromotionLoading, setIsPromotionLoading] = useState(false);
 
   // Password change form state
   const [passwordFormValues, setPasswordFormValues] = useState({
@@ -91,7 +104,7 @@ export default function ProfileSettingsContent() {
     enabled: Boolean(session?.id),
   });
 
-  const apiProfile = data?.data;
+  const apiProfile = data?.data as ProfileApiUser | undefined;
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -115,19 +128,40 @@ export default function ProfileSettingsContent() {
     }
   };
 
+  const handleTogglePromotion = async () => {
+    if (!session?.id || !apiProfile) return;
+    setIsPromotionLoading(true);
+    try {
+      const result = await updateUserById(session.id, {
+        promotionEmail: !Boolean(apiProfile.promotionEmail),
+      });
+      if (result.success) {
+        toast.success("Promotion preference updated!");
+        await queryClient.invalidateQueries({ queryKey: ["profile", session.id] });
+      } else {
+        toast.error(result.message || "Failed to update preference.");
+      }
+    } catch (error) {
+      toast.error("An error occurred.");
+      console.error("Error updating promotion preference:", error);
+    } finally {
+      setIsPromotionLoading(false);
+    }
+  };
+
   const displayProfile = {
     fullName: apiProfile?.name ?? session?.name ?? "",
-    avatarSrc: apiProfile?.profileImageUrl ? getAbsoluteImageUrl(apiProfile.profileImageUrl) : "",
+    avatarSrc: apiProfile?.profileImageUrl
+      ? getAbsoluteImageUrl(apiProfile.profileImageUrl)
+      : "/home/logo.png",
     country: apiProfile?.countryName ?? "",
     phone: apiProfile?.phoneNumber ?? "",
     email: apiProfile?.email ?? session?.email ?? "",
     address: apiProfile?.address ?? "",
+    promotionEmail: apiProfile?.promotionEmail ?? false,
   };
 
-  interface _ApiProfile {
-    socialAccounts?: { platform: string; url: string }[];
-  }
-  const incoming = (apiProfile as unknown as _ApiProfile)?.socialAccounts || [];
+  const incoming = apiProfile?.socialAccounts || [];
   const parsedIncomingLinks: SocialAccountLink[] = incoming.map((s, i) => ({
     id: `${s.platform}-${i}`,
     type: s.platform as SocialAccountType,
@@ -272,6 +306,7 @@ export default function ProfileSettingsContent() {
                     if (result.success) {
                       setMessage({ type: "success", text: "Profile updated successfully!" });
                       await queryClient.invalidateQueries({ queryKey: ["profile", session.id] });
+                      await queryClient.invalidateQueries({ queryKey: ["user", session.id] });
                       setIsEditingProfile(false);
                       setEditValues(null);
                     } else {
@@ -354,6 +389,29 @@ export default function ProfileSettingsContent() {
             }
             className="md:col-span-2"
           />
+
+          <div className="flex flex-col gap-2 md:col-span-2">
+            <span className="text-text-strong text-base font-medium">Promotions & Updates</span>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleTogglePromotion}
+                disabled={isPromotionLoading}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  displayProfile.promotionEmail ? "bg-brand-default" : "bg-gray-200"
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                    displayProfile.promotionEmail ? "translate-x-5" : "translate-x-0"
+                  }`}
+                />
+              </button>
+              <span className="text-text-weak text-sm">Receive Promotional Emails</span>
+              {isPromotionLoading && (
+                <Loader2 className="text-brand-default h-4 w-4 animate-spin" />
+              )}
+            </div>
+          </div>
 
           {isContributor && (
             <div className="md:col-span-2">

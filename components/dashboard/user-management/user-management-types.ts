@@ -17,6 +17,7 @@ export type UserRow = {
   status: UserStatus;
   country?: string;
   address?: string;
+  promotionEmail: boolean;
 };
 
 export type FilterOption = "All Users" | "Surfers" | "Photographers" | string;

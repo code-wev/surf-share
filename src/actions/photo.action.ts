@@ -12,11 +12,13 @@ export interface PhotoModerationApiPhoto {
   imageUrl: string;
   price: number;
   createdAt: string;
+  capturedAt?: string | null;
   status: string;
   width?: number | null;
   height?: number | null;
   format?: string | null;
   fileSize?: number | null;
+  locationId: string;
   photographer?: {
     name?: string | null;
   } | null;

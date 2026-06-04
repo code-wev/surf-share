@@ -25,6 +25,7 @@ interface UserGetResponse {
     subscriptionTier?: string | null;
     countryName?: string | null;
     address?: string | null;
+    promotionEmail: boolean;
   }>;
 }
 
@@ -42,6 +43,7 @@ interface UserGetByIdResponse {
     createdAt: string;
     countryName?: string | null;
     address?: string | null;
+    promotionEmail: boolean;
   };
 }
 
