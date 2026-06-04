@@ -4,6 +4,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   ImageIcon,
+  Images,
   LayoutGrid,
   LogOut,
   MapPin,
@@ -40,6 +41,12 @@ const moderatorDashboardNavItems: ReadonlyArray<DashboardNavItem> = [
     label: "Photo Moderation",
     Icon: ImageIcon,
     href: "/dashboard/photo-moderation",
+    permission: "APPROVE_PHOTO",
+  },
+  {
+    label: "Uploaded Photos",
+    Icon: Images,
+    href: "/dashboard/uploaded-photos",
     permission: "APPROVE_PHOTO",
   },
   {
