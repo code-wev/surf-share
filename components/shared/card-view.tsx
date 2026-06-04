@@ -218,7 +218,7 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
             isPurchased
               ? "cursor-not-allowed border-none bg-green-600 text-white opacity-90"
               : isAddedToCart
-                ? "bg-white text-green-600 hover:text-green-700"
+                ? "bg-(--color-fill-brand-strong) text-white"
                 : "bg-[#E7E5E4] text-(--color-fill-brand-strong) hover:bg-(--color-fill-brand-strong) hover:text-white",
           )}
         >
