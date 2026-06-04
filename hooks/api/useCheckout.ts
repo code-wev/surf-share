@@ -13,7 +13,12 @@ export const useCreateCheckoutSessionMutation = () => {
 
   return useMutation({
     mutationFn: checkoutService.createSession,
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
+      // Clear the items from cart as they are now in a pending order
+      if (variables && Array.isArray(variables)) {
+        removeItems(variables);
+      }
+
       // The backend returns the Stripe Checkout URL. We redirect the user to it securely.
       if (data.data?.url) {
         window.location.href = data.data.url;

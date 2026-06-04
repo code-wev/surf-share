@@ -3,6 +3,21 @@ import { X, Camera } from "lucide-react";
 import type { OrderListItem, OrderItemApi } from "./order-types";
 import { getAbsoluteImageUrl } from "@/lib/utils";
 
+const statusConfig: Record<string, { color: string; label: string }> = {
+  PAID: {
+    color: "text-success-strong",
+    label: "Paid",
+  },
+  FAILED: {
+    color: "text-danger-strong",
+    label: "Failed",
+  },
+  PENDING: {
+    color: "text-alert-strong",
+    label: "Pending",
+  },
+};
+
 export default function OrderDetailsModal({
   order,
   onClose,
@@ -10,6 +25,8 @@ export default function OrderDetailsModal({
   order: OrderListItem;
   onClose: () => void;
 }) {
+  const config = statusConfig[order.status] || { color: "text-text-weak", label: order.status };
+
   return (
     <div
       className="fixed inset-0 z-100 flex items-center justify-center bg-black/45 p-4"
@@ -34,7 +51,7 @@ export default function OrderDetailsModal({
         <div className="max-h-[70vh] space-y-6 overflow-y-auto px-6 py-5">
           <div className="space-y-4">
             <h3 className="text-text-weak text-sm font-semibold tracking-wide uppercase">
-              Purchased Items ({order.items.length})
+              Items ({order.items.length})
             </h3>
             <div className="grid gap-3">
               {order.items.map((item: OrderItemApi) => (
@@ -66,11 +83,7 @@ export default function OrderDetailsModal({
           <div className="border-line-weaker space-y-3 border-t pt-4">
             <div className="flex items-center justify-between text-sm">
               <p className="text-text-weak">Status</p>
-              <p
-                className={`font-medium ${order.status === "Completed" ? "text-[#2AA65C]" : "text-[#CA8A04]"}`}
-              >
-                {order.status}
-              </p>
+              <p className={`font-medium ${config.color}`}>{config.label}</p>
             </div>
             <div className="flex items-center justify-between text-sm">
               <p className="text-text-weak">Placed On</p>

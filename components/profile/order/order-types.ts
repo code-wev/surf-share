@@ -22,10 +22,10 @@ export interface OrderApi {
   items: OrderItemApi[];
   totalAmount: number;
   createdAt: string;
-  status: string;
+  status: "PENDING" | "PAID" | "FAILED" | string;
 }
 
-export type OrderStatus = "Completed" | "Cancelled" | "Ordered" | string;
+export type OrderStatus = "PENDING" | "PAID" | "FAILED" | string;
 
 export interface OrderListItem {
   id: string;

@@ -2,44 +2,60 @@
 
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import { Clock, Check, X, Loader2 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { Clock, Check, X, Loader2, RotateCcw, Trash2 } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { PageTitle } from "@/components/shared/page-title";
-import { getMyOrders } from "@/src/actions/order.action";
+import { getMyOrders, deleteOrder } from "@/src/actions/order.action";
+import { checkoutService } from "@/lib/api/services/checkout.service";
 import OrderDetailsModal from "./order-details-modal";
 import type { OrderApi, OrderListItem } from "./order-types";
 import { getAbsoluteImageUrl } from "@/lib/utils";
 
-type TabType = "All Orders" | "Completed" | "Ordered" | "Cancelled";
+type TabType = "All Orders" | "PAID" | "PENDING" | "FAILED";
 
-const tabs: TabType[] = ["All Orders", "Completed", "Ordered", "Cancelled"];
+const tabs: { label: string; value: TabType }[] = [
+  { label: "All Orders", value: "All Orders" },
+  { label: "Completed", value: "PAID" },
+  { label: "Pending", value: "PENDING" },
+  { label: "Failed", value: "FAILED" },
+];
 
 const statusConfig: Record<
   string,
-  { bg: string; text: string; icon: React.ComponentType<{ size: number; className: string }> }
+  {
+    bg: string;
+    text: string;
+    icon: React.ComponentType<{ size: number; className: string }>;
+    label: string;
+  }
 > = {
-  Completed: {
+  PAID: {
     bg: "bg-success-disable",
     text: "text-success-strong",
     icon: Check,
+    label: "Paid",
   },
-  Cancelled: {
+  FAILED: {
     bg: "bg-danger-weaker",
     text: "text-danger-strong",
     icon: X,
+    label: "Failed",
   },
-  Ordered: {
+  PENDING: {
     bg: "bg-alert-disable",
     text: "text-alert-strong",
     icon: Clock,
+    label: "Pending",
   },
 };
 
 export default function ProfileOrderPage() {
   const [activeTab, setActiveTab] = useState<TabType>("All Orders");
   const [activeOrder, setActiveOrder] = useState<OrderListItem | null>(null);
+  const queryClient = useQueryClient();
 
   const { data, isLoading, isError } = useQuery<{ success: boolean; data?: OrderApi[] }, Error>({
     queryKey: ["my-orders"],
@@ -54,7 +70,9 @@ export default function ProfileOrderPage() {
           id: order.id,
           title: order.items[0]?.photo.photographer.name || "Unknown",
           location: order.items[0]?.photo.location.name || "Unknown",
-          imageSrc: order.items[0]?.photo.imageUrl ? getAbsoluteImageUrl(order.items[0]?.photo.imageUrl) : "/default-photo.jpg",
+          imageSrc: order.items[0]?.photo.imageUrl
+            ? getAbsoluteImageUrl(order.items[0]?.photo.imageUrl)
+            : "/default-photo.jpg",
           price: order.totalAmount,
           detailsHref: "#",
           orderNo: order.id.slice(-8).toUpperCase(),
@@ -64,8 +82,8 @@ export default function ProfileOrderPage() {
             day: "numeric",
           }),
           imageQuantity: order.items.length,
-          status: order.status === "PAID" ? "Completed" : "Ordered",
-          items: order.items, // passed to details modal
+          status: order.status,
+          items: order.items,
         }) as OrderListItem,
     );
   }, [data]);
@@ -75,9 +93,43 @@ export default function ProfileOrderPage() {
     return orders.filter((item) => item.status === activeTab);
   }, [orders, activeTab]);
 
+  const repayMutation = useMutation({
+    mutationFn: (orderId: string) => checkoutService.retryPayment(orderId),
+    onSuccess: (data) => {
+      // The backend returns { success, message, data: { url, sessionId } }
+      if (data.data?.url) {
+        window.location.href = data.data.url;
+      }
+    },
+    onError: () => {
+      toast.error("Failed to initiate repayment.");
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (orderId: string) => deleteOrder(orderId),
+    onSuccess: () => {
+      toast.success("Order deleted successfully.");
+      queryClient.invalidateQueries({ queryKey: ["my-orders"] });
+    },
+    onError: () => {
+      toast.error("Failed to delete order.");
+    },
+  });
+
+  const handleRepay = (orderId: string) => {
+    repayMutation.mutate(orderId);
+  };
+
+  const handleDelete = (orderId: string) => {
+    if (window.confirm("Are you sure you want to delete this order?")) {
+      deleteMutation.mutate(orderId);
+    }
+  };
+
   const getStatusConfig = (status?: string) => {
-    if (!status) return { bg: "", text: "text-text-weak", icon: null };
-    return statusConfig[status] || { bg: "", text: "text-text-weak", icon: null };
+    if (!status) return { bg: "", text: "text-text-weak", icon: null, label: "N/A" };
+    return statusConfig[status] || { bg: "", text: "text-text-weak", icon: null, label: status };
   };
 
   const renderStatusIcon = (status?: string) => {
@@ -105,15 +157,15 @@ export default function ProfileOrderPage() {
       <div className="border-line-weaker mb-6 flex overflow-x-auto border-b">
         {tabs.map((tab) => (
           <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
+            key={tab.value}
+            onClick={() => setActiveTab(tab.value)}
             className={`px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors sm:px-4 sm:text-sm md:text-base ${
-              activeTab === tab
+              activeTab === tab.value
                 ? "border-text-brand-strong text-text-brand-strong inline-flex w-fit border-b-2 pb-2.5 md:text-lg md:leading-tight"
                 : "text-text-weak hover:text-text-strong"
             }`}
           >
-            {tab}
+            {tab.label}
           </button>
         ))}
       </div>
@@ -143,7 +195,7 @@ export default function ProfileOrderPage() {
                     className={`inline-flex w-fit items-start gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium ${getStatusConfig(item.status).bg} ${getStatusConfig(item.status).text}`}
                   >
                     {renderStatusIcon(item.status)}
-                    {item.status || "N/A"}
+                    {getStatusConfig(item.status).label}
                   </p>
                 </div>
                 <div>
@@ -188,12 +240,44 @@ export default function ProfileOrderPage() {
                       ${item.price.toFixed(2)}
                     </p>
                   </div>
-                  <Button
-                    onClick={() => setActiveOrder(item)}
-                    className="h-8 w-auto bg-(--color-fill-brand-strong) px-5 text-xs text-(--color-text-inverse-strong) hover:opacity-95 sm:h-8"
-                  >
-                    View Details
-                  </Button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {item.status !== "PAID" && (
+                      <>
+                        <Button
+                          variant="secondary"
+                          onClick={() => handleRepay(item.id)}
+                          disabled={repayMutation.isPending}
+                          className="text-brand-default border-line-weaker h-8 px-4 text-xs hover:bg-surface-muted-100 sm:h-8"
+                        >
+                          {repayMutation.isPending && repayMutation.variables === item.id ? (
+                            <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                          ) : (
+                            <RotateCcw className="mr-1 h-3 w-3" />
+                          )}
+                          Repay
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          onClick={() => handleDelete(item.id)}
+                          disabled={deleteMutation.isPending}
+                          className="text-danger-strong h-8 px-4 text-xs hover:bg-danger-weaker sm:h-8"
+                        >
+                          {deleteMutation.isPending && deleteMutation.variables === item.id ? (
+                            <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                          ) : (
+                            <Trash2 className="mr-1 h-3 w-3" />
+                          )}
+                          Delete
+                        </Button>
+                      </>
+                    )}
+                    <Button
+                      onClick={() => setActiveOrder(item)}
+                      className="bg-(--color-fill-brand-strong) text-(--color-text-inverse-strong) h-8 w-auto px-5 text-xs hover:opacity-95 sm:h-8"
+                    >
+                      View Details
+                    </Button>
+                  </div>
                 </div>
               </div>
             </article>
