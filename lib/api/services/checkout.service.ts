@@ -6,6 +6,11 @@ export const checkoutService = {
     return response.data;
   },
 
+  retryPayment: async (orderId: string) => {
+    const response = await apiClient.post("/checkout/retry-payment", { orderId });
+    return response.data;
+  },
+
   verifySession: async (sessionId: string) => {
     const response = await apiClient.get("/checkout/verify-session", {
       params: { sessionId },
