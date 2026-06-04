@@ -61,7 +61,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   const handleToggleFavorite = () => {
     if (!isHydrated) return;
     if (!session) {
-      toast.error("Please login to add to favorites");
+      toast.error("Please login to add to favourites");
       router.push("/login");
       return;
     }
@@ -273,7 +273,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
               }
               onClick={handleToggleFavorite}
             >
-              {isFavorited ? "Remove from favorites" : "Add to favorites"}
+              {isFavorited ? "Remove from favourites" : "Add to favourites"}
               <Heart className="h-4 w-4" fill={isFavorited ? "currentColor" : "none"} />
             </Button>
             <Button
@@ -326,7 +326,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
               href={adData.data.linkUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="relative mt-8 mt-20 block overflow-hidden rounded-md border border-(--color-line-weaker) transition-opacity hover:opacity-95"
+              className="relative mt-8 block overflow-hidden rounded-md border border-(--color-line-weaker) transition-opacity hover:opacity-95"
             >
               <Image
                 src={getAbsoluteImageUrl(adData.data.imageUrl)}

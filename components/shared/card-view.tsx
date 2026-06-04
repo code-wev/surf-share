@@ -90,7 +90,7 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
     if (!isHydrated) return;
 
     if (!session) {
-      toast.error("Please login to add to favorites");
+      toast.error("Please login to add to favourites");
       router.push("/login");
       return;
     }
@@ -195,7 +195,7 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
       <div className="flex items-center gap-2">
         <button
           type="button"
-          aria-label="Add to favorites"
+          aria-label="Add to favourites"
           onClick={(e) => handleToggleFavorite(e, item.id)}
           disabled={toggleMutation.isPending}
           className={cn(

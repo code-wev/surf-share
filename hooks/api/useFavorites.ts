@@ -35,7 +35,7 @@ export const useToggleFavoriteMutation = () => {
       toast.success(data.message);
     },
     onError: (error: unknown) => {
-      toast.error(getErrorMessage(error, "Failed to update favorite."));
+      toast.error(getErrorMessage(error, "Failed to update favourite."));
     },
   });
 };
