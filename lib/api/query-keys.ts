@@ -46,4 +46,8 @@ export const queryKeys = {
     all: ["dashboard"] as const,
     stats: () => [...queryKeys.dashboard.all, "stats"] as const,
   },
+  subscriptions: {
+    all: ["subscriptions"] as const,
+    lists: () => [...queryKeys.subscriptions.all, "list"] as const,
+  },
 };
