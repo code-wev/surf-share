@@ -103,7 +103,6 @@ export default function ContributorListTable<T extends ContributorListTableRow>(
                       className="inline-flex cursor-pointer items-center gap-1 text-sm text-[#0EA5E9] hover:underline"
                     >
                       <Eye size={14} />
-                      View details
                     </button>
                     <button
                       type="button"
