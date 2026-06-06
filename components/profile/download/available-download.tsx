@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Download, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { getAbsoluteImageUrl } from "@/lib/utils";
+import { apiClient } from "@/lib/api/client";
 
 type DownloadablePhoto = {
   id: string;
@@ -21,11 +22,13 @@ export default function AvailableDownload() {
     queryFn: getDownloadablePhotos,
   });
 
-  const handleDownload = async (imageUrl: string, fileName: string) => {
+  const handleDownload = async (photoId: string, fileName: string) => {
     try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      toast.info("Preparing secure download...");
+      const response = await apiClient.get(`/photos/${photoId}/download`, {
+        responseType: "blob",
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
       link.setAttribute("download", `${fileName}.jpg`);
@@ -36,7 +39,7 @@ export default function AvailableDownload() {
       toast.success("Download started!");
     } catch (error) {
       console.error("Error downloading image:", error);
-      toast.error("Failed to download image.");
+      toast.error("Failed to authenticate secure download.");
     }
   };
 

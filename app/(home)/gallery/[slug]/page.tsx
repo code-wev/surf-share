@@ -204,13 +204,6 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
             </div>
 
             <div aria-hidden className="pointer-events-none absolute inset-0 z-10 bg-black/10" />
-
-            {/* Text Watermark - Using cqw to scale proportionally with image width */}
-            <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center overflow-hidden px-[5cqw] select-none">
-              <span className="rotate-[-20deg] text-[20cqw] font-black tracking-tight text-white/35 drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)]">
-                surfshare
-              </span>
-            </div>
           </div>
 
           {/* Thumbnail Filmstrip */}
