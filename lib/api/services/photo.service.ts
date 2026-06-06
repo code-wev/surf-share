@@ -40,7 +40,7 @@ export interface IPhotosQuery {
 
 export const photoService = {
   bulkUpload: async (payload: FormData) => {
-    const response = await apiClient.post("/photos/bulk", payload, {
+    const response = await apiClient.post("/photos/upload", payload, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
