@@ -54,12 +54,12 @@ export const photoService = {
   },
 
   getMyPhotos: async (params: IPhotosQuery) => {
-    const response = await apiClient.get("/photos/my-uploads", { params });
+    const response = await apiClient.get("/photos/my-photos", { params });
     return response.data;
   },
 
   getById: async (id: string) => {
-    const response = await apiClient.get(`/photos/detail/${id}`);
+    const response = await apiClient.get(`/photos/${id}`);
     return response.data;
   },
 

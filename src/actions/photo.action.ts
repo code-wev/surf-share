@@ -79,7 +79,7 @@ export const updatePhotoStatus = async (photoId: string, status: string) => {
 
 export const bulkUpdatePhotoStatus = async (photoIds: string[], status: string) => {
   try {
-    const response = await apiClient.post(`/photos/bulk-status`, { photoIds, status });
+    const response = await apiClient.patch(`/photos/bulk-status`, { photoIds, status });
     return response.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
