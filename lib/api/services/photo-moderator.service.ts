@@ -15,7 +15,7 @@ export interface IModeratorPhotosResponse {
 
 export const photoService = {
   getModeratorPhotos: async (query: IPhotosQuery) => {
-    const response = await apiClient.get<IModeratorPhotosResponse>("/photos/moderator-uploads", {
+    const response = await apiClient.get<IModeratorPhotosResponse>("/photos/moderator", {
       params: query,
     });
     return response.data;
