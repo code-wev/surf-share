@@ -97,7 +97,7 @@ export default function AvailableDownload() {
                     <Button
                       onClick={() =>
                         handleDownload(
-                          getAbsoluteImageUrl(item.imageUrl),
+                          item.id,
                           `${item.photographer.name}-${item.location.name}`,
                         )
                       }
