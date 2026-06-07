@@ -24,4 +24,9 @@ export const usersService = {
     });
     return response.data;
   },
+
+  delete: async (userId: string) => {
+    const response = await apiClient.delete(`/users/${userId}`);
+    return response.data;
+  },
 };

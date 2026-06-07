@@ -63,3 +63,19 @@ export const useUpdateUserStatusMutation = () => {
     },
   });
 };
+
+export const useDeleteUserMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (userId: string) => usersService.delete(userId),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
+      queryClient.invalidateQueries({ queryKey: ["moderators"] });
+      toast.success(data?.message || "User deleted successfully.");
+    },
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, "Failed to delete user."));
+    },
+  });
+};

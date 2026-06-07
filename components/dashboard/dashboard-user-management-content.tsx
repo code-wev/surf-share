@@ -25,6 +25,7 @@ import type {
 } from "@/components/dashboard/user-management/user-management-types";
 import { getUsers } from "@/src/actions/user.action";
 import { getAbsoluteImageUrl } from "@/lib/utils";
+import { useDeleteUserMutation } from "@/hooks/api/useUsers";
 
 type ApiUser = {
   id: string;
@@ -48,7 +49,9 @@ export default function DashboardUserManagementContent() {
   const [activeFilter, setActiveFilter] = useState<FilterOption>("All Users");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [userToDelete, setUserToDelete] = useState<UserRow | null>(null);
   const filterDropdownRef = useRef<HTMLDivElement | null>(null);
+  const deleteMutation = useDeleteUserMutation();
 
   // Fetch users from API
   const { data, isLoading, isError } = useQuery({
@@ -171,6 +174,7 @@ export default function DashboardUserManagementContent() {
             planClassNameMap={planClassNameMap}
             statusClassNameMap={statusClassNameMap}
             onViewDetails={(user) => setSelectedUserId(user.id)}
+            onDelete={(user) => setUserToDelete(user)}
           />
         )}
 
@@ -184,6 +188,39 @@ export default function DashboardUserManagementContent() {
 
         {selectedUserId ? (
           <UserDetailsModal userId={selectedUserId} onClose={() => setSelectedUserId(null)} />
+        ) : null}
+
+        {userToDelete ? (
+          <div className="fixed inset-0 z-1200 flex items-center justify-center bg-black/45 p-4" onClick={() => setUserToDelete(null)}>
+            <div className="w-full max-w-sm rounded-md bg-white p-6 shadow-[0_26px_70px_rgba(15,23,42,0.25)]" onClick={(e) => e.stopPropagation()}>
+              <h3 className="text-lg font-semibold text-text-strong">Delete User</h3>
+              <p className="mt-2 text-sm text-text-weak">
+                Are you sure you want to delete <strong>{userToDelete.name}</strong>? This will permanently remove their account.
+              </p>
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setUserToDelete(null)}
+                  disabled={deleteMutation.isPending}
+                  className="rounded-sm border border-line-weaker px-4 py-2 text-sm font-medium text-text-strong transition-colors hover:bg-fill-hover disabled:opacity-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    deleteMutation.mutate(userToDelete.id, {
+                      onSuccess: () => setUserToDelete(null)
+                    });
+                  }}
+                  disabled={deleteMutation.isPending}
+                  className="inline-flex items-center gap-2 rounded-sm bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50 cursor-pointer"
+                >
+                  {deleteMutation.isPending ? "Deleting..." : "Delete"}
+                </button>
+              </div>
+            </div>
+          </div>
         ) : null}
       </div>
     </section>

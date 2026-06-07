@@ -1,4 +1,4 @@
-import { ChevronsUpDown, Eye, Loader2 } from "lucide-react";
+import { ChevronsUpDown, Eye, Loader2, Trash2 } from "lucide-react";
 import Avatar from "@/components/shared/avatar";
 
 import type {
@@ -13,6 +13,7 @@ type UserManagementTableProps = {
   planClassNameMap: Record<UserPlan, string>;
   statusClassNameMap: Record<UserStatus, string>;
   onViewDetails: (user: UserRow) => void;
+  onDelete?: (user: UserRow) => void;
 };
 
 export default function UserManagementTable({
@@ -20,6 +21,7 @@ export default function UserManagementTable({
   planClassNameMap,
   statusClassNameMap,
   onViewDetails,
+  onDelete,
 }: UserManagementTableProps) {
   const updateUserMutation = useUpdateUserMutation();
 
@@ -109,14 +111,27 @@ export default function UserManagementTable({
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={() => onViewDetails(row)}
-              className="mt-3 inline-flex items-center gap-1 text-xs text-[#0EA5E9] hover:underline"
-            >
-              <Eye size={12} />
-              View details
-            </button>
+            <div className="mt-3 flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => onViewDetails(row)}
+                className="inline-flex items-center gap-1 text-xs text-[#0EA5E9] hover:underline"
+              >
+                <Eye size={12} />
+                View details
+              </button>
+
+              {onDelete && (
+                <button
+                  type="button"
+                  onClick={() => onDelete(row)}
+                  className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-700 hover:underline"
+                >
+                  <Trash2 size={12} />
+                  Delete
+                </button>
+              )}
+            </div>
           </article>
         ))}
       </div>
@@ -213,14 +228,26 @@ export default function UserManagementTable({
                 </td>
 
                 <td className="p-2">
-                  <button
-                    type="button"
-                    onClick={() => onViewDetails(row)}
-                    className="inline-flex items-center gap-1 text-[#0EA5E9] hover:underline"
-                  >
-                    <Eye size={12} />
-                    View details
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => onViewDetails(row)}
+                      className="inline-flex items-center gap-1 text-[#0EA5E9] hover:underline"
+                    >
+                      <Eye size={12} />
+                      View details
+                    </button>
+                    {onDelete && (
+                      <button
+                        type="button"
+                        onClick={() => onDelete(row)}
+                        className="inline-flex items-center gap-1 text-red-500 hover:text-red-700 hover:underline"
+                      >
+                        <Trash2 size={12} />
+                        Delete
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

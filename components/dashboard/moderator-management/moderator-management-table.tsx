@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Eye } from "lucide-react";
+import { Eye, Trash2 } from "lucide-react";
 
 import type {
   ModeratorRow,
@@ -10,12 +10,14 @@ type ModeratorManagementTableProps = {
   rows: ModeratorRow[];
   statusClassNameMap: Record<ModeratorStatus, string>;
   onViewDetails: (moderator: ModeratorRow) => void;
+  onDelete?: (moderator: ModeratorRow) => void;
 };
 
 export default function ModeratorManagementTable({
   rows,
   statusClassNameMap,
   onViewDetails,
+  onDelete,
 }: ModeratorManagementTableProps) {
   const getInitials = (name?: string) => {
     if (!name) return "";
@@ -87,13 +89,25 @@ export default function ModeratorManagementTable({
               ))}
             </div>
 
-            <button
-              type="button"
-              onClick={() => onViewDetails(row)}
-              className="mt-3 inline-flex items-center gap-1 text-xs text-[#0EA5E9] hover:underline"
-            >
-              <Eye size={12} /> View details
-            </button>
+            <div className="mt-3 flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => onViewDetails(row)}
+                className="inline-flex items-center gap-1 text-xs text-[#0EA5E9] hover:underline"
+              >
+                <Eye size={12} /> View details
+              </button>
+
+              {onDelete && (
+                <button
+                  type="button"
+                  onClick={() => onDelete(row)}
+                  className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-700 hover:underline"
+                >
+                  <Trash2 size={12} /> Delete
+                </button>
+              )}
+            </div>
           </article>
         ))}
       </div>
@@ -154,13 +168,24 @@ export default function ModeratorManagementTable({
                   </span>
                 </td>
                 <td className="p-2">
-                  <button
-                    type="button"
-                    onClick={() => onViewDetails(row)}
-                    className="inline-flex items-center gap-1 text-[#0EA5E9] hover:underline"
-                  >
-                    <Eye size={12} /> View details
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => onViewDetails(row)}
+                      className="inline-flex items-center gap-1 text-[#0EA5E9] hover:underline"
+                    >
+                      <Eye size={12} /> View details
+                    </button>
+                    {onDelete && (
+                      <button
+                        type="button"
+                        onClick={() => onDelete(row)}
+                        className="inline-flex items-center gap-1 text-red-500 hover:text-red-700 hover:underline"
+                      >
+                        <Trash2 size={12} /> Delete
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
