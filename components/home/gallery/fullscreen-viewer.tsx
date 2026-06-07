@@ -38,13 +38,13 @@ export default function FullscreenImageViewer({
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-md md:p-8"
+      className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 p-4 backdrop-blur-md md:p-8"
       onClick={onClose}
     >
       {/* High-visibility Close Button */}
       <button
         onClick={onClose}
-        className="fixed top-8 right-8 z-[10000] flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-all hover:scale-110 hover:bg-white/20 active:scale-95"
+        className="fixed top-8 right-8 z-10000 flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-all hover:scale-110 hover:bg-white/20 active:scale-95"
         aria-label="Close viewer"
       >
         <X className="h-8 w-8 drop-shadow-2xl" strokeWidth={2.5} />
@@ -73,13 +73,6 @@ export default function FullscreenImageViewer({
             unoptimized
             draggable={false}
           />
-
-          {/* Watermark - Scaled relative to the smaller container dimension (cqmin) to ensure containment */}
-          <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center overflow-hidden px-[10cqw] select-none">
-            <span className="rotate-[-20deg] text-[19cqmin] font-black tracking-tight text-white/30 drop-shadow-[0_4px_15px_rgba(0,0,0,0.5)]">
-              surfshare
-            </span>
-          </div>
         </div>
       </div>
     </div>
