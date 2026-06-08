@@ -19,14 +19,15 @@ export default function CartContent() {
   const [mounted, setMounted] = useState(false);
   const createSessionMutation = useCreateCheckoutSessionMutation();
 
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
   // Avoid hydration mismatch for Zustand persistence
   useEffect(() => {
-    setTimeout(() => setMounted(true), 0);
+    setTimeout(() => {
+      setMounted(true);
+      setSelectedIds(useCartStore.getState().items.map((item) => String(item.id)));
+    }, 0);
   }, []);
-
-  const [selectedIds, setSelectedIds] = useState<string[]>(() =>
-    items.length > 0 ? [String(items[0].id)] : [],
-  );
 
   const selectedCartItems = useMemo(
     () => items.filter((item) => selectedIds.includes(String(item.id))),
