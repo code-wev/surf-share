@@ -26,13 +26,24 @@ export default function LocationFilter({ hierarchy, onSelect, selectedId }: Prop
   return (
     <div className="flex items-start">
       {/* Box 4: Spots — leftmost, appears when a region is selected */}
-      {activeState && activeRegion && spots.length > 0 && (
+      {activeState && activeRegion && (
         <div className="mr-1 max-h-75 w-48 overflow-y-auto rounded-md border border-(--color-line-weaker) bg-white shadow-lg">
           <div className="border-b border-(--color-line-weaker) px-4 py-2.5">
             <span className="text-sm font-medium text-(--color-text-brand-strong)">
               {activeRegion}
             </span>
           </div>
+          <button
+            type="button"
+            onClick={() => onSelect(`region:${activeRegion}`)}
+            className={`w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-(--color-surface-muted-100) ${
+              selectedId === `region:${activeRegion}`
+                ? "font-medium text-(--color-text-strong)"
+                : "text-(--color-text-weak)"
+            }`}
+          >
+            All Spots in {activeRegion}
+          </button>
           {spots.map((spot) => (
             <button
               key={spot.id}
@@ -58,6 +69,17 @@ export default function LocationFilter({ hierarchy, onSelect, selectedId }: Prop
               {activeState}
             </span>
           </div>
+          <button
+            type="button"
+            onClick={() => onSelect(`state:${activeState}`)}
+            className={`flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors hover:bg-(--color-surface-muted-100) ${
+              selectedId === `state:${activeState}`
+                ? "font-medium text-(--color-text-brand-strong)"
+                : "text-(--color-text-weak)"
+            }`}
+          >
+            All Regions in {activeState}
+          </button>
           {regions.map((region) => (
             <button
               key={region}
@@ -83,6 +105,17 @@ export default function LocationFilter({ hierarchy, onSelect, selectedId }: Prop
         <div className="border-b border-(--color-line-weaker) px-4 py-2.5">
           <span className="text-sm font-medium text-(--color-text-brand-strong)">All States</span>
         </div>
+        <button
+          type="button"
+          onClick={() => onSelect("all")}
+          className={`flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors hover:bg-(--color-surface-muted-100) ${
+            selectedId === "all"
+              ? "font-medium text-(--color-text-brand-strong)"
+              : "text-(--color-text-weak)"
+          }`}
+        >
+          All Locations
+        </button>
         {states.map((state) => (
           <button
             key={state}
