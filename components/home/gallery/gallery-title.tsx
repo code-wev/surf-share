@@ -22,23 +22,17 @@ export const galleryTabLabels: Record<GalleryTab, string> = {
 // Updated time ranges
 export const galleryTimes: string[] = [
   "all",
-  "5_8",
-  "8_11",
-  "11_14",
-  "14_17",
-  "17_20",
-  "20_23",
-  "23_5",
+  "first_light",
+  "morning",
+  "lunch",
+  "afternoon",
 ];
 export const galleryTimeLabels: Record<string, string> = {
   all: "Any Time",
-  "5_8": "5 AM – 8 AM",
-  "8_11": "8 AM – 11 AM",
-  "11_14": "11 AM – 2 PM",
-  "14_17": "2 PM – 5 PM",
-  "17_20": "5 PM – 8 PM",
-  "20_23": "8 PM – 11 PM",
-  "23_5": "11 PM – 5 AM",
+  "first_light": "First Light (4-8 AM)",
+  "morning": "Morning (8-11 AM)",
+  "lunch": "Lunch (11 AM-2 PM)",
+  "afternoon": "Afternoon (2-7 PM)",
 };
 
 export const gallerySorts: GallerySort[] = ["latest", "priceLow", "priceHigh"];
