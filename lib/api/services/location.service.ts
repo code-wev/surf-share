@@ -29,4 +29,12 @@ export const locationService = {
     const response = await apiClient.get("/locations/map-data");
     return response.data;
   },
+  getFeatured: async () => {
+    const response = await apiClient.get("/locations/featured");
+    return response.data;
+  },
+  toggleFeatured: async (id: string) => {
+    const response = await apiClient.patch(`/locations/${id}/featured`);
+    return response.data;
+  },
 };

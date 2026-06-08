@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Camera, MapPin, RefreshCw } from "lucide-react";
 
-import { useLocationsQuery } from "@/hooks/api/useLocations";
+import { useFeaturedLocationsQuery } from "@/hooks/api/useLocations";
 import { cn, getAbsoluteImageUrl } from "@/lib/utils";
 import ImageCard from "../shared/image-card";
 import { PageTitle } from "../shared/page-title";
@@ -39,10 +39,7 @@ function getCardsPerView(width: number) {
 export default function FeaturedLocation() {
   const [cardsPerView, setCardsPerView] = useState(4);
   const [activeIndex, setActiveIndex] = useState(0);
-  const { data, isLoading, isError, refetch } = useLocationsQuery({
-    page: 1,
-    limit: 8,
-  });
+  const { data, isLoading, isError, refetch } = useFeaturedLocationsQuery();
 
   useEffect(() => {
     const updateCardsPerView = () => {

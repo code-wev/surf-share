@@ -7,4 +7,5 @@ export type LocationModerationItem = {
   coordinates: [number, number];
   photosAvailable: number;
   previewImage: string;
+  isFeatured?: boolean;
 };

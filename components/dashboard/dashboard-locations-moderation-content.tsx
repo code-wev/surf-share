@@ -9,7 +9,7 @@ import AddLocationModal, {
 } from "@/components/dashboard/locations-moderation/add-location-modal";
 import LocationsModerationSidebar from "@/components/dashboard/locations-moderation/locations-moderation-sidebar";
 import type { LocationModerationItem } from "@/components/dashboard/locations-moderation/locations-moderation-types";
-import { useLocationsQuery, useCreateLocationMutation, useDeleteLocationMutation, useUpdateLocationMutation } from "@/hooks/api/useLocations";
+import { useLocationsQuery, useCreateLocationMutation, useDeleteLocationMutation, useUpdateLocationMutation, useToggleFeaturedMutation } from "@/hooks/api/useLocations";
 import { getAbsoluteImageUrl } from "@/lib/utils";
 
 const LocationsModerationMap = dynamic(
@@ -34,6 +34,7 @@ type ApiLocation = {
   longitude: number;
   photosAvailable: number;
   previewImage: string;
+  isFeatured: boolean;
 };
 
 export default function DashboardLocationsModerationContent() {
@@ -65,6 +66,7 @@ export default function DashboardLocationsModerationContent() {
   const createMutation = useCreateLocationMutation();
   const updateMutation = useUpdateLocationMutation();
   const deleteMutation = useDeleteLocationMutation();
+  const toggleFeaturedMutation = useToggleFeaturedMutation();
 
   const locations: LocationModerationItem[] = useMemo(() => {
     return data?.data?.map((loc: ApiLocation) => ({
@@ -76,6 +78,7 @@ export default function DashboardLocationsModerationContent() {
       coordinates: [loc.latitude, loc.longitude] as [number, number],
       photosAvailable: loc.photosAvailable,
       previewImage: getAbsoluteImageUrl(loc.previewImage),
+      isFeatured: loc.isFeatured,
     })) || [];
   }, [data?.data]);
 
@@ -188,7 +191,8 @@ export default function DashboardLocationsModerationContent() {
               onAddLocation={handleAddLocation}
               onEditLocation={handleEditLocation}
               onDeleteLocation={handleDeleteLocation}
-              isPending={deleteMutation.isPending || isLoading}
+              onToggleFeatured={(loc) => toggleFeaturedMutation.mutate(loc.id)}
+              isPending={deleteMutation.isPending || isLoading || toggleFeaturedMutation.isPending}
               currentPage={currentPage}
               totalPages={totalPages}
               onPageChange={setCurrentPage}

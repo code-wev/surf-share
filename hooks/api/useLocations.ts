@@ -72,3 +72,25 @@ export const useMapLocationsQuery = () => {
     queryFn: locationService.getMapData,
   });
 };
+
+export const useFeaturedLocationsQuery = () => {
+  return useQuery({
+    queryKey: [...queryKeys.locations.all, "featured"],
+    queryFn: locationService.getFeatured,
+  });
+};
+
+export const useToggleFeaturedMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: locationService.toggleFeatured,
+    onSuccess: (data) => {
+      toast.success(data?.message || "Location featured status updated.");
+      queryClient.invalidateQueries({ queryKey: queryKeys.locations.all });
+    },
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, "Failed to update featured status."));
+    },
+  });
+};

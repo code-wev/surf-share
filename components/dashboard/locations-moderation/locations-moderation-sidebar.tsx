@@ -1,4 +1,4 @@
-import { ImageIcon, MapPin, Plus, Search, SquarePen, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { ImageIcon, MapPin, Plus, Search, SquarePen, Trash2, ChevronLeft, ChevronRight, Star } from "lucide-react";
 
 import type { LocationModerationItem } from "@/components/dashboard/locations-moderation/locations-moderation-types";
 
@@ -11,6 +11,7 @@ type LocationsModerationSidebarProps = {
   onAddLocation: () => void;
   onEditLocation: (location: LocationModerationItem) => void;
   onDeleteLocation: (location: LocationModerationItem) => void;
+  onToggleFeatured?: (location: LocationModerationItem) => void;
   isPending?: boolean;
   currentPage?: number;
   totalPages?: number;
@@ -26,6 +27,7 @@ export default function LocationsModerationSidebar({
   onAddLocation,
   onEditLocation,
   onDeleteLocation,
+  onToggleFeatured,
   isPending,
   currentPage = 1,
   totalPages = 1,
@@ -79,6 +81,21 @@ export default function LocationsModerationSidebar({
                 </p>
 
                 <div className="flex shrink-0 items-center gap-3 sm:gap-4">
+                  {onToggleFeatured && (
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onToggleFeatured(location);
+                      }}
+                      className={`${
+                        location.isFeatured ? "text-yellow-400" : "text-text-weaker"
+                      } transition-colors hover:text-yellow-500`}
+                      aria-label={`Toggle featured for ${location.name}`}
+                    >
+                      <Star size={18} fill={location.isFeatured ? "currentColor" : "none"} />
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={(event) => {
