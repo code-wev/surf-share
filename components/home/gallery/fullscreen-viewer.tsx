@@ -73,6 +73,13 @@ export default function FullscreenImageViewer({
             unoptimized
             draggable={false}
           />
+
+          {/* Watermark - Scaled relative to the smaller container dimension (cqmin) to ensure containment */}
+          <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center overflow-hidden px-[10cqw] select-none">
+            <span className="rotate-[-20deg] text-[19cqmin] font-black tracking-tight text-white/30 drop-shadow-[0_4px_15px_rgba(0,0,0,0.5)]">
+              surfshare
+            </span>
+          </div>
         </div>
       </div>
     </div>
