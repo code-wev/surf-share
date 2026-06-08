@@ -1,5 +1,5 @@
 import FeaturedLocation from "@/components/home/featured-location";
-import GetMoment from "@/components/home/get-moment";
+// import GetMoment from "@/components/home/get-moment";
 import HomeBanner from "@/components/home/home-banner";
 import HowItWorks from "@/components/home/how-it-works";
 import IsPhotographer from "@/components/home/is-photographer";
@@ -13,7 +13,7 @@ export default function Home() {
       <LatestUpload />
       <HowItWorks />
       <IsPhotographer />
-      <GetMoment />
+      {/* <GetMoment /> */}
     </>
   );
 }
