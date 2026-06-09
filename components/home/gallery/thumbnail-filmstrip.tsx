@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef } from "react";
 import { usePublicPhotosQuery } from "@/hooks/api/usePhotos";
@@ -14,6 +14,7 @@ type ThumbnailFilmstripProps = {
 
 export default function ThumbnailFilmstrip({ currentPhotoId }: ThumbnailFilmstripProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   // Fetch approved photos - reasonable limit for filmstrip
   const { data: photosResponse, isLoading } = usePublicPhotosQuery({
@@ -29,6 +30,10 @@ export default function ThumbnailFilmstrip({ currentPhotoId }: ThumbnailFilmstri
       const scrollTo = direction === "left" ? scrollLeft - scrollAmount : scrollLeft + scrollAmount;
       scrollContainerRef.current.scrollTo({ left: scrollTo, behavior: "smooth" });
     }
+  };
+
+  const handleNavigate = (photoId: string) => {
+    router.push(`/gallery/${photoId}`, { scroll: false });
   };
 
   if (isLoading) {
@@ -64,9 +69,9 @@ export default function ThumbnailFilmstrip({ currentPhotoId }: ThumbnailFilmstri
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {photos.map((photo: IPhotoResponse) => (
-          <Link
+          <button
             key={photo.id}
-            href={`/gallery/${photo.id}`}
+            onClick={() => handleNavigate(photo.id)}
             className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-md border-2 transition-all duration-200 sm:h-20 sm:w-20 ${
               photo.id === currentPhotoId
                 ? "z-10 scale-105 border-(--color-fill-brand-strong) shadow-sm"
@@ -81,7 +86,7 @@ export default function ThumbnailFilmstrip({ currentPhotoId }: ThumbnailFilmstri
               sizes="(max-width: 640px) 64px, 80px"
               unoptimized
             />
-          </Link>
+          </button>
         ))}
       </div>
 

@@ -29,7 +29,7 @@ export function Providers({ children }: ProvidersProps) {
             <ContentProtectionGuard />
             <AuthRouteGuard />
             {children}
-            <Toaster richColors position="top-right" closeButton />
+            <Toaster richColors position="top-right" closeButton offset={{ top: 60 }} />
           </QueryClientProvider>
         </AuthProvider>
       </GoogleOAuthProvider>

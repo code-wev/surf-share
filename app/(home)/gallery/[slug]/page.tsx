@@ -7,6 +7,8 @@ import { use, useState } from "react";
 import {
   Calendar,
   Camera,
+  ChevronLeft,
+  ChevronRight,
   Clock3,
   ExternalLink,
   Heart,
@@ -28,6 +30,7 @@ import { usePurchasedPhotoIdsQuery } from "@/hooks/api/useCheckout";
 import { useAuth } from "@/lib/auth";
 import { useCartStore } from "@/store/cart.store";
 import { getAbsoluteImageUrl } from "@/lib/utils";
+import { IPhotoResponse } from "@/lib/api/services/photo.service";
 
 type GalleryDetailsPageProps = {
   params: Promise<{ slug: string }>;
@@ -93,6 +96,20 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
     limit: 8,
   });
 
+  // Fetch all photos for navigation
+  const { data: allPhotosResponse } = usePublicPhotosQuery({
+    limit: 100,
+  });
+
+  const allPhotos = (allPhotosResponse?.data || []) as IPhotoResponse[];
+  const currentIndex = allPhotos.findIndex((p) => p.id === photoId);
+  const prevPhoto = currentIndex > 0 ? allPhotos[currentIndex - 1] : null;
+  const nextPhoto = currentIndex < allPhotos.length - 1 ? allPhotos[currentIndex + 1] : null;
+
+  const navigateTo = (id: string) => {
+    router.push(`/gallery/${id}`, { scroll: false });
+  };
+
   if (isLoading) {
     return (
       <section className="mx-auto w-full max-w-480 py-10 lg:px-8 lg:py-16">
@@ -146,6 +163,16 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   const locationName = detailItem.location?.name || "Unknown Location";
   const photographerName = detailItem.photographer?.name || "Unknown Photographer";
 
+  // Breadcrumb data
+  const region = detailItem.location?.region;
+  const state = detailItem.location?.state;
+  const spot = detailItem.location?.name;
+
+  // Filter out missing parts to join them with pipes
+  const breadcrumbParts = [region, state, spot].filter(Boolean);
+  const breadcrumbDisplay =
+    breadcrumbParts.length > 0 ? breadcrumbParts.join(" | ") : "Location unavailable";
+
   // Map related photos for RelatedImagesSection
   const relatedImages = (relatedPhotosResponse?.data || [])
     .filter((p: { id: string }) => p.id !== detailItem.id)
@@ -170,11 +197,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   return (
     <section className="mx-auto max-w-480 py-6 lg:py-10">
       <div className="mx-5 mb-5 flex flex-wrap items-center gap-2 text-sm text-(--color-text-weak) md:mx-12.5">
-        <Link href="/gallery" className="font-medium hover:text-(--color-text-brand-strong)">
-          Gallery
-        </Link>
-        <span>&gt;</span>
-        <span className="text-sm font-semibold text-(--color-text-strong)">Image details</span>
+        <span className="font-medium">{breadcrumbDisplay}</span>
       </div>
 
       <div className="mx-5 grid gap-9 md:mx-12.5 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
@@ -198,6 +221,30 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
               onContextMenu={(event) => event.preventDefault()}
               priority
             />
+
+            {/* Navigation Arrows */}
+            {prevPhoto && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigateTo(prevPhoto.id);
+                }}
+                className="absolute top-1/2 left-4 z-30 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/70"
+              >
+                <ChevronLeft className="h-8 w-8" />
+              </button>
+            )}
+            {nextPhoto && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigateTo(nextPhoto.id);
+                }}
+                className="absolute top-1/2 right-4 z-30 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/70"
+              >
+                <ChevronRight className="h-8 w-8" />
+              </button>
+            )}
 
             <div className="absolute top-4 right-4 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-black/20 text-white opacity-0 transition-opacity group-hover:opacity-100">
               <ZoomIn className="h-6 w-6" />
@@ -263,35 +310,39 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
           </div>
 
           <div className="mt-6 grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <Button
-              variant="secondary"
-              disabled={toggleMutation.isPending}
-              className={
-                isFavorited
-                  ? "h-10 w-full cursor-pointer border border-(--color-line-brand) bg-(--color-fill-brand-strong) text-white hover:opacity-90"
-                  : "h-10 w-full cursor-pointer border border-(--color-line-weaker) bg-(--color-fill-inverse-weak) text-(--color-text-brand-strong) hover:bg-gray-50"
-              }
-              onClick={handleToggleFavorite}
-            >
-              {isFavorited ? "Remove from favourites" : "Add to favourites"}
-              <Heart className="h-4 w-4" fill={isFavorited ? "currentColor" : "none"} />
-            </Button>
-            <Button
-              disabled={isPurchased}
-              className={
-                isPurchased
-                  ? "h-10 w-full cursor-not-allowed bg-green-600 text-white opacity-90 hover:bg-green-600"
-                  : "h-10 w-full cursor-pointer bg-(--color-fill-brand-strong) text-(--color-text-inverse-strong) hover:opacity-95"
-              }
-              onClick={handleAddToCart}
-            >
-              {isPurchased
-                ? "Already Purchased"
-                : cartItems.some((item) => item.id === photoId)
-                  ? "Added to cart"
-                  : "Add to cart"}
-              {!isPurchased && <ShoppingCart className="h-4 w-4" />}
-            </Button>
+            {!(session?.role === "PHOTOGRAPHER" || session?.role === "MODERATOR" || session?.role === "ADMIN") && (
+              <>
+                <Button
+                  variant="secondary"
+                  disabled={toggleMutation.isPending}
+                  className={
+                    isFavorited
+                      ? "h-10 w-full cursor-pointer border border-(--color-line-brand) bg-(--color-fill-brand-strong) text-white hover:opacity-90"
+                      : "h-10 w-full cursor-pointer border border-(--color-line-weaker) bg-(--color-fill-inverse-weak) text-(--color-text-brand-strong) hover:bg-gray-50"
+                  }
+                  onClick={handleToggleFavorite}
+                >
+                  {isFavorited ? "Remove from favourites" : "Add to favourites"}
+                  <Heart className="h-4 w-4" fill={isFavorited ? "currentColor" : "none"} />
+                </Button>
+                <Button
+                  disabled={isPurchased}
+                  className={
+                    isPurchased
+                      ? "h-10 w-full cursor-not-allowed bg-green-600 text-white opacity-90 hover:bg-green-600"
+                      : "h-10 w-full cursor-pointer bg-(--color-fill-brand-strong) text-(--color-text-inverse-strong) hover:opacity-95"
+                  }
+                  onClick={handleAddToCart}
+                >
+                  {isPurchased
+                    ? "Already Purchased"
+                    : cartItems.some((item) => item.id === photoId)
+                      ? "Added to cart"
+                      : "Add to cart"}
+                  {!isPurchased && <ShoppingCart className="h-4 w-4" />}
+                </Button>
+              </>
+            )}
           </div>
 
           <div className="mt-6 border-t border-(--color-line-weaker) pt-5">
