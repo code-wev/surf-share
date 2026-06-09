@@ -146,6 +146,16 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   const locationName = detailItem.location?.name || "Unknown Location";
   const photographerName = detailItem.photographer?.name || "Unknown Photographer";
 
+  // Breadcrumb data
+  const region = detailItem.location?.region;
+  const state = detailItem.location?.state;
+  const spot = detailItem.location?.name;
+
+  // Filter out missing parts to join them with pipes
+  const breadcrumbParts = [region, state, spot].filter(Boolean);
+  const breadcrumbDisplay =
+    breadcrumbParts.length > 0 ? breadcrumbParts.join(" | ") : "Location unavailable";
+
   // Map related photos for RelatedImagesSection
   const relatedImages = (relatedPhotosResponse?.data || [])
     .filter((p: { id: string }) => p.id !== detailItem.id)
@@ -170,11 +180,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   return (
     <section className="mx-auto max-w-480 py-6 lg:py-10">
       <div className="mx-5 mb-5 flex flex-wrap items-center gap-2 text-sm text-(--color-text-weak) md:mx-12.5">
-        <Link href="/gallery" className="font-medium hover:text-(--color-text-brand-strong)">
-          Gallery
-        </Link>
-        <span>&gt;</span>
-        <span className="text-sm font-semibold text-(--color-text-strong)">Image details</span>
+        <span className="font-medium">{breadcrumbDisplay}</span>
       </div>
 
       <div className="mx-5 grid gap-9 md:mx-12.5 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
