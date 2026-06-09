@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { X, Loader2, MapPin, DollarSign, Type, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import { useLocationsQuery } from "@/hooks/api/useLocations";
@@ -26,31 +26,26 @@ type EditUploadModalProps = {
 };
 
 export default function EditUploadModal({ upload, onClose }: EditUploadModalProps) {
-  const [title, setTitle] = useState("");
-  const [price, setPrice] = useState("");
-  const [locationId, setLocationId] = useState("");
-  const [capturedAt, setCapturedAt] = useState("");
+  const getInitialCapturedAt = () => {
+    if (!upload?.uploadedAt) return "";
+    const date = new Date(upload.uploadedAt);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
+  const [title, setTitle] = useState(upload?.name !== "Photo" ? upload?.name ?? "" : "");
+  const [price, setPrice] = useState(upload?.priceValue.toString() ?? "");
+  const [locationId, setLocationId] = useState(upload?.locationId ?? "");
+  const [capturedAt, setCapturedAt] = useState(getInitialCapturedAt());
 
   const { data: locationsData } = useLocationsQuery({ page: 1, limit: 100 });
   const locations = (locationsData?.data as Location[]) || [];
 
   const updateMutation = useUpdatePhotoMutation();
-
-  useEffect(() => {
-    if (upload) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setTitle(upload.name !== "Photo" ? upload.name : "");
-      setPrice(upload.priceValue.toString());
-      setLocationId(upload.locationId);
-
-      // Format date for datetime-local input (YYYY-MM-DDTHH:mm)
-      if (upload.uploadedAt) {
-        const date = new Date(upload.uploadedAt);
-        const formattedDate = date.toISOString().slice(0, 16);
-        setCapturedAt(formattedDate);
-      }
-    }
-  }, [upload]);
 
   if (!upload) return null;
 

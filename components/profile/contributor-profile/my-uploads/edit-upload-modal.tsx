@@ -45,7 +45,12 @@ export default function EditUploadModal({ upload, onClose }: EditUploadModalProp
       // Format date for datetime-local input (YYYY-MM-DDTHH:mm)
       if (upload.uploadedAt) {
         const date = new Date(upload.uploadedAt);
-        const formattedDate = date.toISOString().slice(0, 16);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        const formattedDate = `${year}-${month}-${day}T${hours}:${minutes}`;
         setCapturedAt(formattedDate);
       }
     }
@@ -180,7 +185,7 @@ export default function EditUploadModal({ upload, onClose }: EditUploadModalProp
             </select>
           </div>
 
-          <div className="flex items-center justify-end gap-3 border-t border-line-weaker pt-4">
+          <div className="border-line-weaker flex items-center justify-end gap-3 border-t pt-4">
             <button
               type="button"
               onClick={onClose}
