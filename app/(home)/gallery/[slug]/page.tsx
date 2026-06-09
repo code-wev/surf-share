@@ -7,6 +7,8 @@ import { use, useState } from "react";
 import {
   Calendar,
   Camera,
+  ChevronLeft,
+  ChevronRight,
   Clock3,
   ExternalLink,
   Heart,
@@ -28,6 +30,7 @@ import { usePurchasedPhotoIdsQuery } from "@/hooks/api/useCheckout";
 import { useAuth } from "@/lib/auth";
 import { useCartStore } from "@/store/cart.store";
 import { getAbsoluteImageUrl } from "@/lib/utils";
+import { IPhotoResponse } from "@/lib/api/services/photo.service";
 
 type GalleryDetailsPageProps = {
   params: Promise<{ slug: string }>;
@@ -92,6 +95,20 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
     locationId,
     limit: 8,
   });
+
+  // Fetch all photos for navigation
+  const { data: allPhotosResponse } = usePublicPhotosQuery({
+    limit: 100,
+  });
+
+  const allPhotos = (allPhotosResponse?.data || []) as IPhotoResponse[];
+  const currentIndex = allPhotos.findIndex((p) => p.id === photoId);
+  const prevPhoto = currentIndex > 0 ? allPhotos[currentIndex - 1] : null;
+  const nextPhoto = currentIndex < allPhotos.length - 1 ? allPhotos[currentIndex + 1] : null;
+
+  const navigateTo = (id: string) => {
+    router.push(`/gallery/${id}`, { scroll: false });
+  };
 
   if (isLoading) {
     return (
@@ -204,6 +221,30 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
               onContextMenu={(event) => event.preventDefault()}
               priority
             />
+
+            {/* Navigation Arrows */}
+            {prevPhoto && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigateTo(prevPhoto.id);
+                }}
+                className="absolute top-1/2 left-4 z-30 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/70"
+              >
+                <ChevronLeft className="h-8 w-8" />
+              </button>
+            )}
+            {nextPhoto && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigateTo(nextPhoto.id);
+                }}
+                className="absolute top-1/2 right-4 z-30 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/70"
+              >
+                <ChevronRight className="h-8 w-8" />
+              </button>
+            )}
 
             <div className="absolute top-4 right-4 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-black/20 text-white opacity-0 transition-opacity group-hover:opacity-100">
               <ZoomIn className="h-6 w-6" />

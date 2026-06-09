@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { photoService } from "../../lib/api/services/photo.service";
 import { photoService as moderatorPhotoService } from "../../lib/api/services/photo-moderator.service";
@@ -24,6 +24,7 @@ export const usePublicPhotosQuery = (filters: Record<string, unknown>) => {
   return useQuery({
     queryKey: [...queryKeys.photos.all, filters],
     queryFn: () => photoService.getAllPublic(filters),
+    placeholderData: keepPreviousData,
   });
 };
 
@@ -31,6 +32,7 @@ export const useMyPhotosQuery = (filters: { page: number; limit: number; status?
   return useQuery({
     queryKey: queryKeys.photos.myPhotos(filters),
     queryFn: () => photoService.getMyPhotos(filters),
+    placeholderData: keepPreviousData,
   });
 };
 
@@ -38,6 +40,7 @@ export const useModeratorPhotosQuery = (filters: { page: number; limit: number; 
   return useQuery({
     queryKey: ["moderator-photos", filters],
     queryFn: () => moderatorPhotoService.getModeratorPhotos(filters),
+    placeholderData: keepPreviousData,
   });
 };
 
@@ -46,6 +49,7 @@ export const usePhotoDetailQuery = (id: string) => {
     queryKey: queryKeys.photos.detail(id),
     queryFn: () => photoService.getById(id),
     enabled: !!id,
+    placeholderData: keepPreviousData,
   });
 };
 
