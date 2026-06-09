@@ -9,12 +9,23 @@ import ImageCard from "@/components/shared/image-card";
 import type { GalleryDetailItem } from "@/components/home/gallery/gallery-images";
 import { PageTitle } from "@/components/shared/page-title";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth";
 
 type RelatedImagesSectionProps = {
   items: GalleryDetailItem[];
 };
 
-function buildActions() {
+function BuildActions() {
+  const { session } = useAuth();
+
+  // Hide actions for Photographers, Moderators, and Admins
+  const isContributorOrStaff =
+    session?.role === "PHOTOGRAPHER" || session?.role === "MODERATOR" || session?.role === "ADMIN";
+
+  if (isContributorOrStaff) {
+    return null;
+  }
+
   return (
     <div className="flex items-center gap-2">
       <button
@@ -116,7 +127,7 @@ export default function RelatedImagesSection({ items }: RelatedImagesSectionProp
               className="h-full rounded-sm"
               imageClassName="h-full w-full object-cover"
               info={buildInfo(item)}
-              actions={buildActions()}
+              actions={<BuildActions />}
               actionsClassName="opacity-100"
             />
           </div>

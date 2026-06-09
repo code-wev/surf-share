@@ -191,6 +191,14 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
     const isAddedToCart = cartItems.some((i) => i.id === String(item.id));
     const isPurchased = purchasedIds.includes(String(item.id));
 
+    // Hide actions for Photographers, Moderators, and Admins
+    const isContributorOrStaff =
+      session?.role === "PHOTOGRAPHER" || session?.role === "MODERATOR" || session?.role === "ADMIN";
+
+    if (isContributorOrStaff) {
+      return null;
+    }
+
     return (
       <div className="flex items-center gap-2">
         <button

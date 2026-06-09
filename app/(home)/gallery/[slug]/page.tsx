@@ -310,35 +310,39 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
           </div>
 
           <div className="mt-6 grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <Button
-              variant="secondary"
-              disabled={toggleMutation.isPending}
-              className={
-                isFavorited
-                  ? "h-10 w-full cursor-pointer border border-(--color-line-brand) bg-(--color-fill-brand-strong) text-white hover:opacity-90"
-                  : "h-10 w-full cursor-pointer border border-(--color-line-weaker) bg-(--color-fill-inverse-weak) text-(--color-text-brand-strong) hover:bg-gray-50"
-              }
-              onClick={handleToggleFavorite}
-            >
-              {isFavorited ? "Remove from favourites" : "Add to favourites"}
-              <Heart className="h-4 w-4" fill={isFavorited ? "currentColor" : "none"} />
-            </Button>
-            <Button
-              disabled={isPurchased}
-              className={
-                isPurchased
-                  ? "h-10 w-full cursor-not-allowed bg-green-600 text-white opacity-90 hover:bg-green-600"
-                  : "h-10 w-full cursor-pointer bg-(--color-fill-brand-strong) text-(--color-text-inverse-strong) hover:opacity-95"
-              }
-              onClick={handleAddToCart}
-            >
-              {isPurchased
-                ? "Already Purchased"
-                : cartItems.some((item) => item.id === photoId)
-                  ? "Added to cart"
-                  : "Add to cart"}
-              {!isPurchased && <ShoppingCart className="h-4 w-4" />}
-            </Button>
+            {!(session?.role === "PHOTOGRAPHER" || session?.role === "MODERATOR" || session?.role === "ADMIN") && (
+              <>
+                <Button
+                  variant="secondary"
+                  disabled={toggleMutation.isPending}
+                  className={
+                    isFavorited
+                      ? "h-10 w-full cursor-pointer border border-(--color-line-brand) bg-(--color-fill-brand-strong) text-white hover:opacity-90"
+                      : "h-10 w-full cursor-pointer border border-(--color-line-weaker) bg-(--color-fill-inverse-weak) text-(--color-text-brand-strong) hover:bg-gray-50"
+                  }
+                  onClick={handleToggleFavorite}
+                >
+                  {isFavorited ? "Remove from favourites" : "Add to favourites"}
+                  <Heart className="h-4 w-4" fill={isFavorited ? "currentColor" : "none"} />
+                </Button>
+                <Button
+                  disabled={isPurchased}
+                  className={
+                    isPurchased
+                      ? "h-10 w-full cursor-not-allowed bg-green-600 text-white opacity-90 hover:bg-green-600"
+                      : "h-10 w-full cursor-pointer bg-(--color-fill-brand-strong) text-(--color-text-inverse-strong) hover:opacity-95"
+                  }
+                  onClick={handleAddToCart}
+                >
+                  {isPurchased
+                    ? "Already Purchased"
+                    : cartItems.some((item) => item.id === photoId)
+                      ? "Added to cart"
+                      : "Add to cart"}
+                  {!isPurchased && <ShoppingCart className="h-4 w-4" />}
+                </Button>
+              </>
+            )}
           </div>
 
           <div className="mt-6 border-t border-(--color-line-weaker) pt-5">
