@@ -8,6 +8,7 @@ import {
   useUpdateUserMutation,
 } from "@/hooks/api/useUsers";
 import { getAbsoluteImageUrl } from "@/lib/utils";
+import { useAuth } from "@/lib/auth";
 
 type UserDetailsModalProps = {
   userId: string | null;
@@ -29,6 +30,7 @@ function UserDetailRow({ label, value }: UserDetailRowProps) {
 }
 
 export default function UserDetailsModal({ userId, onClose }: UserDetailsModalProps) {
+  const { session } = useAuth();
   const {
     data: userResponse,
     isLoading,
@@ -177,21 +179,30 @@ export default function UserDetailsModal({ userId, onClose }: UserDetailsModalPr
                     label="Subscription"
                     value={
                       <div className="flex items-center gap-2">
-                        <select
-                          className="border-line-weaker text-text-strong focus:ring-brand-default h-8 rounded-sm border bg-white px-2 text-sm focus:ring-1 focus:outline-none"
-                          value={
-                            ((user as Record<string, unknown>).subscriptionTier as string) ||
-                            "BRONZE"
-                          }
-                          onChange={handleSubscriptionChange}
-                          disabled={updateSubscriptionMutation.isPending}
-                        >
-                          <option value="BRONZE">BRONZE (70% Split)</option>
-                          <option value="SILVER">SILVER (80% Split)</option>
-                          <option value="GOLD">GOLD (90% Split)</option>
-                        </select>
-                        {updateSubscriptionMutation.isPending && (
-                          <Loader2 className="text-brand-default h-4 w-4 animate-spin" />
+                        {session?.role === "MODERATOR" ? (
+                          <span className="text-sm font-medium text-text-strong">
+                            {((user as Record<string, unknown>).subscriptionTier as string) ||
+                              "BRONZE"}
+                          </span>
+                        ) : (
+                          <>
+                            <select
+                              className="border-line-weaker text-text-strong focus:ring-brand-default h-8 rounded-sm border bg-white px-2 text-sm focus:ring-1 focus:outline-none"
+                              value={
+                                ((user as Record<string, unknown>).subscriptionTier as string) ||
+                                "BRONZE"
+                              }
+                              onChange={handleSubscriptionChange}
+                              disabled={updateSubscriptionMutation.isPending}
+                            >
+                              <option value="BRONZE">BRONZE (70% Split)</option>
+                              <option value="SILVER">SILVER (80% Split)</option>
+                              <option value="GOLD">GOLD (90% Split)</option>
+                            </select>
+                            {updateSubscriptionMutation.isPending && (
+                              <Loader2 className="text-brand-default h-4 w-4 animate-spin" />
+                            )}
+                          </>
                         )}
                       </div>
                     }
