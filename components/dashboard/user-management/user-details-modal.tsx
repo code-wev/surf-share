@@ -195,9 +195,10 @@ export default function UserDetailsModal({ userId, onClose }: UserDetailsModalPr
                               onChange={handleSubscriptionChange}
                               disabled={updateSubscriptionMutation.isPending}
                             >
-                              <option value="BRONZE">BRONZE (70% Split)</option>
-                              <option value="SILVER">SILVER (80% Split)</option>
-                              <option value="GOLD">GOLD (90% Split)</option>
+                              <option value="BRONZE">BRONZE</option>
+                              <option value="SILVER">SILVER</option>
+                              <option value="GOLD">GOLD</option>
+                              <option value="GOLD_PLUS">GOLD PLUS</option>
                             </select>
                             {updateSubscriptionMutation.isPending && (
                               <Loader2 className="text-brand-default h-4 w-4 animate-spin" />
