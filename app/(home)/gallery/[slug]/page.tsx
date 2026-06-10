@@ -44,8 +44,8 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   const queryClient = useQueryClient();
   const { session, isHydrated } = useAuth();
   const { addItem, items: cartItems } = useCartStore();
-  
-  // Internal state for the current photo ID to enable smooth navigation
+
+  // Internal state for the current photo ID to enable smooth navigation without remounting
   const [currentPhotoId, setCurrentPhotoId] = useState(slug);
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
 
@@ -55,16 +55,22 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   }, [slug]);
 
   // Try to get data from cache first for instant navigation
-  const cachedData = queryClient.getQueryData<{ data: IPhotoResponse }>(queryKeys.photos.detail(currentPhotoId));
-  
+  const cachedData = queryClient.getQueryData<{ data: IPhotoResponse }>(
+    queryKeys.photos.detail(currentPhotoId),
+  );
+
   // Only enable the query if we do not have the data in cache
-  const { data: photoResponse, isLoading: isQueryLoading, isError } = usePhotoDetailQuery(currentPhotoId, {
+  const {
+    data: photoResponse,
+    isLoading: isQueryLoading,
+    isError,
+  } = usePhotoDetailQuery(currentPhotoId, {
     enabled: !cachedData,
   });
-  
+
   // Use cached data if available, otherwise use query response
   const photoData = cachedData || photoResponse;
-  
+
   // Show loading ONLY if we don't have any data and the query is still loading
   const isLoading = !photoData && isQueryLoading;
 
@@ -114,7 +120,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   // Fetch related images by same location
   const locationId = photoData?.data?.locationId;
   const { data: relatedPhotosResponse } = usePublicPhotosQuery({
-    locationId,
+    locationId: locationId || "loading",
     limit: 8,
   });
 
@@ -125,11 +131,12 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
 
   const allPhotos = (allPhotosResponse?.data || []) as IPhotoResponse[];
   const currentIndex = allPhotos.findIndex((p) => p.id === currentPhotoId);
-  
+
   // Circular navigation logic
-  const prevIndex = allPhotos.length > 0 ? (currentIndex - 1 + allPhotos.length) % allPhotos.length : -1;
+  const prevIndex =
+    allPhotos.length > 0 ? (currentIndex - 1 + allPhotos.length) % allPhotos.length : -1;
   const nextIndex = allPhotos.length > 0 ? (currentIndex + 1) % allPhotos.length : -1;
-  
+
   const prevPhoto = prevIndex !== -1 ? allPhotos[prevIndex] : null;
   const nextPhoto = nextIndex !== -1 ? allPhotos[nextIndex] : null;
 
@@ -139,7 +146,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
     if (targetPhoto) {
       queryClient.setQueryData(queryKeys.photos.detail(id), { data: targetPhoto });
     }
-    // Update internal state for instant UI update
+    // Update internal state for instant UI update without remounting
     setCurrentPhotoId(id);
     // Update URL silently
     window.history.pushState(null, "", `/gallery/${id}`);
@@ -152,7 +159,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   if (isLoading) {
     return (
       <section className="mx-auto w-full max-w-480 py-10 lg:px-8 lg:py-16">
-        <div className="flex justify-center p-6">
+        <div className="flex min-h-100 justify-center p-6">
           <p className="text-sm text-(--color-text-weak)">Loading image details...</p>
         </div>
       </section>
@@ -166,7 +173,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
           <p className="text-sm text-(--color-text-weak)">Image not found.</p>
           <button
             onClick={handleBackToGallery}
-            className="mt-2 inline-block text-sm font-medium text-(--color-text-brand-strong) cursor-pointer"
+            className="mt-2 inline-block cursor-pointer text-sm font-medium text-(--color-text-brand-strong)"
           >
             Back to gallery
           </button>
@@ -211,9 +218,9 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   const breadcrumbParts = [region, state, spot].filter(Boolean);
   const breadcrumbDisplay =
     breadcrumbParts.length > 0 ? (
-      <button 
+      <button
         onClick={handleBackToGallery}
-        className="font-medium text-(--color-text-weak) hover:underline cursor-pointer"
+        className="cursor-pointer font-medium text-(--color-text-weak) hover:underline"
       >
         {breadcrumbParts.join(" | ")}
       </button>
@@ -277,7 +284,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
                   e.stopPropagation();
                   navigateTo(prevPhoto.id);
                 }}
-                className="absolute top-1/2 left-4 z-30 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/70 cursor-pointer"
+                className="absolute top-1/2 left-4 z-30 -translate-y-1/2 cursor-pointer rounded-full bg-black/50 p-2 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/70"
               >
                 <ChevronLeft className="h-8 w-8" />
               </button>
@@ -288,7 +295,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
                   e.stopPropagation();
                   navigateTo(nextPhoto.id);
                 }}
-                className="absolute top-1/2 right-4 z-30 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/70"
+                className="absolute top-1/2 right-4 z-30 -translate-y-1/2 cursor-pointer rounded-full bg-black/50 p-2 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/70"
               >
                 <ChevronRight className="h-8 w-8" />
               </button>
@@ -309,7 +316,11 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
           </div>
 
           {/* Thumbnail Filmstrip */}
-          <ThumbnailFilmstrip currentPhotoId={currentPhotoId} onNavigate={navigateTo} />
+          <ThumbnailFilmstrip
+            currentPhotoId={currentPhotoId}
+            onNavigate={navigateTo}
+            photos={allPhotos}
+          />
         </div>
 
         {/* Right Side Content (Details) */}
@@ -358,7 +369,11 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
           </div>
 
           <div className="mt-6 grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {!(session?.role === "PHOTOGRAPHER" || session?.role === "MODERATOR" || session?.role === "ADMIN") && (
+            {!(
+              session?.role === "PHOTOGRAPHER" ||
+              session?.role === "MODERATOR" ||
+              session?.role === "ADMIN"
+            ) && (
               <>
                 <Button
                   variant="secondary"
@@ -448,7 +463,9 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
         </div>
       </div>
 
-      {relatedImages.length > 0 && <RelatedImagesSection items={relatedImages} onNavigate={navigateTo} />}
+      {relatedImages.length > 0 && (
+        <RelatedImagesSection items={relatedImages} onNavigate={navigateTo} />
+      )}
 
       {/* Fullscreen Viewer */}
       {isFullscreenOpen && (

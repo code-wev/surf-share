@@ -11,18 +11,19 @@ import type { IPhotoResponse } from "@/lib/api/services/photo.service";
 type ThumbnailFilmstripProps = {
   currentPhotoId: string;
   onNavigate?: (id: string) => void;
+  photos?: IPhotoResponse[];
 };
 
-export default function ThumbnailFilmstrip({ currentPhotoId, onNavigate }: ThumbnailFilmstripProps) {
+export default function ThumbnailFilmstrip({ currentPhotoId, onNavigate, photos: providedPhotos }: ThumbnailFilmstripProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  // Fetch approved photos - reasonable limit for filmstrip
+  // Fetch approved photos - only if not provided by parent
   const { data: photosResponse, isLoading } = usePublicPhotosQuery({
     limit: 50,
   });
 
-  const photos = (photosResponse?.data || []) as IPhotoResponse[];
+  const photos = (providedPhotos || photosResponse?.data || []) as IPhotoResponse[];
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
@@ -41,7 +42,7 @@ export default function ThumbnailFilmstrip({ currentPhotoId, onNavigate }: Thumb
     }
   };
 
-  if (isLoading) {
+  if (!providedPhotos && isLoading) {
     return (
       <div className="mt-4 flex w-full gap-2 overflow-hidden px-1">
         {Array.from({ length: 5 }).map((_, i) => (
@@ -76,8 +77,9 @@ export default function ThumbnailFilmstrip({ currentPhotoId, onNavigate }: Thumb
         {photos.map((photo: IPhotoResponse) => (
           <button
             key={photo.id}
+            type="button"
             onClick={() => handleNavigate(photo.id)}
-            className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-md border-2 transition-all duration-200 sm:h-20 sm:w-20 ${
+            className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-md border-2 transition-all duration-200 sm:h-20 sm:w-20 cursor-pointer ${
               photo.id === currentPhotoId
                 ? "z-10 scale-105 border-(--color-fill-brand-strong) shadow-sm"
                 : "border-transparent hover:border-gray-200"
