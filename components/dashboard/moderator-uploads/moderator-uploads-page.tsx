@@ -357,13 +357,19 @@ export default function ModeratorUploadedPhotosPage() {
       ) : null}
 
       {/* View Details Modal */}
-      <UploadDetailsModal upload={selectedUpload} onClose={() => setSelectedUpload(null)} />
+      {selectedUpload && (
+        <UploadDetailsModal upload={selectedUpload} onClose={() => setSelectedUpload(null)} />
+      )}
 
       {/* Edit Details Modal */}
-      <EditUploadModal upload={editingUpload} onClose={() => setEditingUpload(null)} />
+      {editingUpload && (
+        <EditUploadModal upload={editingUpload} onClose={() => setEditingUpload(null)} />
+      )}
 
       {/* Delete Confirmation Modal */}
-      <DeleteUploadModal upload={deletingUpload} onClose={() => setDeletingUpload(null)} />
+      {deletingUpload && (
+        <DeleteUploadModal upload={deletingUpload} onClose={() => setDeletingUpload(null)} />
+      )}
     </section>
   );
 }
