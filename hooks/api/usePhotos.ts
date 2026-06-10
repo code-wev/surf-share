@@ -44,12 +44,13 @@ export const useModeratorPhotosQuery = (filters: { page: number; limit: number; 
   });
 };
 
-export const usePhotoDetailQuery = (id: string) => {
+export const usePhotoDetailQuery = (id: string, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: queryKeys.photos.detail(id),
     queryFn: () => photoService.getById(id),
-    enabled: !!id,
+    enabled: !!id && (options?.enabled ?? true),
     placeholderData: keepPreviousData,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
 

@@ -52,14 +52,20 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   // Try to get data from cache first for instant navigation
   const cachedData = queryClient.getQueryData<{ data: IPhotoResponse }>(queryKeys.photos.detail(photoId));
   
-  const { data: photoResponse, isLoading: isQueryLoading, isError } = usePhotoDetailQuery(photoId);
+  // Only enable the query if we do not have the data in cache
+  const { data: photoResponse, isLoading: isQueryLoading, isError } = usePhotoDetailQuery(photoId, {
+    enabled: !cachedData,
+  });
   
   // Use cached data if available, otherwise use query response
   const photoData = cachedData || photoResponse;
+  
+  // Show loading ONLY if we don't have any data and the query is still loading
   const isLoading = !photoData && isQueryLoading;
 
   const { data: adData } = useAdvertisementQuery();
   const canLoadPrivatePhotoState = isHydrated && Boolean(session);
+
   const { data: purchasedIdsData } = usePurchasedPhotoIdsQuery({
     enabled: canLoadPrivatePhotoState,
   });
@@ -118,6 +124,11 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   const nextPhoto = currentIndex < allPhotos.length - 1 ? allPhotos[currentIndex + 1] : null;
 
   const navigateTo = (id: string) => {
+    // Before navigating, pre-populate cache for the target photo if it exists in allPhotos
+    const targetPhoto = allPhotos.find((p) => p.id === id);
+    if (targetPhoto) {
+      queryClient.setQueryData(queryKeys.photos.detail(id), { data: targetPhoto });
+    }
     router.push(`/gallery/${id}`, { scroll: false });
   };
 

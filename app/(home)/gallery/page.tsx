@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 import GalleryContent from "@/components/home/gallery/gallery-content";
 import GalleryPagination from "@/components/home/gallery/gallery-pagination";
@@ -9,6 +10,8 @@ import GalleryTitle from "@/components/home/gallery/gallery-title";
 import { usePublicPhotosQuery } from "@/hooks/api/usePhotos";
 import { Loader2 } from "lucide-react";
 import { getAbsoluteImageUrl, formatFileSize } from "@/lib/utils";
+import { queryKeys } from "@/lib/api/query-keys";
+import { photoService } from "@/lib/api/services/photo.service";
 
 export type GalleryTab = "all" | "today" | "yesterday" | "last7days" | "last14days";
 export type GallerySort = "latest" | "priceLow" | "priceHigh";
@@ -28,12 +31,35 @@ type ApiPhoto = {
 function GalleryPageContent() {
   const searchParams = useSearchParams();
   const locationQuery = searchParams.get("locationId");
+  const queryClient = useQueryClient();
 
   const [activeTab, setActiveTab] = useState<GalleryTab>("all");
   const [selectedLocation, setSelectedLocation] = useState<string>(locationQuery || "all");
   const [selectedTime, setSelectedTime] = useState<string>("all");
   const [selectedSort, setSelectedSort] = useState<GallerySort>("latest");
   const [currentPage, setCurrentPage] = useState(1);
+
+  const { data: photosData, isLoading } = usePublicPhotosQuery({
+    tab: activeTab,
+    locationId: selectedLocation === "all" ? undefined : selectedLocation,
+    timeKey: selectedTime === "all" ? undefined : selectedTime,
+    sort: selectedSort,
+    page: currentPage,
+    limit: PAGE_SIZE,
+  });
+
+  // Pre-fetch details for all photos on the current page when data arrives
+  useEffect(() => {
+    if (photosData?.data) {
+      photosData.data.forEach((photo: ApiPhoto) => {
+        queryClient.prefetchQuery({
+          queryKey: queryKeys.photos.detail(photo.id),
+          queryFn: () => photoService.getById(photo.id),
+          staleTime: 5 * 60 * 1000,
+        });
+      });
+    }
+  }, [photosData, queryClient]);
 
   const handleTabChange = (tab: GalleryTab) => {
     setActiveTab(tab);
@@ -62,15 +88,6 @@ function GalleryPageContent() {
     setSelectedSort("latest");
     setCurrentPage(1);
   };
-
-  const { data: photosData, isLoading } = usePublicPhotosQuery({
-    tab: activeTab,
-    locationId: selectedLocation === "all" ? undefined : selectedLocation,
-    timeKey: selectedTime === "all" ? undefined : selectedTime,
-    sort: selectedSort,
-    page: currentPage,
-    limit: PAGE_SIZE,
-  });
 
   const photos = photosData?.data || [];
   const meta = photosData?.meta || { total: 0, totalPages: 1 };
