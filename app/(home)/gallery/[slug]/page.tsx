@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Calendar,
@@ -44,16 +44,21 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   const queryClient = useQueryClient();
   const { session, isHydrated } = useAuth();
   const { addItem, items: cartItems } = useCartStore();
+  
+  // Internal state for the current photo ID to enable smooth navigation
+  const [currentPhotoId, setCurrentPhotoId] = useState(slug);
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
 
-  // The slug is the photo ID based on our mapping in gallery/page.tsx
-  const photoId = slug;
+  // Sync state with URL changes (e.g., browser back/forward)
+  useEffect(() => {
+    setCurrentPhotoId(slug);
+  }, [slug]);
 
   // Try to get data from cache first for instant navigation
-  const cachedData = queryClient.getQueryData<{ data: IPhotoResponse }>(queryKeys.photos.detail(photoId));
+  const cachedData = queryClient.getQueryData<{ data: IPhotoResponse }>(queryKeys.photos.detail(currentPhotoId));
   
   // Only enable the query if we do not have the data in cache
-  const { data: photoResponse, isLoading: isQueryLoading, isError } = usePhotoDetailQuery(photoId, {
+  const { data: photoResponse, isLoading: isQueryLoading, isError } = usePhotoDetailQuery(currentPhotoId, {
     enabled: !cachedData,
   });
   
@@ -75,8 +80,8 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   const toggleMutation = useToggleFavoriteMutation();
   const favoriteIds = favoriteIdsData?.data || [];
   const purchasedIds = purchasedIdsData?.data || [];
-  const isFavorited = favoriteIds.includes(photoId);
-  const isPurchased = purchasedIds.includes(photoId);
+  const isFavorited = favoriteIds.includes(currentPhotoId);
+  const isPurchased = purchasedIds.includes(currentPhotoId);
 
   const handleToggleFavorite = () => {
     if (!isHydrated) return;
@@ -85,7 +90,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
       router.push("/login");
       return;
     }
-    toggleMutation.mutate(photoId);
+    toggleMutation.mutate(currentPhotoId);
   };
 
   const handleAddToCart = () => {
@@ -119,9 +124,14 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   });
 
   const allPhotos = (allPhotosResponse?.data || []) as IPhotoResponse[];
-  const currentIndex = allPhotos.findIndex((p) => p.id === photoId);
-  const prevPhoto = currentIndex > 0 ? allPhotos[currentIndex - 1] : null;
-  const nextPhoto = currentIndex < allPhotos.length - 1 ? allPhotos[currentIndex + 1] : null;
+  const currentIndex = allPhotos.findIndex((p) => p.id === currentPhotoId);
+  
+  // Circular navigation logic
+  const prevIndex = allPhotos.length > 0 ? (currentIndex - 1 + allPhotos.length) % allPhotos.length : -1;
+  const nextIndex = allPhotos.length > 0 ? (currentIndex + 1) % allPhotos.length : -1;
+  
+  const prevPhoto = prevIndex !== -1 ? allPhotos[prevIndex] : null;
+  const nextPhoto = nextIndex !== -1 ? allPhotos[nextIndex] : null;
 
   const navigateTo = (id: string) => {
     // Before navigating, pre-populate cache for the target photo if it exists in allPhotos
@@ -129,7 +139,14 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
     if (targetPhoto) {
       queryClient.setQueryData(queryKeys.photos.detail(id), { data: targetPhoto });
     }
-    router.push(`/gallery/${id}`, { scroll: false });
+    // Update internal state for instant UI update
+    setCurrentPhotoId(id);
+    // Update URL silently
+    window.history.pushState(null, "", `/gallery/${id}`);
+  };
+
+  const handleBackToGallery = () => {
+    router.push("/gallery", { scroll: false });
   };
 
   if (isLoading) {
@@ -147,12 +164,12 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
       <section className="mx-auto w-full max-w-400 py-10 lg:px-8 lg:py-16">
         <div className="rounded-md border border-(--color-line-weaker) bg-(--color-surface-base) p-6">
           <p className="text-sm text-(--color-text-weak)">Image not found.</p>
-          <Link
-            href="/gallery"
-            className="mt-2 inline-block text-sm font-medium text-(--color-text-brand-strong)"
+          <button
+            onClick={handleBackToGallery}
+            className="mt-2 inline-block text-sm font-medium text-(--color-text-brand-strong) cursor-pointer"
           >
             Back to gallery
-          </Link>
+          </button>
         </div>
       </section>
     );
@@ -193,7 +210,16 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   // Filter out missing parts to join them with pipes
   const breadcrumbParts = [region, state, spot].filter(Boolean);
   const breadcrumbDisplay =
-    breadcrumbParts.length > 0 ? breadcrumbParts.join(" | ") : "Location unavailable";
+    breadcrumbParts.length > 0 ? (
+      <button 
+        onClick={handleBackToGallery}
+        className="font-medium text-(--color-text-weak) hover:underline cursor-pointer"
+      >
+        {breadcrumbParts.join(" | ")}
+      </button>
+    ) : (
+      <span className="font-medium">Location unavailable</span>
+    );
 
   // Map related photos for RelatedImagesSection
   const relatedImages = (relatedPhotosResponse?.data || [])
@@ -251,7 +277,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
                   e.stopPropagation();
                   navigateTo(prevPhoto.id);
                 }}
-                className="absolute top-1/2 left-4 z-30 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/70"
+                className="absolute top-1/2 left-4 z-30 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/70 cursor-pointer"
               >
                 <ChevronLeft className="h-8 w-8" />
               </button>
@@ -283,7 +309,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
           </div>
 
           {/* Thumbnail Filmstrip */}
-          <ThumbnailFilmstrip currentPhotoId={photoId} />
+          <ThumbnailFilmstrip currentPhotoId={currentPhotoId} onNavigate={navigateTo} />
         </div>
 
         {/* Right Side Content (Details) */}
@@ -358,7 +384,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
                 >
                   {isPurchased
                     ? "Already Purchased"
-                    : cartItems.some((item) => item.id === photoId)
+                    : cartItems.some((item) => item.id === currentPhotoId)
                       ? "Added to cart"
                       : "Add to cart"}
                   {!isPurchased && <ShoppingCart className="h-4 w-4" />}
@@ -422,7 +448,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
         </div>
       </div>
 
-      {relatedImages.length > 0 && <RelatedImagesSection items={relatedImages} />}
+      {relatedImages.length > 0 && <RelatedImagesSection items={relatedImages} onNavigate={navigateTo} />}
 
       {/* Fullscreen Viewer */}
       {isFullscreenOpen && (
@@ -430,6 +456,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
           initialPhoto={detailItem}
           allPhotos={allPhotos}
           onClose={() => setIsFullscreenOpen(false)}
+          onPhotoChange={navigateTo}
         />
       )}
     </section>

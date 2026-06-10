@@ -10,9 +10,10 @@ import type { IPhotoResponse } from "@/lib/api/services/photo.service";
 
 type ThumbnailFilmstripProps = {
   currentPhotoId: string;
+  onNavigate?: (id: string) => void;
 };
 
-export default function ThumbnailFilmstrip({ currentPhotoId }: ThumbnailFilmstripProps) {
+export default function ThumbnailFilmstrip({ currentPhotoId, onNavigate }: ThumbnailFilmstripProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -33,7 +34,11 @@ export default function ThumbnailFilmstrip({ currentPhotoId }: ThumbnailFilmstri
   };
 
   const handleNavigate = (photoId: string) => {
-    router.push(`/gallery/${photoId}`, { scroll: false });
+    if (onNavigate) {
+      onNavigate(photoId);
+    } else {
+      router.push(`/gallery/${photoId}`, { scroll: false });
+    }
   };
 
   if (isLoading) {

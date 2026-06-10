@@ -10,24 +10,34 @@ type FullscreenImageViewerProps = {
   initialPhoto: IPhotoResponse;
   allPhotos: IPhotoResponse[];
   onClose: () => void;
+  onPhotoChange?: (id: string) => void;
 };
 
 export default function FullscreenImageViewer({
   initialPhoto,
   allPhotos,
   onClose,
+  onPhotoChange,
 }: FullscreenImageViewerProps) {
   const [currentPhoto, setCurrentPhoto] = useState(initialPhoto);
 
   const currentIndex = allPhotos.findIndex((p) => p.id === currentPhoto.id);
-  const prevPhoto = currentIndex > 0 ? allPhotos[currentIndex - 1] : null;
-  const nextPhoto = currentIndex < allPhotos.length - 1 ? allPhotos[currentIndex + 1] : null;
+  const prevIndex = allPhotos.length > 0 ? (currentIndex - 1 + allPhotos.length) % allPhotos.length : -1;
+  const nextIndex = allPhotos.length > 0 ? (currentIndex + 1) % allPhotos.length : -1;
+  
+  const prevPhoto = prevIndex !== -1 ? allPhotos[prevIndex] : null;
+  const nextPhoto = nextIndex !== -1 ? allPhotos[nextIndex] : null;
+
+  const handleNavigate = (photo: IPhotoResponse) => {
+    setCurrentPhoto(photo);
+    onPhotoChange?.(photo.id);
+  };
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
-      if (e.key === "ArrowLeft" && prevPhoto) setCurrentPhoto(prevPhoto);
-      if (e.key === "ArrowRight" && nextPhoto) setCurrentPhoto(nextPhoto);
+      if (e.key === "ArrowLeft" && prevPhoto) handleNavigate(prevPhoto);
+      if (e.key === "ArrowRight" && nextPhoto) handleNavigate(nextPhoto);
     };
     window.addEventListener("keydown", handleEsc);
     document.body.style.overflow = "hidden";
@@ -60,7 +70,7 @@ export default function FullscreenImageViewer({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            setCurrentPhoto(prevPhoto);
+            handleNavigate(prevPhoto);
           }}
           className="fixed top-1/2 left-8 z-10000 flex h-16 w-16 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-all hover:scale-110 hover:bg-white/20 active:scale-95"
           aria-label="Previous image"
@@ -73,7 +83,7 @@ export default function FullscreenImageViewer({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            setCurrentPhoto(nextPhoto);
+            handleNavigate(nextPhoto);
           }}
           className="fixed top-1/2 right-8 z-10000 flex h-16 w-16 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-opacity hover:scale-110 hover:bg-white/20 active:scale-95"
           aria-label="Next image"

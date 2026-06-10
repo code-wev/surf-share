@@ -25,6 +25,7 @@ export const usePublicPhotosQuery = (filters: Record<string, unknown>) => {
     queryKey: [...queryKeys.photos.all, filters],
     queryFn: () => photoService.getAllPublic(filters),
     placeholderData: keepPreviousData,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
 
