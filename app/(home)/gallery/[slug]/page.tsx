@@ -427,10 +427,8 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
       {/* Fullscreen Viewer */}
       {isFullscreenOpen && (
         <FullscreenImageViewer
-          src={getAbsoluteImageUrl(detailItem.imageUrl)}
-          alt={`Photo at ${locationName}`}
-          width={detailItem.width}
-          height={detailItem.height}
+          initialPhoto={detailItem}
+          allPhotos={allPhotos}
           onClose={() => setIsFullscreenOpen(false)}
         />
       )}
