@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Calendar,
   Camera,
@@ -31,6 +32,7 @@ import { useAuth } from "@/lib/auth";
 import { useCartStore } from "@/store/cart.store";
 import { getAbsoluteImageUrl } from "@/lib/utils";
 import { IPhotoResponse } from "@/lib/api/services/photo.service";
+import { queryKeys } from "@/lib/api/query-keys";
 
 type GalleryDetailsPageProps = {
   params: Promise<{ slug: string }>;
@@ -39,6 +41,7 @@ type GalleryDetailsPageProps = {
 export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) {
   const { slug } = use(params);
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { session, isHydrated } = useAuth();
   const { addItem, items: cartItems } = useCartStore();
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
@@ -46,7 +49,15 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   // The slug is the photo ID based on our mapping in gallery/page.tsx
   const photoId = slug;
 
-  const { data: photoResponse, isLoading, isError } = usePhotoDetailQuery(photoId);
+  // Try to get data from cache first for instant navigation
+  const cachedData = queryClient.getQueryData<{ data: IPhotoResponse }>(queryKeys.photos.detail(photoId));
+  
+  const { data: photoResponse, isLoading: isQueryLoading, isError } = usePhotoDetailQuery(photoId);
+  
+  // Use cached data if available, otherwise use query response
+  const photoData = cachedData || photoResponse;
+  const isLoading = !photoData && isQueryLoading;
+
   const { data: adData } = useAdvertisementQuery();
   const canLoadPrivatePhotoState = isHydrated && Boolean(session);
   const { data: purchasedIdsData } = usePurchasedPhotoIdsQuery({
@@ -78,8 +89,8 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
       router.push("/login");
       return;
     }
-    if (!photoResponse?.data || isPurchased) return;
-    const p = photoResponse.data;
+    if (!photoData?.data || isPurchased) return;
+    const p = photoData.data;
     addItem({
       id: p.id,
       imageUrl: getAbsoluteImageUrl(p.imageUrl),
@@ -90,7 +101,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   };
 
   // Fetch related images by same location
-  const locationId = photoResponse?.data?.locationId;
+  const locationId = photoData?.data?.locationId;
   const { data: relatedPhotosResponse } = usePublicPhotosQuery({
     locationId,
     limit: 8,
@@ -120,7 +131,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
     );
   }
 
-  if (isError || !photoResponse?.data) {
+  if (isError || !photoData?.data) {
     return (
       <section className="mx-auto w-full max-w-400 py-10 lg:px-8 lg:py-16">
         <div className="rounded-md border border-(--color-line-weaker) bg-(--color-surface-base) p-6">
@@ -136,7 +147,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
     );
   }
 
-  const detailItem = photoResponse.data;
+  const detailItem = photoData.data;
 
   // Format sizes and dates
   const fileSizeMB = detailItem.fileSize
