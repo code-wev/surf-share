@@ -13,6 +13,7 @@ import { useAuth } from "@/lib/auth";
 
 type RelatedImagesSectionProps = {
   items: GalleryDetailItem[];
+  onNavigate?: (id: string) => void;
 };
 
 function BuildActions() {
@@ -78,7 +79,7 @@ function buildInfo(item: GalleryDetailItem) {
   );
 }
 
-export default function RelatedImagesSection({ items }: RelatedImagesSectionProps) {
+export default function RelatedImagesSection({ items, onNavigate }: RelatedImagesSectionProps) {
   const itemsPerPage = 4;
   const totalPages = Math.max(1, Math.ceil(items.length / itemsPerPage));
   const [activePage, setActivePage] = useState(0);
@@ -92,14 +93,6 @@ export default function RelatedImagesSection({ items }: RelatedImagesSectionProp
   return (
     <section className="mx-5 mt-10 max-w-480 bg-(--color-surface-base) py-6 sm:py-8 md:mx-12.5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        {/* <div>
-          <p className="text-sm font-medium text-(--color-text-weak)">
-            Captured around the same location
-          </p>
-          <h2 className="mt-1 text-3xl font-semibold tracking-tight text-(--color-text-strong) sm:text-4xl">
-            Related Photos
-          </h2>
-        </div> */}
         <PageTitle
           subtitlePosition="top"
           subtitle="Captured around the same location"
@@ -108,7 +101,7 @@ export default function RelatedImagesSection({ items }: RelatedImagesSectionProp
           titleClassName="text-(--color-text-strong) text-[34px]! leading-none sm:text-[46px]! lg:text-[58px]!"
         />
 
-        <Link href="/gallery">
+        <Link href="/gallery" scroll={false}>
           <Button className="mt-12 cursor-pointer rounded-lg border border-(--color-line-weaker) bg-transparent px-5 py-2 text-sm text-(--color-text-brand-strong) transition-colors duration-200 hover:bg-(--color-fill-brand-strong) hover:text-white hover:shadow-lg">
             View All <ArrowRight className="h-4 w-4" />
           </Button>
@@ -117,11 +110,15 @@ export default function RelatedImagesSection({ items }: RelatedImagesSectionProp
 
       <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {pagedItems.map((item) => (
-          <div key={item.id} className="h-80 sm:h-66">
+          <div 
+            key={item.id} 
+            className="h-80 sm:h-66 cursor-pointer"
+            onClick={() => onNavigate?.(String(item.id))}
+          >
             <ImageCard
               src={item.src}
               alt={item.alt}
-              href={`/gallery/${item.slug}`}
+              href={onNavigate ? undefined : `/gallery/${item.slug}`}
               width={800}
               height={600}
               className="h-full rounded-sm"
