@@ -1,8 +1,9 @@
 import Image from "next/image";
-import { Check, Clock3, Eye, Pencil, Trash2, X } from "lucide-react";
-import { UploadStatus } from "@/components/profile/contributor-profile/my-uploads/my-upload-data";
+import { Check, Clock3, Eye, Pencil, Trash2, X, Loader2 } from "lucide-react";
 
-export type ContributorListTableRow = {
+import { type UploadStatus } from "../../profile/contributor-profile/my-uploads/my-upload-data";
+
+export type ModeratorListTableRow = {
   id: string;
   photoUrl: string;
   name: string;
@@ -16,37 +17,41 @@ export type ContributorListTableRow = {
   resolution: string;
   format: string;
   size: string;
+  locationId: string;
 };
 
-type ContributorListTableProps<T extends ContributorListTableRow> = {
+type ModeratorListTableProps<T extends ModeratorListTableRow> = {
   rows: T[];
   onViewDetails: (row: T) => void;
   onEdit: (row: T) => void;
   onDelete: (row: T) => void;
 };
 
-export default function ContributorListTable<T extends ContributorListTableRow>({
+export default function ModeratorListTable<T extends ModeratorListTableRow>({
   rows,
   onViewDetails,
   onEdit,
   onDelete,
-}: ContributorListTableProps<T>) {
+}: ModeratorListTableProps<T>) {
   const statusStyleMap: Record<UploadStatus, string> = {
     approved: "bg-[#EAF9EF] text-[#22C55E]",
     rejected: "bg-[#FCEBEC] text-[#F87171]",
     pending: "bg-[#FFF7E9] text-[#F59E0B]",
+    processing: "bg-blue-50 text-blue-500",
   };
 
-  const statusIconMap: Record<UploadStatus, typeof Check> = {
+  const statusIconMap: Record<UploadStatus, any> = {
     approved: Check,
     rejected: X,
     pending: Clock3,
+    processing: Loader2,
   };
 
   const statusLabelMap: Record<UploadStatus, string> = {
     approved: "Approved",
     rejected: "Rejected",
     pending: "Pending",
+    processing: "Processing...",
   };
 
   return (
@@ -71,13 +76,19 @@ export default function ContributorListTable<T extends ContributorListTableRow>(
             return (
               <tr key={item.id} className="border-line-weaker border-b last:border-b-0">
                 <td className="px-2 py-2">
-                  <Image
-                    src={item.photoUrl}
-                    alt={item.name}
-                    width={56}
-                    height={36}
-                    className="h-9 w-14 rounded-xs object-cover"
-                  />
+                  {item.status === "processing" ? (
+                    <div className="flex h-9 w-14 items-center justify-center rounded-xs bg-gray-100 border border-gray-200">
+                      <Loader2 className="h-4 w-4 animate-spin text-brand-default" />
+                    </div>
+                  ) : (
+                    <Image
+                      src={item.photoUrl}
+                      alt={item.name}
+                      width={56}
+                      height={36}
+                      className="h-9 w-14 rounded-xs object-cover"
+                    />
+                  )}
                 </td>
 
                 <td className="text-text-strong px-2 py-2">{item.name}</td>
@@ -89,7 +100,7 @@ export default function ContributorListTable<T extends ContributorListTableRow>(
                   <span
                     className={`inline-flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium ${statusStyleMap[item.status]}`}
                   >
-                    <StatusIcon size={12} />
+                    <StatusIcon size={12} className={item.status === "processing" ? "animate-spin" : ""} />
                     {statusLabelMap[item.status]}
                   </span>
                 </td>
@@ -102,7 +113,6 @@ export default function ContributorListTable<T extends ContributorListTableRow>(
                       className="inline-flex cursor-pointer items-center gap-1 text-sm text-[#0EA5E9] hover:underline"
                     >
                       <Eye size={14} />
-                      View details
                     </button>
                     <button
                       type="button"

@@ -38,6 +38,19 @@ const contributorPlans = [
       { label: "Upload Limit", value: "No limit" },
     ],
   },
+  {
+    title: "Gold Plus Status",
+    // description:
+    //   "The ultimate tier reserved for legendary contributors.",
+    tone: "gold-plus",
+    highlighted: true,
+    features: [
+      { label: "Payment Split", value: "100% (You) / 0% (Platform)" },
+      { label: "Max Photo Price", value: "$50" },
+      { label: "Max Uploads", value: "No restrictions" },
+      { label: "Upload Limit", value: "No limit" },
+    ],
+  },
 ] as const;
 
 export default function BecomeContributorSection() {
@@ -52,7 +65,7 @@ export default function BecomeContributorSection() {
           Start with Bronze and get upgraded as you grow
         </p>
 
-        <div className="mx-auto mt-10 grid max-w-325 grid-cols-1 gap-6 sm:mt-12 md:mt-10 md:grid-cols-3 md:gap-4 lg:mt-12 lg:gap-7 xl:mt-16 xl:gap-12">
+        <div className="mx-auto mt-10 grid max-w-325 grid-cols-1 gap-6 sm:mt-12 md:mt-10 md:grid-cols-2 lg:grid-cols-4 md:gap-4 lg:mt-12 lg:gap-7 xl:mt-16 xl:gap-8">
           {contributorPlans.map((plan) => (
             <ContributorPlanCard
               key={plan.title}
@@ -60,7 +73,7 @@ export default function BecomeContributorSection() {
               // description={plan.description}
               features={plan.features}
               tone={plan.tone}
-              // highlighted={"highlighted" in plan ? plan.highlighted : false}
+              highlighted={"highlighted" in plan ? plan.highlighted : false}
             />
           ))}
         </div>

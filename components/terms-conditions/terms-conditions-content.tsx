@@ -105,6 +105,7 @@ export default function TermsConditionsContent() {
             <li>Bronze: 70% Contributor / 30% SurfShare</li>
             <li>Silver: 80% Contributor / 20% SurfShare</li>
             <li>Gold: 90% Contributor / 10% SurfShare</li>
+            <li>Gold Plus: 100% Contributor / 0% SurfShare</li>
           </ul>
           <p>
             SurfShare reserves the right to determine contributor tiering and may adjust tiers at

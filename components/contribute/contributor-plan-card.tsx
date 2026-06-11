@@ -11,7 +11,7 @@ type ContributorPlanCardProps = {
   title: string;
   description?: string;
   features: readonly PlanFeature[];
-  tone: "bronze" | "silver" | "gold";
+  tone: "bronze" | "silver" | "gold" | "gold-plus";
   highlighted?: boolean;
 };
 
@@ -19,6 +19,7 @@ const toneStyles = {
   bronze: "text-contribute-tier-bronze",
   silver: "text-contribute-tier-silver",
   gold: "text-contribute-tier-gold",
+  "gold-plus": "text-[#4B0082]",
 } as const;
 
 export default function ContributorPlanCard({

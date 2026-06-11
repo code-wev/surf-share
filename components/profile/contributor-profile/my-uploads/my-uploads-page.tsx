@@ -64,10 +64,11 @@ type EnrichedUploadRow = ContributorListTableRow & {
 const PAGE_SIZE = 10;
 
 // Helper to map DB status to UI status type
-function mapStatus(dbStatus: string): "approved" | "rejected" | "pending" {
+function mapStatus(dbStatus: string): "approved" | "rejected" | "pending" | "processing" {
   const s = dbStatus.toLowerCase();
   if (s === "approved") return "approved";
   if (s === "rejected") return "rejected";
+  if (s === "processing") return "processing";
   return "pending";
 }
 

@@ -1,5 +1,5 @@
 export type UserRole = "Surfer" | "Photographer" | string;
-export type UserPlan = "Gold" | "Silver" | "Bronze" | "-";
+export type UserPlan = "Gold Plus" | "Gold" | "Silver" | "Bronze" | "-";
 export type UserStatus = "Active" | "Suspended";
 
 export type UserRow = {

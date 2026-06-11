@@ -1,4 +1,4 @@
-export type UploadStatus = "approved" | "rejected" | "pending";
+export type UploadStatus = "approved" | "rejected" | "pending" | "processing";
 
 export type ContributorUploadApiItem = {
   id: string;

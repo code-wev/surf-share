@@ -115,6 +115,15 @@ export default function DashboardUserManagementContent() {
     if (subscriptionTier === "BRONZE") return "30%";
     if (subscriptionTier === "SILVER") return "20%";
     if (subscriptionTier === "GOLD") return "10%";
+    if (subscriptionTier === "GOLD_PLUS") return "99%";
+    return "-";
+  };
+
+  const mapSubscriptionTierToFrontend = (subscriptionTier?: string | null): UserPlan => {
+    if (subscriptionTier === "BRONZE") return "Bronze";
+    if (subscriptionTier === "SILVER") return "Silver";
+    if (subscriptionTier === "GOLD") return "Gold";
+    if (subscriptionTier === "GOLD_PLUS") return "Gold Plus";
     return "-";
   };
 
@@ -128,10 +137,7 @@ export default function DashboardUserManagementContent() {
         phone: user.phoneNumber || "-",
         role: mapRoleToFrontend(user.role),
         contributedPhotos: user.photoCount ?? "-",
-        plan: (user.subscriptionTier
-          ? (user.subscriptionTier as string).charAt(0).toUpperCase() +
-            (user.subscriptionTier as string).slice(1).toLowerCase()
-          : "-") as UserPlan,
+        plan: mapSubscriptionTierToFrontend(user.subscriptionTier),
         platformCommission: mapPlatformCommissionByPlan(user.subscriptionTier),
         purchasePhoto: user.purchasePhoto ?? "-",
         status: user.status === "ACTIVE" ? "Active" : "Suspended",
