@@ -39,11 +39,12 @@ export interface IPhotosQuery {
 }
 
 export const photoService = {
-  bulkUpload: async (payload: FormData) => {
+  bulkUpload: async ({ payload, onUploadProgress }: { payload: FormData; onUploadProgress?: (progressEvent: any) => void }) => {
     const response = await apiClient.post("/photos/upload", payload, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+      onUploadProgress,
     });
     return response.data;
   },

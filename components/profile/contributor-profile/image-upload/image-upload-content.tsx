@@ -106,6 +106,7 @@ export default function ImageUploadContentPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [bulkLocationId, setBulkLocationId] = useState("");
   const [bulkPrice, setBulkPrice] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // ── File ingestion ────────────────────────────────────────────────────────
 
@@ -159,44 +160,37 @@ export default function ImageUploadContentPage() {
 
   const updatePhoto = (
     id: string,
-    field: "locationId" | "price" | "capturedDate" | "capturedTime" | "title",
+    field: "locationId" | "title" | "price" | "capturedDate" | "capturedTime",
     value: string,
   ) => {
     setPhotos((prev) => prev.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
   };
 
-  // ── Bulk apply ──
+  // ── Bulk Apply ────────────────────────────────────────────────────────────
 
   const applyToAllPhotos = () => {
-    if (!bulkLocationId || !bulkPrice) return;
-
-    if (pendingPhotos.length) {
-      // Stage mode - APPLY TO ONLY PENDING PHOTOS
-      setPhotos((prev) => [
-        ...prev,
-        ...pendingPhotos.map((p) => ({
-          ...p,
-          locationId: bulkLocationId,
-          price: bulkPrice,
-        })),
-      ]);
-      setPendingPhotos([]);
-    } else {
-      // No pending files - APPLY TO ALL PHOTOS IN UPLOADED GRID
-      setPhotos((prev) =>
-        prev.map((p) => ({
-          ...p,
-          locationId: bulkLocationId,
-          price: bulkPrice,
-        })),
-      );
+    if (!bulkLocationId || !bulkPrice) {
+      toast.error("Please select a location and price to apply.");
+      return;
     }
 
-    setBulkLocationId("");
-    setBulkPrice("");
+    if (pendingPhotos.length === 0) {
+      toast.error("Please add photos before applying.");
+      return;
+    }
+
+    // Move pending photos to the main grid with the selected location & price
+    const mapped = pendingPhotos.map((p) => ({
+      ...p,
+      locationId: bulkLocationId,
+      price: bulkPrice,
+    }));
+
+    setPhotos((prev) => [...prev, ...mapped]);
+    setPendingPhotos([]);
   };
 
-  // ── Upload ──
+  // ── Upload ────────────────────────────────────────────────────────────────
 
   const handleUpload = () => {
     if (!photos.length) return;
@@ -227,7 +221,15 @@ export default function ImageUploadContentPage() {
       body.append("titles", title.trim());
     });
 
-    uploadMutation.mutate(body, {
+    uploadMutation.mutate({
+      payload: body,
+      onUploadProgress: (progressEvent) => {
+        if (progressEvent.total) {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setUploadProgress(percentCompleted);
+        }
+      }
+    }, {
       onSuccess: () => {
         photos.forEach((p) => URL.revokeObjectURL(p.preview));
         pendingPhotos.forEach((p) => URL.revokeObjectURL(p.preview));
@@ -235,7 +237,11 @@ export default function ImageUploadContentPage() {
         setPendingPhotos([]);
         setBulkLocationId("");
         setBulkPrice("");
+        setUploadProgress(0);
       },
+      onError: () => {
+        setUploadProgress(0);
+      }
     });
   };
 
@@ -518,24 +524,38 @@ export default function ImageUploadContentPage() {
 
       {/* ── Upload button ── */}
       {hasPhotos && (
-        <button
-          type="button"
-          onClick={handleUpload}
-          disabled={uploadMutation.isPending}
-          className="mt-6 flex w-full items-center justify-center gap-2 rounded-md bg-[#0a2463] py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {uploadMutation.isPending ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Uploading…
-            </>
-          ) : (
-            <>
-              Upload Photos
-              <Upload className="h-4 w-4" />
-            </>
+        <div className="mt-6 flex flex-col items-center">
+          {uploadMutation.isPending && uploadProgress > 0 && (
+            <div className="mb-3 flex w-full max-w-md items-center gap-4 rounded-md border border-gray-200 bg-white p-3 shadow-sm">
+              <span className="text-sm font-medium text-gray-700 w-12 text-right">{uploadProgress}%</span>
+              <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-100">
+                <div 
+                  className="absolute inset-y-0 left-0 bg-[#0a2463] transition-all duration-300 ease-out" 
+                  style={{ width: `${uploadProgress}%` }} 
+                />
+              </div>
+            </div>
           )}
-        </button>
+          
+          <button
+            type="button"
+            onClick={handleUpload}
+            disabled={uploadMutation.isPending}
+            className="flex w-full items-center justify-center gap-2 rounded-md bg-[#0a2463] py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {uploadMutation.isPending ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {uploadProgress === 100 ? "Processing on Server..." : "Uploading…"}
+              </>
+            ) : (
+              <>
+                Upload Photos
+                <Upload className="h-4 w-4" />
+              </>
+            )}
+          </button>
+        </div>
       )}
     </section>
   );
