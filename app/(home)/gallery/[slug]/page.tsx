@@ -324,7 +324,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
         </div>
 
         {/* Right Side Content (Details) */}
-        <div className="bg-(--color-surface-base)">
+        <div className="w-full min-w-0 overflow-hidden bg-(--color-surface-base)">
           <PageTitle
             subtitlePosition="top"
             subtitle={`Photo by ${photographerName}`}
@@ -414,20 +414,20 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
             </h2>
             <dl className="mt-3 space-y-2 text-sm">
               <div className="flex flex-wrap items-start justify-between gap-2">
-                <dt className="text-sm text-(--color-text-weak) sm:text-base">Resolution</dt>
-                <dd className="text-right text-sm font-medium text-(--color-text-strong) sm:text-base">
+                <dt className="text-sm text-(--color-text-weak) shrink-0 sm:text-base">Resolution</dt>
+                <dd className="text-right text-sm font-medium text-(--color-text-strong) wrap-break-word sm:text-base">
                   {resolution}
                 </dd>
               </div>
               <div className="flex flex-wrap items-start justify-between gap-2">
-                <dt className="text-sm text-(--color-text-weak) sm:text-base">Format</dt>
-                <dd className="text-right text-sm font-medium text-(--color-text-strong) sm:text-base">
+                <dt className="text-sm text-(--color-text-weak) shrink-0 sm:text-base">Format</dt>
+                <dd className="text-right text-sm font-medium text-(--color-text-strong) wrap-break-word sm:text-base">
                   {format}
                 </dd>
               </div>
               <div className="flex flex-wrap items-start justify-between gap-2">
-                <dt className="text-sm text-(--color-text-weak) sm:text-base">Size</dt>
-                <dd className="text-right text-sm font-medium text-(--color-text-strong) sm:text-base">
+                <dt className="text-sm text-(--color-text-weak) shrink-0 sm:text-base">Size</dt>
+                <dd className="text-right text-sm font-medium text-(--color-text-strong) wrap-break-word sm:text-base">
                   {fileSizeMB}
                 </dd>
               </div>
@@ -447,8 +447,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
                 alt="Advertisement"
                 width={960}
                 height={412}
-                style={{ height: "206px" }}
-                className="w-full object-cover"
+                className="h-auto w-full max-w-full object-cover sm:h-51.5"
                 quality={100}
                 sizes="(max-width: 640px) 100vw, 480px"
                 unoptimized
