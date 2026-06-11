@@ -11,7 +11,7 @@ import {
   User,
 } from "lucide-react";
 
-import ModeratorListTable, { type ContributorListTableRow } from "./moderator-list-table";
+import ModeratorListTable, { type ModeratorListTableRow } from "./moderator-list-table";
 import UploadDetailsModal from "./upload-details-modal";
 import EditUploadModal from "./edit-upload-modal";
 import DeleteUploadModal from "./delete-upload-modal";
@@ -51,7 +51,7 @@ const uploadStatusLabels: Record<UploadStatusFilter, string> = {
   pending: "Pending",
 };
 
-type EnrichedUploadRow = ContributorListTableRow & {
+type EnrichedUploadRow = ModeratorListTableRow & {
   uploadedAt: string;
   timeLabel: string;
   priceValue: number;
@@ -65,10 +65,11 @@ type EnrichedUploadRow = ContributorListTableRow & {
 const PAGE_SIZE = 10;
 
 // Helper to map DB status to UI status type
-function mapStatus(dbStatus: string): "approved" | "rejected" | "pending" {
+function mapStatus(dbStatus: string): "approved" | "rejected" | "pending" | "processing" {
   const s = dbStatus.toLowerCase();
   if (s === "approved") return "approved";
   if (s === "rejected") return "rejected";
+  if (s === "processing") return "processing";
   return "pending";
 }
 
