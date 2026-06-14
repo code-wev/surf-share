@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Pencil, ChevronDown, Plus, Camera, Loader2 } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import React from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -14,6 +14,8 @@ import { useAuth } from "@/lib/auth";
 import { getUserById, updateUserById, uploadProfileImage } from "@/src/actions/user.action";
 import { changePassword } from "@/src/actions/auth.action";
 import { getAbsoluteImageUrl } from "@/lib/utils";
+
+import { apiClient } from "@/lib/api/client";
 
 type SocialAccountType = "facebook" | "instagram" | "twitter" | "x";
 
@@ -32,6 +34,8 @@ type ProfileApiUser = {
   address?: string | null;
   promotionEmail?: boolean;
   socialAccounts?: { platform: string; url: string }[];
+  stripeAccountId?: string | null;
+  stripeOnboardingComplete?: boolean | null;
 };
 
 const SOCIAL_ACCOUNT_TYPES: { value: SocialAccountType; label: string }[] = [
@@ -62,6 +66,7 @@ export default function ProfileSettingsContent() {
   } | null>(null);
 
   const [isPromotionLoading, setIsPromotionLoading] = useState(false);
+  const [isStripeLoading, setIsStripeLoading] = useState(false);
 
   // Password change form state
   const [passwordFormValues, setPasswordFormValues] = useState({
@@ -95,7 +100,7 @@ export default function ProfileSettingsContent() {
   };
 
   // Fetch user from API
-  const { data } = useQuery({
+  const { data, refetch } = useQuery({
     queryKey: ["profile", session?.id],
     queryFn: async () => {
       if (!session?.id) throw new Error("Missing session user id.");
@@ -103,6 +108,19 @@ export default function ProfileSettingsContent() {
     },
     enabled: Boolean(session?.id),
   });
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("stripe_return") || urlParams.get("stripe_refresh")) {
+      apiClient.get("/stripe/connect/status").then(() => {
+        refetch();
+        if (urlParams.get("stripe_return")) {
+          toast.success("Stripe account connection process completed!");
+        }
+        window.history.replaceState({}, "", window.location.pathname);
+      }).catch((err) => console.error("Failed to check stripe status", err));
+    }
+  }, [refetch]);
 
   const apiProfile = data?.data as ProfileApiUser | undefined;
 
@@ -146,6 +164,23 @@ export default function ProfileSettingsContent() {
       console.error("Error updating promotion preference:", error);
     } finally {
       setIsPromotionLoading(false);
+    }
+  };
+
+  const handleConnectStripe = async () => {
+    setIsStripeLoading(true);
+    try {
+      const response = await apiClient.post("/stripe/connect");
+      if (response.data?.data?.url) {
+        window.location.href = response.data.data.url;
+      } else {
+        toast.error("Failed to generate secure onboarding link.");
+      }
+    } catch (error) {
+      console.error("Error connecting Stripe:", error);
+      toast.error("Unable to connect to Stripe right now. Please try again later.");
+    } finally {
+      setIsStripeLoading(false);
     }
   };
 
@@ -483,6 +518,39 @@ export default function ProfileSettingsContent() {
               )}
             </div>
           )}
+
+          {isContributor && (
+            <div className="md:col-span-2 pt-6 mt-4 border-t border-line-weaker">
+              <span className="text-text-strong mb-2 block text-base font-medium">
+                Payouts & Earnings
+              </span>
+              <p className="text-text-weak text-sm mb-4">
+                Connect your bank account securely via Stripe to receive automated payouts whenever your photos are purchased.
+              </p>
+
+              {apiProfile?.stripeOnboardingComplete ? (
+                <div className="flex items-center gap-2 rounded-md bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700 font-medium">
+                  <div className="h-2 w-2 rounded-full bg-green-500" />
+                  Stripe Connected: Automated Payouts Active
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleConnectStripe}
+                  disabled={isStripeLoading}
+                  className="bg-brand-default text-text-inverse-strong hover:bg-brand-hover inline-flex h-10 items-center justify-center rounded-sm px-6 text-sm font-medium transition-colors disabled:opacity-60 cursor-pointer"
+                >
+                  {isStripeLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Connecting...
+                    </>
+                  ) : (
+                    "Connect Stripe Account"
+                  )}
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="mt-8 md:mt-12">
@@ -581,7 +649,7 @@ export default function ProfileSettingsContent() {
               <button
                 type="submit"
                 disabled={passwordLoading}
-                className="bg-brand-default text-text-inverse-strong hover:bg-brand-hover inline-flex h-9 items-center rounded-sm px-6 text-sm font-medium transition-colors disabled:opacity-60"
+                className="bg-brand-default text-text-inverse-strong hover:bg-brand-hover inline-flex h-9 items-center rounded-sm px-6 text-sm font-medium transition-colors disabled:opacity-60 cursor-pointer"
               >
                 {passwordLoading ? "Updating..." : "Update Password"}
               </button>

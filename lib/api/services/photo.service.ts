@@ -1,4 +1,5 @@
 import { apiClient } from "../client";
+import type { AxiosProgressEvent } from "axios";
 
 export type PhotoStatus = "PENDING" | "APPROVED" | "REJECTED";
 
@@ -39,7 +40,7 @@ export interface IPhotosQuery {
 }
 
 export const photoService = {
-  bulkUpload: async ({ payload, onUploadProgress }: { payload: FormData; onUploadProgress?: (progressEvent: any) => void }) => {
+  bulkUpload: async ({ payload, onUploadProgress }: { payload: FormData; onUploadProgress?: (progressEvent: AxiosProgressEvent) => void }) => {
     const response = await apiClient.post("/photos/upload", payload, {
       headers: {
         "Content-Type": "multipart/form-data",
