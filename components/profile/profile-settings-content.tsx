@@ -184,6 +184,20 @@ export default function ProfileSettingsContent() {
     }
   };
 
+  const handleViewDashboard = async () => {
+    try {
+      const response = await apiClient.get("/stripe/dashboard");
+      if (response.data?.data?.url) {
+        window.open(response.data.data.url, "_blank", "noopener,noreferrer");
+      } else {
+        toast.error("Failed to load Stripe dashboard.");
+      }
+    } catch (error) {
+      console.error("Error loading Stripe dashboard:", error);
+      toast.error("Unable to connect to Stripe right now. Please try again later.");
+    }
+  };
+
   const displayProfile = {
     fullName: apiProfile?.name ?? session?.name ?? "",
     avatarSrc: apiProfile?.profileImageUrl
@@ -529,9 +543,18 @@ export default function ProfileSettingsContent() {
               </p>
 
               {apiProfile?.stripeOnboardingComplete ? (
-                <div className="flex items-center gap-2 rounded-md bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700 font-medium">
-                  <div className="h-2 w-2 rounded-full bg-green-500" />
-                  Stripe Connected: Automated Payouts Active
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex items-center gap-2 rounded-md bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700 font-medium">
+                    <div className="h-2 w-2 rounded-full bg-green-500" />
+                    Stripe Connected: Automated Payouts Active
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleViewDashboard}
+                    className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 inline-flex h-10 items-center justify-center rounded-sm px-6 text-sm font-medium transition-colors cursor-pointer shadow-sm"
+                  >
+                    View Stripe Dashboard
+                  </button>
                 </div>
               ) : (
                 <button
