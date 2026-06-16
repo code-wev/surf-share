@@ -11,6 +11,7 @@ import {
   TrendingUp,
   UserRound,
   LayoutDashboard,
+  Wallet,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -60,6 +61,7 @@ export default function ProfileSidebar({ className, onNavigate }: ProfileSidebar
         { label: "My Uploads", href: "/profile/my-uploads", Icon: Package },
         { label: "Upload New", href: "/profile/image-upload", Icon: Upload },
         { label: "Sales", href: "/profile/sales", Icon: TrendingUp },
+        { label: "Earnings Ledger", href: "/profile/earnings", Icon: Wallet },
         { label: "Profile", href: "/profile", Icon: UserRound },
       ]
     : [

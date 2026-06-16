@@ -36,6 +36,7 @@ type ProfileApiUser = {
   socialAccounts?: { platform: string; url: string }[];
   stripeAccountId?: string | null;
   stripeOnboardingComplete?: boolean | null;
+  manualBankDetails?: string | null;
 };
 
 const SOCIAL_ACCOUNT_TYPES: { value: SocialAccountType; label: string }[] = [
@@ -63,6 +64,7 @@ export default function ProfileSettingsContent() {
     phone: string;
     email: string;
     address: string;
+    manualBankDetails: string;
   } | null>(null);
 
   const [isPromotionLoading, setIsPromotionLoading] = useState(false);
@@ -208,6 +210,7 @@ export default function ProfileSettingsContent() {
     email: apiProfile?.email ?? session?.email ?? "",
     address: apiProfile?.address ?? "",
     promotionEmail: apiProfile?.promotionEmail ?? false,
+    manualBankDetails: apiProfile?.manualBankDetails ?? "",
   };
 
   const incoming = apiProfile?.socialAccounts || [];
@@ -277,6 +280,7 @@ export default function ProfileSettingsContent() {
                   phone: displayProfile.phone,
                   email: displayProfile.email,
                   address: displayProfile.address,
+                  manualBankDetails: displayProfile.manualBankDetails,
                 });
                 setSocialLinks(parsedIncomingLinks);
                 setIsEditingProfile(true);
@@ -337,6 +341,7 @@ export default function ProfileSettingsContent() {
                       countryName: editValues.country?.trim() || undefined,
                       phoneNumber: editValues.phone?.trim() || undefined,
                       address: editValues.address?.trim() || undefined,
+                      manualBankDetails: editValues.manualBankDetails?.trim() || undefined,
                     };
 
                     // Remove undefined values
@@ -572,6 +577,24 @@ export default function ProfileSettingsContent() {
                   )}
                 </button>
               )}
+
+              {/* Manual Bank Details Section */}
+              <div className="mt-8">
+                <span className="text-text-strong mb-2 block text-base font-medium">
+                  Manual Bank Details <span className="text-text-weaker text-sm font-normal">(Optional)</span>
+                </span>
+                <p className="text-text-weak text-sm mb-4">
+                  If you prefer not to use Stripe, provide your banking details here. Admins will manually wire payments to this account.
+                </p>
+                <textarea
+                  value={isEditingProfile && editValues ? editValues.manualBankDetails : displayProfile.manualBankDetails}
+                  onChange={(e) => setEditValues(prev => prev ? { ...prev, manualBankDetails: e.target.value } : prev)}
+                  disabled={!isEditingProfile}
+                  rows={4}
+                  placeholder="Account Name: John Doe&#10;BSB: 123-456&#10;Account Number: 12345678"
+                  className="border-line-weaker bg-surface-muted-100 text-text-strong focus-visible:ring-brand-default/30 w-full resize-y rounded-md border p-3 text-sm focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
             </div>
           )}
         </div>
