@@ -13,6 +13,7 @@ import {
   Settings,
   Shield,
   UsersRound,
+  Banknote,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -61,6 +62,7 @@ const moderatorDashboardNavItems: ReadonlyArray<DashboardNavItem> = [
 const adminDashboardNavItems: ReadonlyArray<DashboardNavItem> = [
   { label: "User Management", Icon: UsersRound, href: "/dashboard/user-management" },
   { label: "Moderator Management", Icon: Shield, href: "/dashboard/moderator-management" },
+  { label: "Manual Payouts", Icon: Banknote, href: "/dashboard/payouts" },
   {
     label: "Advertisement Settings",
     Icon: Megaphone,
