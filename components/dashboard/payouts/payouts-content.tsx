@@ -25,6 +25,7 @@ type PayoutItem = {
 
 export default function PayoutsContent() {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const queryClient = useQueryClient();
 
   const { data, isLoading, isError } = useQuery({
@@ -92,9 +93,12 @@ export default function PayoutsContent() {
 
   const handleMarkPaid = () => {
     if (selectedItems.length === 0) return;
-    if (confirm(`Are you sure you want to mark ${selectedItems.length} items as paid?`)) {
-      markPaidMutation.mutate(selectedItems);
-    }
+    setShowConfirmModal(true);
+  };
+
+  const executeMarkPaid = () => {
+    setShowConfirmModal(false);
+    markPaidMutation.mutate(selectedItems);
   };
 
   return (
@@ -213,6 +217,33 @@ export default function PayoutsContent() {
           )}
         </div>
       </div>
+
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+            <h2 className="mb-2 text-xl font-bold text-gray-900">Confirm Manual Payout</h2>
+            <p className="mb-6 text-sm text-gray-600">
+              You are about to mark <strong>{selectedItems.length} items</strong> as Paid. Please confirm that you have successfully wired the funds to the photographer&apos;s bank account. This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowConfirmModal(false)}
+                className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-default/20"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={executeMarkPaid}
+                className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500/20"
+              >
+                Confirm & Mark as Paid
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
