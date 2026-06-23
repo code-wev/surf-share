@@ -584,7 +584,7 @@ export default function ProfileSettingsContent() {
                   Manual Bank Details <span className="text-text-weaker text-sm font-normal">(Optional)</span>
                 </span>
                 <p className="text-text-weak text-sm mb-4">
-                  If you prefer not to use Stripe, provide your banking details here. Admins will manually wire payments to this account.
+                  If you prefer not to use Stripe, please provide your PayPal email or Bank PayID here. Admins will attempt to manually process payments to this account on an adhoc basis.
                 </p>
                 <textarea
                   value={isEditingProfile && editValues ? editValues.manualBankDetails : displayProfile.manualBankDetails}
