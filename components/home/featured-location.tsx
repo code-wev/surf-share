@@ -147,30 +147,32 @@ export default function FeaturedLocation() {
                   className="shrink-0 px-2.5"
                   style={{ width: `${100 / cardsPerView}%` }}
                 >
-                  <ImageCard
-                    src={card.src}
-                    alt={card.alt}
-                    width={960}
-                    height={1280}
-                    className="rounded-sm"
-                    imageClassName="aspect-[3/4] w-full object-cover"
-                    infoClassName="p-4 sm:p-5"
-                    info={
-                      <div className="space-y-1.5">
-                        <p className="text-[22px]! leading-none font-medium sm:text-[36px]">
-                          {card.title}
-                        </p>
-                        <p className="inline-flex items-center gap-1.5 text-sm text-white/90">
-                          <MapPin className="h-3.5 w-3.5" />
-                          <span>{card.subtitle}</span>
-                        </p>
-                        <div className="flex items-center gap-1.5 text-sm text-white/90">
-                          <Camera className="h-3.5 w-3.5" />
-                          <span>{card.photoCount.toLocaleString()} photos available</span>
+                  <Link href={`/gallery?locationId=${card.id}`} className="block w-full">
+                    <ImageCard
+                      src={card.src}
+                      alt={card.alt}
+                      width={960}
+                      height={1280}
+                      className="rounded-sm transition-transform hover:scale-[1.02]"
+                      imageClassName="aspect-[3/4] w-full object-cover"
+                      infoClassName="p-4 sm:p-5"
+                      info={
+                        <div className="space-y-1.5">
+                          <p className="text-[22px]! leading-none font-medium sm:text-[36px]">
+                            {card.title}
+                          </p>
+                          <p className="inline-flex items-center gap-1.5 text-sm text-white/90">
+                            <MapPin className="h-3.5 w-3.5" />
+                            <span>{card.subtitle}</span>
+                          </p>
+                          <div className="flex items-center gap-1.5 text-sm text-white/90">
+                            <Camera className="h-3.5 w-3.5" />
+                            <span>{card.photoCount.toLocaleString()} photos available</span>
+                          </div>
                         </div>
-                      </div>
-                    }
-                  />
+                      }
+                    />
+                  </Link>
                 </div>
               ))}
             </div>
