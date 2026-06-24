@@ -126,6 +126,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
 
   // Fetch all photos for navigation
   const { data: allPhotosResponse } = usePublicPhotosQuery({
+    locationId: locationId || "loading",
     limit: 100,
   });
 
