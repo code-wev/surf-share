@@ -154,7 +154,11 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   };
 
   const handleBackToGallery = () => {
-    router.push("/gallery", { scroll: false });
+    if (locationId) {
+      router.push(`/gallery?locationId=${locationId}`, { scroll: false });
+    } else {
+      router.push("/gallery", { scroll: false });
+    }
   };
 
   if (isLoading) {
