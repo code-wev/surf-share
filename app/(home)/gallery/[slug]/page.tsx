@@ -220,7 +220,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   const spot = detailItem.location?.name;
 
   // Filter out missing parts to join them with pipes
-  const breadcrumbParts = [region, state, spot].filter(Boolean);
+  const breadcrumbParts = [state, region, spot].filter(Boolean);
   const breadcrumbDisplay =
     breadcrumbParts.length > 0 ? (
       <button
