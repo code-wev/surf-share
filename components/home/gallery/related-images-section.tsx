@@ -1,12 +1,12 @@
 "use client";
 
+import { ArrowRight, Heart, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { ArrowRight, ExternalLink, Heart, Plus } from "lucide-react";
 
-import ImageCard from "@/components/shared/image-card";
 import type { GalleryDetailItem } from "@/components/home/gallery/gallery-images";
+import ImageCard from "@/components/shared/image-card";
 import { PageTitle } from "@/components/shared/page-title";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
@@ -68,7 +68,6 @@ function buildInfo(item: GalleryDetailItem) {
 
         <div className="mt-1 flex items-center gap-1 text-xs text-white/85 sm:text-[13px]">
           <span>{item.location}</span>
-          <ExternalLink className="h-3 w-3" />
         </div>
       </div>
 
@@ -110,9 +109,9 @@ export default function RelatedImagesSection({ items, onNavigate }: RelatedImage
 
       <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {pagedItems.map((item) => (
-          <div 
-            key={item.id} 
-            className="h-80 sm:h-66 cursor-pointer"
+          <div
+            key={item.id}
+            className="h-80 cursor-pointer sm:h-66"
             onClick={() => onNavigate?.(String(item.id))}
           >
             <ImageCard

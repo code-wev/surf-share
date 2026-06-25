@@ -1,9 +1,5 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { use, useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Calendar,
@@ -17,22 +13,26 @@ import {
   ShoppingCart,
   ZoomIn,
 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { use, useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import FullscreenImageViewer from "@/components/home/gallery/fullscreen-viewer";
 import RelatedImagesSection from "@/components/home/gallery/related-images-section";
 import ThumbnailFilmstrip from "@/components/home/gallery/thumbnail-filmstrip";
-import FullscreenImageViewer from "@/components/home/gallery/fullscreen-viewer";
-import { Button } from "@/components/ui/button";
 import { PageTitle } from "@/components/shared/page-title";
-import { usePhotoDetailQuery, usePublicPhotosQuery } from "@/hooks/api/usePhotos";
+import { Button } from "@/components/ui/button";
 import { useAdvertisementQuery } from "@/hooks/api/useAdvertisement";
-import { useFavoriteIdsQuery, useToggleFavoriteMutation } from "@/hooks/api/useFavorites";
 import { usePurchasedPhotoIdsQuery } from "@/hooks/api/useCheckout";
-import { useAuth } from "@/lib/auth";
-import { useCartStore } from "@/store/cart.store";
-import { getAbsoluteImageUrl } from "@/lib/utils";
-import { IPhotoResponse } from "@/lib/api/services/photo.service";
+import { useFavoriteIdsQuery, useToggleFavoriteMutation } from "@/hooks/api/useFavorites";
+import { usePhotoDetailQuery, usePublicPhotosQuery } from "@/hooks/api/usePhotos";
 import { queryKeys } from "@/lib/api/query-keys";
+import { IPhotoResponse } from "@/lib/api/services/photo.service";
+import { useAuth } from "@/lib/auth";
+import { getAbsoluteImageUrl } from "@/lib/utils";
+import { useCartStore } from "@/store/cart.store";
 
 type GalleryDetailsPageProps = {
   params: Promise<{ slug: string }>;
@@ -189,10 +189,6 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
 
   const detailItem = photoData.data;
 
-  // Format sizes and dates
-  const fileSizeMB = detailItem.fileSize
-    ? (detailItem.fileSize / (1024 * 1024)).toFixed(2) + " MB"
-    : "N/A";
   const resolution =
     detailItem.width && detailItem.height
       ? `${detailItem.width} x ${detailItem.height} px`
@@ -233,7 +229,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
           >
             {state}
           </button>
-          {(region || spot) && <span className="text-(--color-text-weaker) mx-1">|</span>}
+          {(region || spot) && <span className="mx-1 text-(--color-text-weaker)">|</span>}
         </>
       )}
       {region && (
@@ -244,7 +240,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
           >
             {region}
           </button>
-          {spot && <span className="text-(--color-text-weaker) mx-1">|</span>}
+          {spot && <span className="mx-1 text-(--color-text-weaker)">|</span>}
         </>
       )}
       {spot && (
@@ -255,9 +251,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
           {spot}
         </button>
       )}
-      {!state && !region && !spot && (
-        <span className="font-medium">Location unavailable</span>
-      )}
+      {!state && !region && !spot && <span className="font-medium">Location unavailable</span>}
     </div>
   );
 
@@ -447,20 +441,24 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
             </h2>
             <dl className="mt-3 space-y-2 text-sm">
               <div className="flex flex-wrap items-start justify-between gap-2">
-                <dt className="text-sm text-(--color-text-weak) shrink-0 sm:text-base">Resolution</dt>
-                <dd className="text-right text-sm font-medium text-(--color-text-strong) wrap-break-word sm:text-base">
+                <dt className="shrink-0 text-sm text-(--color-text-weak) sm:text-base">
+                  Resolution
+                </dt>
+                <dd className="text-right text-sm font-medium wrap-break-word text-(--color-text-strong) sm:text-base">
                   {resolution}
                 </dd>
               </div>
               <div className="flex flex-wrap items-start justify-between gap-2">
-                <dt className="text-sm text-(--color-text-weak) shrink-0 sm:text-base">Format</dt>
-                <dd className="text-right text-sm font-medium text-(--color-text-strong) wrap-break-word sm:text-base">
+                <dt className="shrink-0 text-sm text-(--color-text-weak) sm:text-base">Format</dt>
+                <dd className="text-right text-sm font-medium wrap-break-word text-(--color-text-strong) sm:text-base">
                   {format}
                 </dd>
               </div>
               <div className="flex flex-wrap items-start justify-between gap-2">
-                <dt className="text-sm text-(--color-text-weak) shrink-0 sm:text-base">Captured At</dt>
-                <dd className="text-right text-sm font-medium text-(--color-text-strong) wrap-break-word sm:text-base">
+                <dt className="shrink-0 text-sm text-(--color-text-weak) sm:text-base">
+                  Captured At
+                </dt>
+                <dd className="text-right text-sm font-medium wrap-break-word text-(--color-text-strong) sm:text-base">
                   {`${formattedDate} at ${formattedTime}`}
                 </dd>
               </div>
