@@ -23,7 +23,8 @@ type ApiPhoto = {
   title?: string | null;
   imageUrl: string;
   price: number;
-  fileSize?: number | null;
+  capturedAt?: string | null;
+  createdAt: string;
   photographer?: { name?: string };
   location?: { name?: string };
 };
@@ -91,18 +92,27 @@ function GalleryPageContent() {
 
   const photos = photosData?.data || [];
   const meta = photosData?.meta || { total: 0, totalPages: 1 };
-  const mappedPhotos = photos.map((p: ApiPhoto) => ({
-    id: p.id,
-    slug: p.id,
-    src: getAbsoluteImageUrl(p.imageUrl),
-    alt: p.title || `Photo by ${p.photographer?.name}`,
-    userName: p.photographer?.name || "Unknown",
-    location: p.location?.name || "Unknown Location",
-    price: `$${p.price.toFixed(2)}`,
-    avatarSrc: "/home/logo.png",
-    title: p.title || `Photo by ${p.photographer?.name}`,
-    fileSize: formatFileSize(p.fileSize),
-  }));
+  const mappedPhotos = photos.map((p: ApiPhoto) => {
+    const dateToUse = new Date(p.capturedAt || p.createdAt);
+    const formattedDate = dateToUse.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric"
+    });
+
+    return {
+      id: p.id,
+      slug: p.id,
+      src: getAbsoluteImageUrl(p.imageUrl),
+      alt: p.title || `Photo by ${p.photographer?.name}`,
+      userName: p.photographer?.name || "Unknown",
+      location: p.location?.name || "Unknown Location",
+      price: `$${p.price.toFixed(2)}`,
+      avatarSrc: "/home/logo.png",
+      title: p.title || `Photo by ${p.photographer?.name}`,
+      captureDate: formattedDate,
+    };
+  });
 
   return (
     <>

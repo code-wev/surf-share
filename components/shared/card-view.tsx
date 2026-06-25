@@ -1,16 +1,16 @@
 "use client";
 
+import { Camera, Check, Heart, Plus } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Camera, ExternalLink, Heart, Plus, Check } from "lucide-react";
 import { toast } from "sonner";
 
-import { cn, getAbsoluteImageUrl } from "@/lib/utils";
-import ImageCard from "./image-card";
-import { useAuth } from "@/lib/auth";
-import { useFavoriteIdsQuery, useToggleFavoriteMutation } from "@/hooks/api/useFavorites";
-import { useCartStore } from "@/store/cart.store";
 import { usePurchasedPhotoIdsQuery } from "@/hooks/api/useCheckout";
+import { useFavoriteIdsQuery, useToggleFavoriteMutation } from "@/hooks/api/useFavorites";
+import { useAuth } from "@/lib/auth";
+import { cn, getAbsoluteImageUrl } from "@/lib/utils";
+import { useCartStore } from "@/store/cart.store";
+import ImageCard from "./image-card";
 
 export type CardViewItem = {
   id: string | number;
@@ -24,7 +24,7 @@ export type CardViewItem = {
   price?: string;
   avatarSrc?: string;
   size?: "tall" | "short";
-  fileSize?: string;
+  captureDate?: string;
   favoriteActive?: boolean; // Keep for backwards compatibility, but overridden by backend
   plusActive?: boolean;
   showInfoByDefault?: boolean;
@@ -148,12 +148,11 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
             <div className="mt-1 flex flex-wrap items-center gap-2 text-[13px] text-white/85">
               <div className="flex items-center gap-1">
                 <span>{item.location}</span>
-                <ExternalLink className="h-3 w-3" />
               </div>
-              {item.fileSize && (
+              {item.captureDate && (
                 <>
                   <span className="opacity-50">|</span>
-                  <span>{item.fileSize}</span>
+                  <span>{item.captureDate}</span>
                 </>
               )}
             </div>
@@ -180,7 +179,7 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
               <span>{item.photoCount}</span>
             </div>
           ) : null}
-          {item.fileSize && <span className="text-sm text-white/90">{item.fileSize}</span>}
+          {item.captureDate && <span className="text-sm text-white/90">{item.captureDate}</span>}
         </div>
       </div>
     );
@@ -193,7 +192,9 @@ export default function CardView({ items, className, desktopColumns = 4 }: CardV
 
     // Hide actions for Photographers, Moderators, and Admins
     const isContributorOrStaff =
-      session?.role === "PHOTOGRAPHER" || session?.role === "MODERATOR" || session?.role === "ADMIN";
+      session?.role === "PHOTOGRAPHER" ||
+      session?.role === "MODERATOR" ||
+      session?.role === "ADMIN";
 
     if (isContributorOrStaff) {
       return null;
