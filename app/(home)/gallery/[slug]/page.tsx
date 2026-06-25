@@ -459,9 +459,9 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
                 </dd>
               </div>
               <div className="flex flex-wrap items-start justify-between gap-2">
-                <dt className="text-sm text-(--color-text-weak) shrink-0 sm:text-base">Size</dt>
+                <dt className="text-sm text-(--color-text-weak) shrink-0 sm:text-base">Captured At</dt>
                 <dd className="text-right text-sm font-medium text-(--color-text-strong) wrap-break-word sm:text-base">
-                  {fileSizeMB}
+                  {`${formattedDate} at ${formattedTime}`}
                 </dd>
               </div>
             </dl>
