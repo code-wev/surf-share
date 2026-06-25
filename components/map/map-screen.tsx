@@ -6,199 +6,171 @@ import { useMapLocationsQuery } from "@/hooks/api/useLocations";
 import { Loader2 } from "lucide-react";
 
 import {
-	timeOptions,
-	type SurfSpot,
-	type TimeOptionValue,
+  // timeOptions,
+  type SurfSpot,
+  // type TimeOptionValue,
 } from "@/components/map/map-demo-data";
 import { getAbsoluteImageUrl } from "@/lib/utils";
 
 const SurfMapView = dynamic(() => import("@/components/map/surf-map-view"), {
-	ssr: false,
-	loading: () => (
-		<div className="flex h-full w-full items-center justify-center bg-fill-weak text-sm text-text-weak">
-			Loading map...
-		</div>
-	),
+  ssr: false,
+  loading: () => (
+    <div className="bg-fill-weak text-text-weak flex h-full w-full items-center justify-center text-sm">
+      Loading map...
+    </div>
+  ),
 });
 
 export default function MapScreen() {
-	const { data: mapDataResponse, isLoading } = useMapLocationsQuery();
-	
-	const liveSurfSpots = useMemo(() => {
-		const spots = (mapDataResponse?.data || []) as SurfSpot[];
-		return spots.map(spot => ({
-			...spot,
-			imageSrc: getAbsoluteImageUrl(spot.imageSrc)
-		}));
-	}, [mapDataResponse?.data]);
+  const { data: mapDataResponse, isLoading } = useMapLocationsQuery();
 
-	const [selectedState, setSelectedState] = useState("all");
-	const [selectedRegion, setSelectedRegion] = useState("all");
-	const [selectedFromDate, setSelectedFromDate] = useState("");
-	const [selectedToDate, setSelectedToDate] = useState("");
-	const [selectedTime, setSelectedTime] = useState<TimeOptionValue>("all");
-	const [activeSpotId, setActiveSpotId] = useState<string | null>(null);
+  const liveSurfSpots = useMemo(() => {
+    const spots = (mapDataResponse?.data || []) as SurfSpot[];
+    return spots.map((spot) => ({
+      ...spot,
+      imageSrc: getAbsoluteImageUrl(spot.imageSrc),
+    }));
+  }, [mapDataResponse?.data]);
 
-	const stateOptions = useMemo(() => {
-		return ["all", ...Array.from(new Set(liveSurfSpots.map((spot) => spot.state)))];
-	}, [liveSurfSpots]);
+  const [selectedState, setSelectedState] = useState("all");
+  const [selectedRegion, setSelectedRegion] = useState("all");
+  const [selectedFromDate, setSelectedFromDate] = useState("");
+  const [selectedToDate, setSelectedToDate] = useState("");
+  // const [selectedTime, setSelectedTime] = useState<TimeOptionValue>("all");
+  const [activeSpotId, setActiveSpotId] = useState<string | null>(null);
 
-	const regionOptions = useMemo(() => {
-		const spots =
-			selectedState === "all"
-				? liveSurfSpots
-				: liveSurfSpots.filter((spot) => spot.state === selectedState);
+  const stateOptions = useMemo(() => {
+    return ["all", ...Array.from(new Set(liveSurfSpots.map((spot) => spot.state)))];
+  }, [liveSurfSpots]);
 
-		return ["all", ...Array.from(new Set(spots.map((spot) => spot.region)))];
-	}, [selectedState, liveSurfSpots]);
+  const regionOptions = useMemo(() => {
+    const spots =
+      selectedState === "all"
+        ? liveSurfSpots
+        : liveSurfSpots.filter((spot) => spot.state === selectedState);
 
-	const filteredSpots = useMemo(() => {
-		return liveSurfSpots.filter((spot) => {
-			const matchesState = selectedState === "all" || spot.state === selectedState;
-			const matchesRegion = selectedRegion === "all" || spot.region === selectedRegion;
-			const matchesTime = selectedTime === "all" || spot.timeWindows.includes(selectedTime);
-			
-			let inDateRange = true;
-			if (selectedFromDate && spot.availableTo) {
-				if (selectedFromDate > spot.availableTo) inDateRange = false;
-			}
-			if (selectedToDate && spot.availableFrom) {
-				if (selectedToDate < spot.availableFrom) inDateRange = false;
-			}
+    return ["all", ...Array.from(new Set(spots.map((spot) => spot.region)))];
+  }, [selectedState, liveSurfSpots]);
 
-			return matchesState && matchesRegion && matchesTime && inDateRange;
-		});
-	}, [liveSurfSpots, selectedRegion, selectedState, selectedTime, selectedFromDate, selectedToDate]);
+  const filteredSpots = useMemo(() => {
+    return liveSurfSpots.filter((spot) => {
+      const matchesState = selectedState === "all" || spot.state === selectedState;
+      const matchesRegion = selectedRegion === "all" || spot.region === selectedRegion;
+      // const matchesTime = selectedTime === "all" || spot.timeWindows.includes(selectedTime);
 
-	const resolvedActiveSpotId = filteredSpots.some((spot) => spot.id === activeSpotId)
-		? activeSpotId
-		: filteredSpots[0]?.id ?? null;
+      let inDateRange = true;
+      if (selectedFromDate && spot.availableTo) {
+        if (selectedFromDate > spot.availableTo) inDateRange = false;
+      }
+      if (selectedToDate && spot.availableFrom) {
+        if (selectedToDate < spot.availableFrom) inDateRange = false;
+      }
 
-	const activeSpot: SurfSpot | null = useMemo(() => {
-		if (!filteredSpots.length) return null;
-		return filteredSpots.find((spot) => spot.id === resolvedActiveSpotId) ?? filteredSpots[0];
-	}, [filteredSpots, resolvedActiveSpotId]);
+      // return matchesState && matchesRegion && matchesTime && inDateRange;
+      return matchesState && matchesRegion && inDateRange;
+    });
+    // }, [liveSurfSpots, selectedRegion, selectedState, selectedTime, selectedFromDate, selectedToDate]);
+  }, [liveSurfSpots, selectedRegion, selectedState, selectedFromDate, selectedToDate]);
 
-	if (isLoading) {
-		return (
-			<section className="absolute inset-0 left-0 right-0 mx-auto flex w-full max-w-470 flex-col items-center justify-center font-sf-pro">
-				<Loader2 className="h-8 w-8 animate-spin text-brand-default" />
-				<p className="mt-4 text-sm text-text-weak">Loading map data...</p>
-			</section>
-		);
-	}
+  const resolvedActiveSpotId = filteredSpots.some((spot) => spot.id === activeSpotId)
+    ? activeSpotId
+    : (filteredSpots[0]?.id ?? null);
 
-	return (
-		<section className="mx-auto flex h-[calc(100vh-68px)] w-full max-w-470 flex-col px-4 py-4 font-sf-pro sm:px-6 lg:px-10 xl:px-12.5">
-			<div className="shrink-0 grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-5 xl:grid-cols-[1.5fr_0.95fr_0.75fr]">
-				<div className="space-y-3">
-					<h2 className="text-xl font-medium text-text-strong sm:text-2xl">Location</h2>
-					<div className="grid grid-cols-2 gap-2 sm:gap-3">
-						<label className="space-y-1.5">
-							<span className="text-[10px] font-semibold tracking-[0.08em] text-text-weaker uppercase">
-								State
-							</span>
-							<select
-								value={selectedState}
-								onChange={(event) => {
-									setSelectedState(event.target.value);
-									setSelectedRegion("all");
-								}}
-								className="h-11 w-full rounded-md border border-line-weaker bg-surface-muted-100 px-3 text-sm text-text-strong outline-none focus:border-brand-default"
-							>
-								{stateOptions.map((stateOption) => (
-									<option key={stateOption} value={stateOption}>
-										{stateOption === "all" ? "All States" : stateOption}
-									</option>
-								))}
-							</select>
-						</label>
+  const activeSpot: SurfSpot | null = useMemo(() => {
+    if (!filteredSpots.length) return null;
+    return filteredSpots.find((spot) => spot.id === resolvedActiveSpotId) ?? filteredSpots[0];
+  }, [filteredSpots, resolvedActiveSpotId]);
 
-						<label className="space-y-1.5">
-							<span className="text-[10px] font-semibold tracking-[0.08em] text-text-weaker uppercase">
-								Region
-							</span>
-							<select
-								value={selectedRegion}
-								onChange={(event) => setSelectedRegion(event.target.value)}
-								className="h-11 w-full rounded-md border border-line-weaker bg-surface-muted-100 px-3 text-sm text-text-strong outline-none focus:border-brand-default"
-							>
-								{regionOptions.map((regionOption) => (
-									<option key={regionOption} value={regionOption}>
-										{regionOption === "all" ? "All Regions" : regionOption}
-									</option>
-								))}
-							</select>
-						</label>
-					</div>
-				</div>
+  if (isLoading) {
+    return (
+      <section className="font-sf-pro absolute inset-0 right-0 left-0 mx-auto flex w-full max-w-470 flex-col items-center justify-center">
+        <Loader2 className="text-brand-default h-8 w-8 animate-spin" />
+        <p className="text-text-weak mt-4 text-sm">Loading map data...</p>
+      </section>
+    );
+  }
 
-				<div className="space-y-3">
-					<h2 className="text-xl font-medium text-text-strong sm:text-2xl">Date Range</h2>
-					<div className="grid grid-cols-2 gap-2 sm:gap-3">
-						<label className="space-y-1.5">
-							<span className="text-[10px] font-semibold tracking-[0.08em] text-text-weaker uppercase">
-								From
-							</span>
-							<input
-								type="date"
-								value={selectedFromDate}
-								onChange={(event) => setSelectedFromDate(event.target.value)}
-								className="h-11 w-full rounded-md border border-line-weaker bg-surface-muted-100 px-3 text-sm text-text-strong outline-none focus:border-brand-default"
-							/>
-						</label>
+  return (
+    <section className="font-sf-pro mx-auto flex h-[calc(100vh-68px)] w-full max-w-470 flex-col px-4 py-4 sm:px-6 lg:px-10 xl:px-12.5">
+      <div className="grid shrink-0 grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-5">
+        <label className="space-y-1.5">
+          <span className="text-text-weaker text-[10px] font-semibold tracking-[0.08em] uppercase">
+            State
+          </span>
+          <select
+            value={selectedState}
+            onChange={(event) => {
+              setSelectedState(event.target.value);
+              setSelectedRegion("all");
+            }}
+            className="border-line-weaker bg-surface-muted-100 text-text-strong focus:border-brand-default h-11 w-full rounded-md border px-3 text-sm outline-none"
+          >
+            {stateOptions.map((stateOption) => (
+              <option key={stateOption} value={stateOption}>
+                {stateOption === "all" ? "All States" : stateOption}
+              </option>
+            ))}
+          </select>
+        </label>
 
-						<label className="space-y-1.5">
-							<span className="text-[10px] font-semibold tracking-[0.08em] text-text-weaker uppercase">
-								To
-							</span>
-							<input
-								type="date"
-								value={selectedToDate}
-								min={selectedFromDate}
-								onChange={(event) => setSelectedToDate(event.target.value)}
-								className="h-11 w-full rounded-md border border-line-weaker bg-surface-muted-100 px-3 text-sm text-text-strong outline-none focus:border-brand-default"
-							/>
-						</label>
-					</div>
-				</div>
+        <label className="space-y-1.5">
+          <span className="text-text-weaker text-[10px] font-semibold tracking-[0.08em] uppercase">
+            Region
+          </span>
+          <select
+            value={selectedRegion}
+            onChange={(event) => setSelectedRegion(event.target.value)}
+            className="border-line-weaker bg-surface-muted-100 text-text-strong focus:border-brand-default h-11 w-full rounded-md border px-3 text-sm outline-none"
+          >
+            {regionOptions.map((regionOption) => (
+              <option key={regionOption} value={regionOption}>
+                {regionOption === "all" ? "All Regions" : regionOption}
+              </option>
+            ))}
+          </select>
+        </label>
 
-				<div className="space-y-3 lg:col-span-2 xl:col-span-1">
-					<h2 className="text-xl font-medium text-text-strong sm:text-2xl">Time</h2>
-					<label className="space-y-1.5">
-						<span className="text-[10px] font-semibold tracking-[0.08em] text-text-weaker uppercase">
-							Window
-						</span>
-						<select
-							value={selectedTime}
-							onChange={(event) => setSelectedTime(event.target.value as TimeOptionValue)}
-							className="h-11 w-full rounded-md border border-line-weaker bg-surface-muted-100 px-3 text-sm text-text-strong outline-none focus:border-brand-default"
-						>
-							{timeOptions.map((timeOption) => (
-								<option key={timeOption.value} value={timeOption.value}>
-									{timeOption.label}
-								</option>
-							))}
-						</select>
-					</label>
-				</div>
-			</div>
+        <label className="space-y-1.5">
+          <span className="text-text-weaker text-[10px] font-semibold tracking-[0.08em] uppercase">
+            From
+          </span>
+          <input
+            type="date"
+            value={selectedFromDate}
+            onChange={(event) => setSelectedFromDate(event.target.value)}
+            className="border-line-weaker bg-surface-muted-100 text-text-strong focus:border-brand-default h-11 w-full rounded-md border px-3 text-sm outline-none"
+          />
+        </label>
 
-			<div className="relative mt-4 flex-1 min-h-75 w-full overflow-hidden rounded-md border border-line-weaker bg-fill-weak">
-				<SurfMapView
-					spots={filteredSpots}
-					activeSpotId={activeSpot?.id ?? null}
-					onActiveSpotChange={setActiveSpotId}
-				/>
+        <label className="space-y-1.5">
+          <span className="text-text-weaker text-[10px] font-semibold tracking-[0.08em] uppercase">
+            To
+          </span>
+          <input
+            type="date"
+            value={selectedToDate}
+            min={selectedFromDate}
+            onChange={(event) => setSelectedToDate(event.target.value)}
+            className="border-line-weaker bg-surface-muted-100 text-text-strong focus:border-brand-default h-11 w-full rounded-md border px-3 text-sm outline-none"
+          />
+        </label>
+      </div>
 
-				{!activeSpot ? (
-					<div className="pointer-events-none absolute inset-0 z-600 flex items-center justify-center">
-						<p className="rounded-md bg-surface-muted-100/95 px-4 py-2 text-sm font-medium text-text-weak shadow-sm">
-							No map locations match the selected filters.
-						</p>
-					</div>
-				) : null}
-			</div>
-		</section>
-	);
+      <div className="border-line-weaker bg-fill-weak relative mt-4 min-h-75 w-full flex-1 overflow-hidden rounded-md border">
+        <SurfMapView
+          spots={filteredSpots}
+          activeSpotId={activeSpot?.id ?? null}
+          onActiveSpotChange={setActiveSpotId}
+        />
+
+        {!activeSpot ? (
+          <div className="pointer-events-none absolute inset-0 z-600 flex items-center justify-center">
+            <p className="bg-surface-muted-100/95 text-text-weak rounded-md px-4 py-2 text-sm font-medium shadow-sm">
+              No map locations match the selected filters.
+            </p>
+          </div>
+        ) : null}
+      </div>
+    </section>
+  );
 }
