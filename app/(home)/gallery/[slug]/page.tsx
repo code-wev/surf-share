@@ -219,19 +219,47 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
   const state = detailItem.location?.state;
   const spot = detailItem.location?.name;
 
-  // Filter out missing parts to join them with pipes
-  const breadcrumbParts = [state, region, spot].filter(Boolean);
-  const breadcrumbDisplay =
-    breadcrumbParts.length > 0 ? (
-      <button
-        onClick={handleBackToGallery}
-        className="cursor-pointer font-medium text-(--color-text-weak) hover:underline"
-      >
-        {breadcrumbParts.join(" | ")}
-      </button>
-    ) : (
-      <span className="font-medium">Location unavailable</span>
-    );
+  const navigateToFilteredGallery = (filterValue: string) => {
+    router.push(`/gallery?locationId=${encodeURIComponent(filterValue)}`, { scroll: false });
+  };
+
+  const breadcrumbDisplay = (
+    <div className="flex flex-wrap items-center gap-1">
+      {state && (
+        <>
+          <button
+            onClick={() => navigateToFilteredGallery(`state:${state}`)}
+            className="cursor-pointer font-medium text-(--color-text-weak) hover:underline"
+          >
+            {state}
+          </button>
+          {(region || spot) && <span className="text-(--color-text-weaker) mx-1">|</span>}
+        </>
+      )}
+      {region && (
+        <>
+          <button
+            onClick={() => navigateToFilteredGallery(`region:${region}`)}
+            className="cursor-pointer font-medium text-(--color-text-weak) hover:underline"
+          >
+            {region}
+          </button>
+          {spot && <span className="text-(--color-text-weaker) mx-1">|</span>}
+        </>
+      )}
+      {spot && (
+        <button
+          onClick={() => navigateToFilteredGallery(locationId)}
+          className="cursor-pointer font-medium text-(--color-text-weak) hover:underline"
+        >
+          {spot}
+        </button>
+      )}
+      {!state && !region && !spot && (
+        <span className="font-medium">Location unavailable</span>
+      )}
+    </div>
+  );
 
   // Map related photos for RelatedImagesSection
   const relatedImages = (relatedPhotosResponse?.data || [])
