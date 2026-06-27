@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useMapLocationsQuery } from "@/hooks/api/useLocations";
-import { Loader2 } from "lucide-react";
+import { Loader2, Filter, X } from "lucide-react";
 
 import {
   // timeOptions,
@@ -38,6 +38,7 @@ export default function MapScreen() {
   const [selectedToDate, setSelectedToDate] = useState("");
   // const [selectedTime, setSelectedTime] = useState<TimeOptionValue>("all");
   const [activeSpotId, setActiveSpotId] = useState<string | null>(null);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   const stateOptions = useMemo(() => {
     return ["all", ...Array.from(new Set(liveSurfSpots.map((spot) => spot.state)))];
@@ -90,73 +91,89 @@ export default function MapScreen() {
     );
   }
 
+  const renderFilters = () => (
+    <>
+      <label className="space-y-1.5">
+        <span className="text-text-weaker text-[10px] font-semibold tracking-[0.08em] uppercase">
+          State
+        </span>
+        <select
+          value={selectedState}
+          onChange={(event) => {
+            setSelectedState(event.target.value);
+            setSelectedRegion("all");
+          }}
+          className="border-line-weaker bg-surface-muted-100 text-text-strong focus:border-brand-default h-11 w-full rounded-md border px-3 text-sm outline-none"
+        >
+          {stateOptions.map((stateOption) => (
+            <option key={stateOption} value={stateOption}>
+              {stateOption === "all" ? "All States" : stateOption}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className="space-y-1.5">
+        <span className="text-text-weaker text-[10px] font-semibold tracking-[0.08em] uppercase">
+          Region
+        </span>
+        <select
+          value={selectedRegion}
+          onChange={(event) => setSelectedRegion(event.target.value)}
+          className="border-line-weaker bg-surface-muted-100 text-text-strong focus:border-brand-default h-11 w-full rounded-md border px-3 text-sm outline-none"
+        >
+          {regionOptions.map((regionOption) => (
+            <option key={regionOption} value={regionOption}>
+              {regionOption === "all" ? "All Regions" : regionOption}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className="space-y-1.5">
+        <span className="text-text-weaker text-[10px] font-semibold tracking-[0.08em] uppercase">
+          From
+        </span>
+        <input
+          type="date"
+          value={selectedFromDate}
+          onChange={(event) => setSelectedFromDate(event.target.value)}
+          className="border-line-weaker bg-surface-muted-100 text-text-strong focus:border-brand-default h-11 w-full rounded-md border px-3 text-sm outline-none"
+        />
+      </label>
+
+      <label className="space-y-1.5">
+        <span className="text-text-weaker text-[10px] font-semibold tracking-[0.08em] uppercase">
+          To
+        </span>
+        <input
+          type="date"
+          value={selectedToDate}
+          min={selectedFromDate}
+          onChange={(event) => setSelectedToDate(event.target.value)}
+          className="border-line-weaker bg-surface-muted-100 text-text-strong focus:border-brand-default h-11 w-full rounded-md border px-3 text-sm outline-none"
+        />
+      </label>
+    </>
+  );
+
   return (
     <section className="font-sf-pro mx-auto flex h-[calc(100vh-68px)] w-full max-w-470 flex-col px-4 py-4 sm:px-6 lg:px-10 xl:px-12.5">
-      <div className="grid shrink-0 grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-5">
-        <label className="space-y-1.5">
-          <span className="text-text-weaker text-[10px] font-semibold tracking-[0.08em] uppercase">
-            State
-          </span>
-          <select
-            value={selectedState}
-            onChange={(event) => {
-              setSelectedState(event.target.value);
-              setSelectedRegion("all");
-            }}
-            className="border-line-weaker bg-surface-muted-100 text-text-strong focus:border-brand-default h-11 w-full rounded-md border px-3 text-sm outline-none"
-          >
-            {stateOptions.map((stateOption) => (
-              <option key={stateOption} value={stateOption}>
-                {stateOption === "all" ? "All States" : stateOption}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="space-y-1.5">
-          <span className="text-text-weaker text-[10px] font-semibold tracking-[0.08em] uppercase">
-            Region
-          </span>
-          <select
-            value={selectedRegion}
-            onChange={(event) => setSelectedRegion(event.target.value)}
-            className="border-line-weaker bg-surface-muted-100 text-text-strong focus:border-brand-default h-11 w-full rounded-md border px-3 text-sm outline-none"
-          >
-            {regionOptions.map((regionOption) => (
-              <option key={regionOption} value={regionOption}>
-                {regionOption === "all" ? "All Regions" : regionOption}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="space-y-1.5">
-          <span className="text-text-weaker text-[10px] font-semibold tracking-[0.08em] uppercase">
-            From
-          </span>
-          <input
-            type="date"
-            value={selectedFromDate}
-            onChange={(event) => setSelectedFromDate(event.target.value)}
-            className="border-line-weaker bg-surface-muted-100 text-text-strong focus:border-brand-default h-11 w-full rounded-md border px-3 text-sm outline-none"
-          />
-        </label>
-
-        <label className="space-y-1.5">
-          <span className="text-text-weaker text-[10px] font-semibold tracking-[0.08em] uppercase">
-            To
-          </span>
-          <input
-            type="date"
-            value={selectedToDate}
-            min={selectedFromDate}
-            onChange={(event) => setSelectedToDate(event.target.value)}
-            className="border-line-weaker bg-surface-muted-100 text-text-strong focus:border-brand-default h-11 w-full rounded-md border px-3 text-sm outline-none"
-          />
-        </label>
-      </div>
+      {/* Desktop filters row */}
+      <div className="hidden shrink-0 lg:grid lg:grid-cols-4 lg:gap-5">{renderFilters()}</div>
 
       <div className="border-line-weaker bg-fill-weak relative mt-4 min-h-75 w-full flex-1 overflow-hidden rounded-md border">
+        {/* Mobile floating filters button */}
+        <div className="absolute top-4 right-4 z-1000 lg:hidden">
+          <button
+            onClick={() => setIsMobileFiltersOpen(true)}
+            className="bg-brand-default hover:bg-brand-hover inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-colors"
+          >
+            <Filter size={16} />
+            Filters
+          </button>
+        </div>
+
         <SurfMapView
           spots={filteredSpots}
           activeSpotId={activeSpot?.id ?? null}
@@ -171,6 +188,38 @@ export default function MapScreen() {
           </div>
         ) : null}
       </div>
+
+      {/* Mobile Filters Bottom Sheet */}
+      {isMobileFiltersOpen && (
+        <div
+          className="fixed inset-0 z-1010 flex items-end justify-center bg-black/45 lg:hidden"
+          onClick={() => setIsMobileFiltersOpen(false)}
+        >
+          <div
+            className="bg-surface-muted-100 w-full translate-y-0 rounded-t-2xl p-5 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] transition-transform duration-300 sm:p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-5 flex items-center justify-between">
+              <h2 className="text-text-strong text-xl font-semibold">Filters</h2>
+              <button
+                onClick={() => setIsMobileFiltersOpen(false)}
+                className="bg-line-weaker/50 text-text-strong hover:bg-line-weaker rounded-full p-2 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{renderFilters()}</div>
+
+            <button
+              onClick={() => setIsMobileFiltersOpen(false)}
+              className="bg-brand-default hover:bg-brand-hover mt-8 w-full rounded-xl py-3.5 text-base font-semibold text-white shadow-sm transition-colors"
+            >
+              Show {filteredSpots.length} Results
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

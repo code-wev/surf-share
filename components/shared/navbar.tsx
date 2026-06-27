@@ -35,9 +35,7 @@ export default function Navbar() {
     ? getAbsoluteImageUrl(fullProfile.data.profileImageUrl)
     : null;
 
-  const userInitial = (fullProfile?.data?.name || session?.email || "U")
-    .charAt(0)
-    .toUpperCase();
+  const userInitial = (fullProfile?.data?.name || session?.email || "U").charAt(0).toUpperCase();
 
   const { items } = useCartStore();
   const cartItemCount = items.length;
@@ -82,7 +80,7 @@ export default function Navbar() {
 
   return (
     <header
-      className={`font-sf-pro relative z-30 bg-(--color-surface-muted-100) ${
+      className={`font-sf-pro relative z-2000 bg-(--color-surface-muted-100) ${
         isDashboardRoute ? "" : "border-b border-(--color-line-weak)"
       }`}
     >
