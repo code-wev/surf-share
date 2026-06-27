@@ -7,7 +7,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock3,
-  ExternalLink,
+  // ExternalLink,
   Heart,
   MapPin,
   ShoppingCart,
@@ -485,9 +485,9 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
                 draggable={false}
                 onContextMenu={(event) => event.preventDefault()}
               />
-              <div className="absolute top-2 right-2 z-30 inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-(--color-text-brand-strong) sm:h-8 sm:w-8">
+              {/* <div className="absolute top-2 right-2 z-30 inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-(--color-text-brand-strong) sm:h-8 sm:w-8">
                 <ExternalLink className="h-4 w-4" />
-              </div>
+              </div> */}
             </Link>
           )}
         </div>
