@@ -99,7 +99,10 @@ export default function ImageUploadContentPage() {
   const { data: locationsData } = useLocationsQuery({ page: 1, limit: 1000 });
   const uploadMutation = useUploadPhotosMutation();
 
-  const locations = locationsData?.data || [];
+  const rawLocations = locationsData?.data || [];
+  const locations = [...rawLocations].sort((a: { name: string }, b: { name: string }) => 
+    a.name.localeCompare(b.name)
+  );
 
   const [pendingPhotos, setPendingPhotos] = useState<PhotoItem[]>([]); // Upper top strip photos for bulk apply
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
