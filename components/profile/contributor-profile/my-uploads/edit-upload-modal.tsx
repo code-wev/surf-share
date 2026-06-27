@@ -32,7 +32,8 @@ export default function EditUploadModal({ upload, onClose }: EditUploadModalProp
   const [capturedAt, setCapturedAt] = useState("");
 
   const { data: locationsData } = useLocationsQuery({ page: 1, limit: 100 });
-  const locations = (locationsData?.data as Location[]) || [];
+  const rawLocations = (locationsData?.data as Location[]) || [];
+  const locations = [...rawLocations].sort((a, b) => a.name.localeCompare(b.name));
 
   const updateMutation = useUpdatePhotoMutation();
 
