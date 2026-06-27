@@ -3,7 +3,9 @@
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useMapLocationsQuery } from "@/hooks/api/useLocations";
-import { Loader2, Filter, X } from "lucide-react";
+import { Loader2, Filter, X, MapPin } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 import {
   // timeOptions,
@@ -179,6 +181,39 @@ export default function MapScreen() {
           activeSpotId={activeSpot?.id ?? null}
           onActiveSpotChange={setActiveSpotId}
         />
+
+        {/* Mobile Spot Details Bottom Bar */}
+        {activeSpot && (
+          <div className="bg-surface-muted-100 border-line-weaker animate-in slide-in-from-bottom-4 absolute right-4 bottom-4 left-4 z-900 flex overflow-hidden rounded-xl border shadow-[0_10px_30px_rgba(0,0,0,0.2)] sm:hidden">
+            <div className="relative min-h-25 w-1/3">
+              <Image
+                src={activeSpot.imageSrc}
+                alt={activeSpot.name}
+                fill
+                className="object-cover"
+              />
+            </div>
+            <div className="flex w-2/3 flex-col justify-center p-3">
+              <h3 className="text-text-strong line-clamp-1 text-sm leading-tight font-semibold">
+                {activeSpot.name}
+              </h3>
+              <p className="text-text-weak mt-1 flex items-center gap-1 text-[11px]">
+                <MapPin size={10} /> {activeSpot.state}, {activeSpot.country}
+              </p>
+              <div className="mt-3 flex items-center justify-between">
+                <p className="text-text-weak text-[10px] font-medium">
+                  {activeSpot.photoCount} Photos
+                </p>
+                <Link
+                  href={`/gallery?locationId=${activeSpot.id}`}
+                  className="bg-brand-default hover:bg-brand-hover rounded-md px-3 py-1.5 text-[11px] font-semibold text-white! transition-colors"
+                >
+                  View Gallery
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
 
         {!activeSpot ? (
           <div className="pointer-events-none absolute inset-0 z-600 flex items-center justify-center">
