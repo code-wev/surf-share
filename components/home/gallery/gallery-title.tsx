@@ -82,7 +82,7 @@ export default function GalleryTitle({
       const response = await apiClient.get("/locations/hierarchy");
       return response.data;
     },
-    enabled: showFilterPanel && activeSubmenu === "location",
+    enabled: showFilterPanel,
   });
 
   const hierarchyData = hierarchyResponse?.data;
