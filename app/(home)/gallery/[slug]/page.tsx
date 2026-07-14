@@ -51,6 +51,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
 
   // Sync state with URL changes (e.g., browser back/forward)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentPhotoId(slug);
   }, [slug]);
 

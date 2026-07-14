@@ -388,7 +388,7 @@ export default function GalleryTitle({
                                     All of {state}
                                   </button>
 
-                                  {Object.entries(regions as Record<string, any[]>).map(
+                                  {Object.entries(regions as Record<string, { id: string; name: string }[]>).map(
                                     ([region, spots]) => (
                                       <div key={region} className="mt-1">
                                         <button

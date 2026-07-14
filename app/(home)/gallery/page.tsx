@@ -9,7 +9,7 @@ import GalleryPagination from "@/components/home/gallery/gallery-pagination";
 import GalleryTitle from "@/components/home/gallery/gallery-title";
 import { usePublicPhotosQuery } from "@/hooks/api/usePhotos";
 import { Loader2 } from "lucide-react";
-import { getAbsoluteImageUrl, formatFileSize } from "@/lib/utils";
+import { getAbsoluteImageUrl } from "@/lib/utils";
 import { queryKeys } from "@/lib/api/query-keys";
 import { photoService } from "@/lib/api/services/photo.service";
 

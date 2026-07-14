@@ -21,6 +21,7 @@ export default function Avatar({
   const [currentSrc, setCurrentSrc] = useState<string>(src || fallback);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentSrc(src || fallback);
   }, [src, fallback]);
 

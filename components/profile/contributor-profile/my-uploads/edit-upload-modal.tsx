@@ -39,6 +39,7 @@ export default function EditUploadModal({ upload, onClose }: EditUploadModalProp
 
   useEffect(() => {
     if (upload) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTitle(upload.name !== "Photo" ? upload.name : "");
       setPrice(upload.priceValue.toString());
       setLocationId(upload.locationId);

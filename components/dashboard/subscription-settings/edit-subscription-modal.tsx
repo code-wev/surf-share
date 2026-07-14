@@ -25,10 +25,10 @@ export default function EditSubscriptionModal({ config, onClose }: EditSubscript
 
   const updateMutation = useUpdateSubscriptionMutation();
 
-  // Auto-calculate platform split to always equal 100
   useEffect(() => {
     const photo = parseInt(photographerSplit, 10);
     if (!isNaN(photo)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPlatformSplit(Math.max(0, 100 - photo).toString());
     }
   }, [photographerSplit]);

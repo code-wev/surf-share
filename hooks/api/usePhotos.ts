@@ -64,7 +64,7 @@ export const useUpdatePhotoMutation = () => {
       payload,
     }: {
       id: string;
-      payload: Partial<{ title: string; price: number; locationId: string; capturedAt: string }>;
+      payload: Partial<{ title: string; price: number; locationId: string; capturedAt: string; timeKey: string }>;
     }) => photoService.update(id, payload),
     onSuccess: (_, variables) => {
       toast.success("Photo updated successfully.");

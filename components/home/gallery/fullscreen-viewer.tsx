@@ -45,6 +45,7 @@ export default function FullscreenImageViewer({
       window.removeEventListener("keydown", handleEsc);
       document.body.style.overflow = "auto";
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onClose, prevPhoto, nextPhoto]);
 
   // Default dimensions

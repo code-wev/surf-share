@@ -40,7 +40,7 @@ export default function ModeratorListTable<T extends ModeratorListTableRow>({
     processing: "bg-blue-50 text-blue-500",
   };
 
-  const statusIconMap: Record<UploadStatus, any> = {
+  const statusIconMap: Record<UploadStatus, React.ElementType> = {
     approved: Check,
     rejected: X,
     pending: Clock3,

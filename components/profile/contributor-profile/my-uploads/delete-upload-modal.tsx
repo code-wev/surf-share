@@ -31,7 +31,7 @@ export default function DeleteUploadModal({ upload, onClose }: DeleteUploadModal
 
   const isAlreadyPurchasedError =
     deleteMutation.error &&
-    (deleteMutation.error as any).response?.data?.message === "PHOTO_ALREADY_PURCHASED";
+    (deleteMutation.error as { response?: { data?: { message?: string } } }).response?.data?.message === "PHOTO_ALREADY_PURCHASED";
 
   return (
     <div
