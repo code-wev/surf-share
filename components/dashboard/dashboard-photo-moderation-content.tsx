@@ -82,7 +82,7 @@ export default function DashboardPhotoModerationContent() {
       const size = formatFileSize(photo.fileSize);
 
       const takenDate = new Date(photo.capturedAt || photo.createdAt);
-      const perfectDate = `${takenDate.toLocaleDateString()} at ${takenDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+      const perfectDate = `${takenDate.toLocaleDateString("en-US", { timeZone: "UTC" })} at ${takenDate.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" })}`;
 
       return {
         id: photo.id,
@@ -100,7 +100,7 @@ export default function DashboardPhotoModerationContent() {
         resolution,
         format,
         size,
-        submittedAt: new Date(photo.createdAt).toLocaleDateString(),
+        submittedAt: new Date(photo.createdAt).toLocaleDateString("en-US", { timeZone: "UTC" }),
         status: photo.status,
       };
     });

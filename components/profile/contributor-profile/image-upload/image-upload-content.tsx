@@ -38,7 +38,7 @@ function combineDateAndTime(dateValue: string, timeValue: string): Date | null {
   return Number.isNaN(dateTime.getTime()) ? null : dateTime;
 }
 
-function formatDateTimeWithOffset(date: Date): string {
+function formatDateTimeAsUTC(date: Date): string {
   const pad = (value: number) => String(value).padStart(2, "0");
   const year = date.getFullYear();
   const month = pad(date.getMonth() + 1);
@@ -46,12 +46,8 @@ function formatDateTimeWithOffset(date: Date): string {
   const hours = pad(date.getHours());
   const minutes = pad(date.getMinutes());
   const seconds = pad(date.getSeconds());
-  const offsetMinutes = -date.getTimezoneOffset();
-  const offsetSign = offsetMinutes >= 0 ? "+" : "-";
-  const offsetHours = pad(Math.floor(Math.abs(offsetMinutes) / 60));
-  const offsetRemainder = pad(Math.abs(offsetMinutes) % 60);
 
-  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${offsetSign}${offsetHours}:${offsetRemainder}`;
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.000Z`;
 }
 
 async function getCaptureDate(file: File): Promise<Date> {
@@ -220,7 +216,7 @@ export default function ImageUploadContentPage() {
       body.append("photos", file);
       body.append("locations", locationId);
       body.append("prices", price);
-      body.append("capturedAts", formatDateTimeWithOffset(capturedAt));
+      body.append("capturedAts", formatDateTimeAsUTC(capturedAt));
       body.append("titles", title.trim());
     });
 

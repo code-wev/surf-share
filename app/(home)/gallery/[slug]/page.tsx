@@ -200,11 +200,14 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
     month: "long",
     day: "numeric",
     year: "numeric",
+    timeZone: "UTC",
   });
+  
   const formattedTime = takenDate.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
+    timeZone: "UTC",
   });
 
   const locationName = detailItem.location?.name || "Unknown Location";

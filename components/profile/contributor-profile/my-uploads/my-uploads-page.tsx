@@ -27,8 +27,9 @@ type Location = {
 function formatApiDate(dateValue: string) {
   return new Date(dateValue).toLocaleDateString("en-US", {
     month: "short",
-    day: "2-digit",
+    day: "numeric",
     year: "numeric",
+    timeZone: "UTC",
   });
 }
 
@@ -37,6 +38,7 @@ function formatApiTime(dateValue: string) {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
+    timeZone: "UTC",
   });
 }
 

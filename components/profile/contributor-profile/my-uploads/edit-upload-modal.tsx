@@ -46,11 +46,11 @@ export default function EditUploadModal({ upload, onClose }: EditUploadModalProp
       // Format date for datetime-local input (YYYY-MM-DDTHH:mm)
       if (upload.uploadedAt) {
         const date = new Date(upload.uploadedAt);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const day = String(date.getDate()).padStart(2, "0");
-        const hours = String(date.getHours()).padStart(2, "0");
-        const minutes = String(date.getMinutes()).padStart(2, "0");
+        const year = date.getUTCFullYear();
+        const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+        const day = String(date.getUTCDate()).padStart(2, "0");
+        const hours = String(date.getUTCHours()).padStart(2, "0");
+        const minutes = String(date.getUTCMinutes()).padStart(2, "0");
         const formattedDate = `${year}-${month}-${day}T${hours}:${minutes}`;
         setCapturedAt(formattedDate);
       }
@@ -77,6 +77,16 @@ export default function EditUploadModal({ upload, onClose }: EditUploadModalProp
       return;
     }
 
+    // capturedAt from input is like "YYYY-MM-DDTHH:mm"
+    const h = parseInt(capturedAt.split("T")[1].split(":")[0], 10);
+    let timeKey = "23_5";
+    if (h >= 4 && h < 8) timeKey = "5_8";
+    else if (h >= 8 && h < 11) timeKey = "8_11";
+    else if (h >= 11 && h < 14) timeKey = "11_14";
+    else if (h >= 14 && h < 19) timeKey = "14_17";
+
+    const utcCapturedAt = `${capturedAt}:00.000Z`;
+
     updateMutation.mutate(
       {
         id: upload.id,
@@ -84,7 +94,8 @@ export default function EditUploadModal({ upload, onClose }: EditUploadModalProp
           title: title.trim(),
           price: Number(price),
           locationId,
-          capturedAt: new Date(capturedAt).toISOString(),
+          capturedAt: utcCapturedAt,
+          timeKey,
         },
       },
       {

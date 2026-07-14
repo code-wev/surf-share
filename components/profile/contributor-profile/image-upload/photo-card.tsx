@@ -42,9 +42,7 @@ function formatDate(date: Date): string {
     month: "short",
     day: "numeric",
     year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
+    timeZone: "UTC"
   });
 }
 
@@ -114,6 +112,7 @@ export default function PhotoCard({ photo, locations, onRemove, onChange }: Phot
               hour: "numeric",
               minute: "2-digit",
               hour12: true,
+              timeZone: "UTC",
             })}
           </span>
           <span className="flex items-center gap-1">
