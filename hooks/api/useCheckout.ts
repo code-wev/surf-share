@@ -2,46 +2,32 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { checkoutService } from "../../lib/api/services/checkout.service";
 import { getErrorMessage } from "../../lib/utils/error-handler";
-import { useCartStore } from "@/store/cart.store";
 
 type CheckoutQueryOptions = {
   enabled?: boolean;
 };
 
-export const useCreateCheckoutSessionMutation = () => {
-  const { removeItems } = useCartStore();
-
+export const useCreatePayPalOrderMutation = () => {
   return useMutation({
     mutationFn: checkoutService.createSession,
-    onSuccess: (data, variables) => {
-      // Clear the items from cart as they are now in a pending order
-      if (variables && Array.isArray(variables)) {
-        removeItems(variables);
-      }
-
-      // The backend returns the Stripe Checkout URL. We redirect the user to it securely.
-      if (data.data?.url) {
-        window.location.href = data.data.url;
-      }
-    },
     onError: (error: unknown) => {
       const errorMessage = getErrorMessage(error, "Failed to initiate secure checkout.");
+      toast.error(errorMessage);
+    },
+  });
+};
 
-      // Auto-heal the cart if the backend rejects duplicate purchases
-      // The backend sends a JSON string inside the message containing "purchasedIds"
-      try {
-        const parsedError = JSON.parse(errorMessage);
-        if (parsedError.purchasedIds && Array.isArray(parsedError.purchasedIds)) {
-          removeItems(parsedError.purchasedIds);
-          toast.error(
-            parsedError.message || "Some items were removed because you already own them.",
-          );
-          return;
-        }
-      } catch (e) {
-        console.log("Error parsing checkout error message:", e);
-      }
-
+export const useCapturePayPalOrderMutation = () => {
+  return useMutation({
+    mutationFn: checkoutService.captureOrder,
+    onSuccess: (data, orderId) => {
+      // Clear the items from cart (they are now purchased)
+      // Since we don't have the photoIds in this mutation variables, we might need to rely on the cart clearing them, or we can just clear the whole cart for now, or just the selected ones if passed.
+      // Actually, if we successfully purchase, we can just redirect to /checkout/success and clear the whole cart for now.
+      window.location.href = "/checkout/success";
+    },
+    onError: (error: unknown) => {
+      const errorMessage = getErrorMessage(error, "Failed to capture payment.");
       toast.error(errorMessage);
     },
   });

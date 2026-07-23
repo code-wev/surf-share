@@ -1,23 +1,27 @@
 "use client";
 
+import { Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Trash2 } from "lucide-react";
-import { useMemo, useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import CartOrderSummary from "@/components/cart/cart-order-summary";
 import { formatPrice, type CartLineItem } from "@/components/cart/cart-model";
+import CartOrderSummary from "@/components/cart/cart-order-summary";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
-import { PageTitle } from "../shared/page-title";
-import { useCartStore } from "@/store/cart.store";
-import { useCreateCheckoutSessionMutation } from "@/hooks/api/useCheckout";
+import {
+  useCapturePayPalOrderMutation,
+  useCreatePayPalOrderMutation,
+} from "@/hooks/api/useCheckout";
 import { getAbsoluteImageUrl } from "@/lib/utils";
+import { useCartStore } from "@/store/cart.store";
+import { PageTitle } from "../shared/page-title";
 
 export default function CartContent() {
   const { items, removeItems } = useCartStore();
   const [mounted, setMounted] = useState(false);
-  const createSessionMutation = useCreateCheckoutSessionMutation();
+  const createOrderMutation = useCreatePayPalOrderMutation();
+  const captureOrderMutation = useCapturePayPalOrderMutation();
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
@@ -64,14 +68,17 @@ export default function CartContent() {
     setSelectedIds([]);
   };
 
-  const handleProceed = () => {
-    if (selectedCartItems.length === 0 || createSessionMutation.isPending) {
-      return;
+  const handleCreatePayPalOrder = async () => {
+    if (selectedCartItems.length === 0) {
+      throw new Error("No items selected");
     }
-
-    // Direct Stripe integration! Pass selected IDs directly to backend
     const photoIds = selectedCartItems.map((item) => String(item.id));
-    createSessionMutation.mutate(photoIds);
+    const result = await createOrderMutation.mutateAsync(photoIds);
+    return result.data.orderId;
+  };
+
+  const handleApprovePayPalOrder = async (data: any) => {
+    await captureOrderMutation.mutateAsync(data.orderID);
   };
 
   if (!mounted) return null;
@@ -174,8 +181,13 @@ export default function CartContent() {
           <CartOrderSummary
             mode="checkout"
             items={mappedSelectedCartItems}
-            proceedDisabled={mappedSelectedCartItems.length === 0 || createSessionMutation.isPending}
-            onProceed={handleProceed}
+            proceedDisabled={
+              mappedSelectedCartItems.length === 0 ||
+              createOrderMutation.isPending ||
+              captureOrderMutation.isPending
+            }
+            createOrder={handleCreatePayPalOrder}
+            onApprove={handleApprovePayPalOrder}
           />
         </div>
       </Container>

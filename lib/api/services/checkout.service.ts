@@ -11,10 +11,8 @@ export const checkoutService = {
     return response.data;
   },
 
-  verifySession: async (sessionId: string) => {
-    const response = await apiClient.get("/checkout/verify-session", {
-      params: { sessionId },
-    });
+  captureOrder: async (orderId: string) => {
+    const response = await apiClient.post("/checkout/capture-order", { orderId });
     return response.data;
   },
 

@@ -1,15 +1,18 @@
 import Image from "next/image";
 
-import { Button } from "@/components/ui/button";
-
 import { formatPrice, type CartLineItem } from "@/components/cart/cart-model";
+import { Button } from "@/components/ui/button";
+import { PayPalButtons } from "@paypal/react-paypal-js";
 import { ShieldCheck } from "lucide-react";
+import { toast } from "sonner";
 
 type CartOrderSummaryProps = {
   mode: "cart" | "checkout";
   items: CartLineItem[];
-  onProceed: () => void | Promise<void>;
+  onProceed?: () => void | Promise<void>;
   proceedDisabled?: boolean;
+  createOrder?: () => Promise<string>;
+  onApprove?: (data: any) => Promise<void>;
 };
 
 export default function CartOrderSummary({
@@ -17,9 +20,11 @@ export default function CartOrderSummary({
   items,
   onProceed,
   proceedDisabled = false,
+  createOrder,
+  onApprove,
 }: CartOrderSummaryProps) {
   const subtotal = items.reduce((total, item) => total + item.price, 0);
-  const total = subtotal; // Removed 10% tax calculation
+  const total = subtotal;
 
   return (
     <aside className="h-fit rounded-sm bg-(--color-fill-brand-strong) p-4 text-(--color-text-inverse-strong) sm:p-5 xl:sticky xl:top-24">
@@ -61,7 +66,6 @@ export default function CartOrderSummary({
           <span className="text-base">Subtotal</span>
           <span className="text-sm">{formatPrice(subtotal)}</span>
         </div>
-        {/* Removed tax display row */}
       </div>
 
       <div className="mt-3.5 flex items-end justify-between">
@@ -71,13 +75,40 @@ export default function CartOrderSummary({
         </p>
       </div>
 
-      <Button
-        className="my-16 h-10 w-full cursor-pointer bg-(--color-fill-inverse-strong) text-(--color-fill-brand-strong) hover:opacity-95"
-        disabled={proceedDisabled}
-        onClick={onProceed}
-      >
-        Proceed To Checkout ({items.length})
-      </Button>
+      {mode === "checkout" && createOrder && onApprove ? (
+        <div className="mt-16 w-full">
+          {!proceedDisabled ? (
+            <PayPalButtons
+              createOrder={async () => {
+                const orderId = await createOrder();
+                if (!orderId) {
+                  throw new Error("Failed to create PayPal Order.");
+                }
+                return orderId;
+              }}
+              onApprove={async (data) => {
+                await onApprove(data);
+              }}
+              onError={() => {
+                toast.error("PayPal checkout failed. Please try again.");
+              }}
+              style={{ layout: "vertical", color: "blue", shape: "rect", label: "checkout" }}
+            />
+          ) : (
+            <div className="rounded-sm bg-white/10 p-4 text-center text-sm text-white/80">
+              Please select items to proceed with PayPal.
+            </div>
+          )}
+        </div>
+      ) : (
+        <Button
+          className="my-16 h-10 w-full cursor-pointer bg-(--color-fill-inverse-strong) text-(--color-fill-brand-strong) hover:opacity-95"
+          disabled={proceedDisabled}
+          onClick={onProceed}
+        >
+          Proceed To Checkout ({items.length})
+        </Button>
+      )}
 
       {mode === "checkout" ? (
         <div className="mt-5 text-center">
@@ -89,7 +120,7 @@ export default function CartOrderSummary({
             </div>
           </div>
           <div className="mx-auto mt-3 w-fit rounded-sm bg-white px-2 py-1 text-[11px] font-semibold text-[#003087]">
-            Stripe
+            PayPal
           </div>
         </div>
       ) : null}
