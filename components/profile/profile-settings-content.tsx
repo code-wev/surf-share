@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Pencil, ChevronDown, Plus, Camera, Loader2 } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import React from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -14,8 +14,6 @@ import { useAuth } from "@/lib/auth";
 import { getUserById, updateUserById, uploadProfileImage } from "@/src/actions/user.action";
 import { changePassword } from "@/src/actions/auth.action";
 import { getAbsoluteImageUrl } from "@/lib/utils";
-
-import { apiClient } from "@/lib/api/client";
 
 type SocialAccountType = "facebook" | "instagram" | "twitter" | "x";
 
@@ -34,8 +32,8 @@ type ProfileApiUser = {
   address?: string | null;
   promotionEmail?: boolean;
   socialAccounts?: { platform: string; url: string }[];
-  stripeAccountId?: string | null;
-  stripeOnboardingComplete?: boolean | null;
+  paypalEmail?: string | null;
+  paypalConnected?: boolean | null;
   manualBankDetails?: string | null;
 };
 
@@ -65,10 +63,10 @@ export default function ProfileSettingsContent() {
     email: string;
     address: string;
     manualBankDetails: string;
+    paypalEmail: string;
   } | null>(null);
 
   const [isPromotionLoading, setIsPromotionLoading] = useState(false);
-  const [isStripeLoading, setIsStripeLoading] = useState(false);
 
   // Password change form state
   const [passwordFormValues, setPasswordFormValues] = useState({
@@ -102,7 +100,7 @@ export default function ProfileSettingsContent() {
   };
 
   // Fetch user from API
-  const { data, refetch } = useQuery({
+  const { data } = useQuery({
     queryKey: ["profile", session?.id],
     queryFn: async () => {
       if (!session?.id) throw new Error("Missing session user id.");
@@ -110,19 +108,6 @@ export default function ProfileSettingsContent() {
     },
     enabled: Boolean(session?.id),
   });
-
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get("stripe_return") || urlParams.get("stripe_refresh")) {
-      apiClient.get("/stripe/connect/status").then(() => {
-        refetch();
-        if (urlParams.get("stripe_return")) {
-          toast.success("Stripe account connection process completed!");
-        }
-        window.history.replaceState({}, "", window.location.pathname);
-      }).catch((err) => console.error("Failed to check stripe status", err));
-    }
-  }, [refetch]);
 
   const apiProfile = data?.data as ProfileApiUser | undefined;
 
@@ -169,37 +154,6 @@ export default function ProfileSettingsContent() {
     }
   };
 
-  const handleConnectStripe = async () => {
-    setIsStripeLoading(true);
-    try {
-      const response = await apiClient.post("/stripe/connect");
-      if (response.data?.data?.url) {
-        window.location.href = response.data.data.url;
-      } else {
-        toast.error("Failed to generate secure onboarding link.");
-      }
-    } catch (error) {
-      console.error("Error connecting Stripe:", error);
-      toast.error("Unable to connect to Stripe right now. Please try again later.");
-    } finally {
-      setIsStripeLoading(false);
-    }
-  };
-
-  const handleViewDashboard = async () => {
-    try {
-      const response = await apiClient.get("/stripe/dashboard");
-      if (response.data?.data?.url) {
-        window.open(response.data.data.url, "_blank", "noopener,noreferrer");
-      } else {
-        toast.error("Failed to load Stripe dashboard.");
-      }
-    } catch (error) {
-      console.error("Error loading Stripe dashboard:", error);
-      toast.error("Unable to connect to Stripe right now. Please try again later.");
-    }
-  };
-
   const displayProfile = {
     fullName: apiProfile?.name ?? session?.name ?? "",
     avatarSrc: apiProfile?.profileImageUrl
@@ -211,6 +165,7 @@ export default function ProfileSettingsContent() {
     address: apiProfile?.address ?? "",
     promotionEmail: apiProfile?.promotionEmail ?? false,
     manualBankDetails: apiProfile?.manualBankDetails ?? "",
+    paypalEmail: apiProfile?.paypalEmail ?? "",
   };
 
   const incoming = apiProfile?.socialAccounts || [];
@@ -281,6 +236,7 @@ export default function ProfileSettingsContent() {
                   email: displayProfile.email,
                   address: displayProfile.address,
                   manualBankDetails: displayProfile.manualBankDetails,
+                  paypalEmail: displayProfile.paypalEmail,
                 });
                 setSocialLinks(parsedIncomingLinks);
                 setIsEditingProfile(true);
@@ -342,6 +298,8 @@ export default function ProfileSettingsContent() {
                       phoneNumber: editValues.phone?.trim() || undefined,
                       address: editValues.address?.trim() || undefined,
                       manualBankDetails: editValues.manualBankDetails?.trim() || undefined,
+                      paypalEmail: editValues.paypalEmail?.trim() || undefined,
+                      paypalConnected: !!editValues.paypalEmail?.trim(),
                     };
 
                     // Remove undefined values
@@ -539,56 +497,61 @@ export default function ProfileSettingsContent() {
           )}
 
           {isContributor && (
-            <div className="md:col-span-2 pt-6 mt-4 border-t border-line-weaker">
+            <div className="border-line-weaker mt-4 border-t pt-6 md:col-span-2">
               <span className="text-text-strong mb-2 block text-base font-medium">
                 Payouts & Earnings
               </span>
-              <p className="text-text-weak text-sm mb-4">
-                Connect your bank account securely via Stripe to receive automated payouts whenever your photos are purchased.
-              </p>
-
-              {apiProfile?.stripeOnboardingComplete ? (
-                <div className="flex flex-wrap items-center gap-4">
-                  <div className="flex items-center gap-2 rounded-md bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700 font-medium">
-                    <div className="h-2 w-2 rounded-full bg-green-500" />
-                    Stripe Connected: Automated Payouts Active
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleViewDashboard}
-                    className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 inline-flex h-10 items-center justify-center rounded-sm px-6 text-sm font-medium transition-colors cursor-pointer shadow-sm"
-                  >
-                    View Stripe Dashboard
-                  </button>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleConnectStripe}
-                  disabled={isStripeLoading}
-                  className="bg-brand-default text-text-inverse-strong hover:bg-brand-hover inline-flex h-10 items-center justify-center rounded-sm px-6 text-sm font-medium transition-colors disabled:opacity-60 cursor-pointer"
-                >
-                  {isStripeLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Connecting...
-                    </>
-                  ) : (
-                    "Connect Stripe Account"
-                  )}
-                </button>
-              )}
+              <div className="mt-4">
+                <span className="text-text-strong mb-2 block text-base font-medium">
+                  PayPal Account{" "}
+                  <span className="text-text-weaker text-sm font-normal">
+                    (For automated payouts)
+                  </span>
+                </span>
+                <p className="text-text-weak mb-4 text-sm">
+                  Enter the PayPal email address where you would like to receive your earnings
+                  automatically when someone buys your photos.
+                </p>
+                <input
+                  type="email"
+                  value={
+                    isEditingProfile && editValues
+                      ? editValues.paypalEmail
+                      : displayProfile.paypalEmail
+                  }
+                  onChange={(e) =>
+                    setEditValues((prev) =>
+                      prev ? { ...prev, paypalEmail: e.target.value } : prev,
+                    )
+                  }
+                  disabled={!isEditingProfile}
+                  placeholder="photographer@example.com"
+                  className="border-line-weaker bg-surface-muted-100 text-text-strong focus-visible:ring-brand-default/30 w-full max-w-md rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
 
               {/* Manual Bank Details Section */}
               <div className="mt-8">
                 <span className="text-text-strong mb-2 block text-base font-medium">
-                  Manual Bank Details <span className="text-text-weaker text-sm font-normal">(Optional)</span>
+                  Manual Bank Details{" "}
+                  <span className="text-text-weaker text-sm font-normal">(Optional)</span>
                 </span>
-                <p className="text-text-weak text-sm mb-4">
-                  If you prefer not to use Stripe, please provide your PayPal email or Bank PayID here. Admins will attempt to manually process payments to this account on an adhoc basis.
+                <p className="text-text-weak mb-4 text-sm">
+                  If you prefer not to use PayPal, please provide your local bank details here.
+                  Admins will attempt to manually process payments to this account on an adhoc
+                  basis.
                 </p>
                 <textarea
-                  value={isEditingProfile && editValues ? editValues.manualBankDetails : displayProfile.manualBankDetails}
-                  onChange={(e) => setEditValues(prev => prev ? { ...prev, manualBankDetails: e.target.value } : prev)}
+                  value={
+                    isEditingProfile && editValues
+                      ? editValues.manualBankDetails
+                      : displayProfile.manualBankDetails
+                  }
+                  onChange={(e) =>
+                    setEditValues((prev) =>
+                      prev ? { ...prev, manualBankDetails: e.target.value } : prev,
+                    )
+                  }
                   disabled={!isEditingProfile}
                   rows={4}
                   placeholder="Account Name: John Doe&#10;BSB: 123-456&#10;Account Number: 12345678"
@@ -695,7 +658,7 @@ export default function ProfileSettingsContent() {
               <button
                 type="submit"
                 disabled={passwordLoading}
-                className="bg-brand-default text-text-inverse-strong hover:bg-brand-hover inline-flex h-9 items-center rounded-sm px-6 text-sm font-medium transition-colors disabled:opacity-60 cursor-pointer"
+                className="bg-brand-default text-text-inverse-strong hover:bg-brand-hover inline-flex h-9 cursor-pointer items-center rounded-sm px-6 text-sm font-medium transition-colors disabled:opacity-60"
               >
                 {passwordLoading ? "Updating..." : "Update Password"}
               </button>
