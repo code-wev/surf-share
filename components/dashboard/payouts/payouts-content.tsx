@@ -120,7 +120,7 @@ export default function PayoutsContent() {
 
         <div className="mt-6">
           <p className="text-sm text-text-weak mb-8">
-            This ledger displays all photo sales belonging to photographers who have not connected a Stripe account. You must manually transfer funds to the bank accounts listed below, then select the items and mark them as Paid to clear the ledger.
+            This ledger displays all photo sales belonging to photographers who have not connected a PayPal account. You must manually transfer funds to the bank accounts listed below, then select the items and mark them as Paid to clear the ledger.
           </p>
 
           {isLoading ? (

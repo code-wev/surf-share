@@ -15,7 +15,7 @@ const contributorSteps = [
   },
   {
     title: "Earn Money",
-    description: "Receive a commission on every sale, paid directly to your Stripe account.",
+    description: "Receive a commission on every sale, paid directly to your PayPal account.",
     Icon: DollarSign,
   },
 ] as const;

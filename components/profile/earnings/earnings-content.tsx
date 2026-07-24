@@ -32,7 +32,7 @@ export default function EarningsContent() {
       case "AUTOMATED_SUCCESS":
         return (
           <span className="inline-flex items-center gap-1 rounded-sm bg-green-50 px-2 py-1 text-xs font-medium text-green-700">
-            <CheckCircle2 size={12} /> Paid via Stripe
+            <CheckCircle2 size={12} /> Paid via PayPal
           </span>
         );
       case "MANUAL_SUCCESS":
@@ -60,7 +60,7 @@ export default function EarningsContent() {
 
         <div className="mt-4 sm:mt-6 md:mt-8">
           <p className="text-sm text-text-weak mb-6">
-            Track the payout status of every photo you sell. If you connect your Stripe account in settings, future payouts will automatically process instantly.
+            Track the payout status of every photo you sell. If you connect your PayPal account in settings, future payouts will automatically process instantly.
           </p>
 
           {isLoading ? (
