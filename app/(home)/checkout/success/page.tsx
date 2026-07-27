@@ -46,11 +46,6 @@ export default function CheckoutSuccessPage() {
             </p>
           </div>
 
-          <p className="mt-8 text-base text-(--color-text-weak)">
-            You will receive a confirmation email shortly with your order details and
-            high-resolution photo links.
-          </p>
-
           <Button
             className="mt-10 h-12 w-full max-w-xs bg-(--color-fill-brand-strong) text-base text-(--color-text-inverse-strong) hover:opacity-95"
             onClick={handleContinueExploring}

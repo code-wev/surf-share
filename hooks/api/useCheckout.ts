@@ -24,7 +24,7 @@ export const useCapturePayPalOrderMutation = () => {
       // Clear the items from cart (they are now purchased)
       // Since we don't have the photoIds in this mutation variables, we might need to rely on the cart clearing them, or we can just clear the whole cart for now, or just the selected ones if passed.
       // Actually, if we successfully purchase, we can just redirect to /checkout/success and clear the whole cart for now.
-      window.location.href = "/checkout/success";
+      window.location.href = `/checkout/success?order_id=${orderId}`;
     },
     onError: (error: unknown) => {
       const errorMessage = getErrorMessage(error, "Failed to capture payment.");

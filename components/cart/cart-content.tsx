@@ -182,9 +182,7 @@ export default function CartContent() {
             mode="checkout"
             items={mappedSelectedCartItems}
             proceedDisabled={
-              mappedSelectedCartItems.length === 0 ||
-              createOrderMutation.isPending ||
-              captureOrderMutation.isPending
+              mappedSelectedCartItems.length === 0
             }
             createOrder={handleCreatePayPalOrder}
             onApprove={handleApprovePayPalOrder}

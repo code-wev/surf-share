@@ -77,7 +77,7 @@ export default function CartOrderSummary({
 
       {mode === "checkout" && createOrder && onApprove ? (
         <div className="mt-16 w-full">
-          {!proceedDisabled ? (
+          {items.length > 0 ? (
             <PayPalButtons
               createOrder={async () => {
                 const orderId = await createOrder();
