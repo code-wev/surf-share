@@ -78,22 +78,24 @@ export default function CartOrderSummary({
       {mode === "checkout" && createOrder && onApprove ? (
         <div className="mt-16 w-full">
           {items.length > 0 ? (
-            <PayPalButtons
-              createOrder={async () => {
-                const orderId = await createOrder();
-                if (!orderId) {
-                  throw new Error("Failed to create PayPal Order.");
-                }
-                return orderId;
-              }}
-              onApprove={async (data) => {
-                await onApprove(data);
-              }}
-              onError={() => {
-                toast.error("PayPal checkout failed. Please try again.");
-              }}
-              style={{ layout: "vertical", color: "blue", shape: "rect", label: "checkout" }}
-            />
+            <div className="rounded-md bg-white p-4 shadow-sm">
+              <PayPalButtons
+                createOrder={async () => {
+                  const orderId = await createOrder();
+                  if (!orderId) {
+                    throw new Error("Failed to create PayPal Order.");
+                  }
+                  return orderId;
+                }}
+                onApprove={async (data) => {
+                  await onApprove(data);
+                }}
+                onError={() => {
+                  toast.error("PayPal checkout failed. Please try again.");
+                }}
+                style={{ layout: "vertical", color: "blue", shape: "rect", label: "checkout" }}
+              />
+            </div>
           ) : (
             <div className="rounded-sm bg-white/10 p-4 text-center text-sm text-white/80">
               Please select items to proceed with PayPal.
