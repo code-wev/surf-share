@@ -143,7 +143,7 @@ export default function PayoutsContent() {
                       </div>
                       <div className="text-left sm:text-right">
                         <span className="block text-sm text-text-weak">Total Owed</span>
-                        <span className="text-2xl font-bold text-green-600">${group.totalOwed.toFixed(2)}</span>
+                        <span className="text-2xl font-bold text-green-600">A${group.totalOwed.toFixed(2)}</span>
                       </div>
                     </div>
                     
@@ -205,7 +205,7 @@ export default function PayoutsContent() {
                             {new Date(item.soldAt).toLocaleString()}
                           </td>
                           <td className="px-4 py-3 text-right font-semibold text-text-strong">
-                            ${item.earnedAmount.toFixed(2)}
+                            A${item.earnedAmount.toFixed(2)}
                           </td>
                         </tr>
                       ))}

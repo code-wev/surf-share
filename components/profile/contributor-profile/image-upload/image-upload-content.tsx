@@ -326,12 +326,12 @@ export default function ImageUploadContentPage() {
               <label className="mb-1.5 block text-sm font-medium text-gray-800">Price</label>
               <div className="relative">
                 <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-xs text-gray-400">
-                  $
+                  A$
                 </span>
                 <select
                   value={bulkPrice}
                   onChange={(e) => setBulkPrice(e.target.value)}
-                  className="w-full appearance-none rounded-md border border-gray-200 bg-white py-2.5 pr-8 pl-6 text-sm text-gray-700 focus:border-[#0a2463] focus:ring-1 focus:ring-[#0a2463] focus:outline-none"
+                  className="w-full appearance-none rounded-md border border-gray-200 bg-white py-2.5 pr-8 pl-8 text-sm text-gray-700 focus:border-[#0a2463] focus:ring-1 focus:ring-[#0a2463] focus:outline-none"
                 >
                   <option value="">Select price</option>
                   {PHOTO_PRICES.map((price) => (
@@ -456,12 +456,12 @@ export default function ImageUploadContentPage() {
                 <div className="flex gap-2">
                   <div className="relative flex-1">
                     <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-xs text-gray-400">
-                      $
+                      A$
                     </span>
                     <select
                       value={bulkPrice}
                       onChange={(e) => setBulkPrice(e.target.value)}
-                      className="w-full appearance-none rounded-md border border-gray-200 bg-white py-2.5 pr-8 pl-6 text-sm text-gray-700 focus:border-[#0a2463] focus:ring-1 focus:ring-[#0a2463] focus:outline-none"
+                      className="w-full appearance-none rounded-md border border-gray-200 bg-white py-2.5 pr-8 pl-8 text-sm text-gray-700 focus:border-[#0a2463] focus:ring-1 focus:ring-[#0a2463] focus:outline-none"
                     >
                       <option value="">Select price</option>
                       {PHOTO_PRICES.map((price) => (

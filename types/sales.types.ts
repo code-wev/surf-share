@@ -20,11 +20,11 @@ export type SalesItem = {
   name: string;
   location: string;
   uploadedAt: string;
-  priceUsd: number;
+  priceAud: number;
   status: UploadStatus;
-  commissionUsd: number;
+  commissionAud: number;
   totalDownloads: number;
-  earningsUsd: number;
+  earningsAud: number;
   resolution?: string;
   format?: string;
   size?: string;

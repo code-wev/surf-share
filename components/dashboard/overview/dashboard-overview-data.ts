@@ -130,7 +130,7 @@ export const topContributors: TopContributor[] = Array.from({ length: 7 }).map((
   id: index,
   name: "Sarah Chen",
   photosLabel: "247 photos",
-  earnings: "$12,450",
+  earnings: "A$12,450",
   avatarSrc: "/home/latest/latest1.jpg",
 }));
 

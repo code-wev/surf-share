@@ -85,7 +85,7 @@ function mapApiPhotoToRow(item: IPhotoResponse): EnrichedUploadRow {
     location: `${item.location.name}, ${item.location.state}`,
     dateLabel: formatApiDate(takenAt),
     timeLabel: formatApiTime(takenAt),
-    priceLabel: `$${item.price.toFixed(2)}`,
+    priceLabel: `A$${item.price.toFixed(2)}`,
     status: mapStatus(item.status),
     uploadedAt: takenAt,
     priceValue: item.price,

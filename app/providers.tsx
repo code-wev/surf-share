@@ -30,7 +30,7 @@ export function Providers({ children }: ProvidersProps) {
           <QueryClientProvider client={queryClient}>
             <ContentProtectionGuard />
             <AuthRouteGuard />
-            <PayPalScriptProvider options={{ clientId: paypalClientId, currency: "USD" }}>
+            <PayPalScriptProvider options={{ clientId: paypalClientId, currency: "AUD" }}>
               {children}
             </PayPalScriptProvider>
             <Toaster richColors position="top-right" closeButton offset={{ top: 60 }} />

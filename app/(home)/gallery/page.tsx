@@ -107,7 +107,7 @@ function GalleryPageContent() {
       alt: p.title || `Photo by ${p.photographer?.name}`,
       userName: p.photographer?.name || "Unknown",
       location: p.location?.name || "Unknown Location",
-      price: `$${p.price.toFixed(2)}`,
+      price: `A$${p.price.toFixed(2)}`,
       avatarSrc: "/home/logo.png",
       title: p.title || `Photo by ${p.photographer?.name}`,
       captureDate: formattedDate,

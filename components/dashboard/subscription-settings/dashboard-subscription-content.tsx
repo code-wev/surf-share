@@ -73,7 +73,7 @@ export default function DashboardSubscriptionContent() {
                     <li className="flex items-start gap-3 text-sm">
                       <CheckCircle2 className="h-5 w-5 shrink-0 text-[#2db36e]" />
                       <span className="text-gray-700">
-                        Max Photo Price: <strong>{config.maxPrice === null ? "Unlimited" : `$${config.maxPrice.toFixed(2)}`}</strong>
+                        Max Photo Price: <strong>{config.maxPrice === null ? "Unlimited" : `A$${config.maxPrice.toFixed(2)}`}</strong>
                       </span>
                     </li>
                     <li className="flex items-start gap-3 text-sm">

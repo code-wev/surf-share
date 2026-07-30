@@ -103,7 +103,7 @@ export default function EarningsContent() {
                         {new Date(item.soldAt).toLocaleDateString()}
                       </td>
                       <td className="px-4 py-3 font-semibold text-text-strong">
-                        ${item.earnedAmount.toFixed(2)}
+                        A${item.earnedAmount.toFixed(2)}
                       </td>
                       <td className="px-4 py-3">
                         {renderStatusBadge(item.payoutStatus)}

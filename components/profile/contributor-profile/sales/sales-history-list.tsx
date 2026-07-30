@@ -59,11 +59,11 @@ export default function SaleHistoryTable<T extends SaleHistoryTableRow>({
 
                 <td className="text-text-strong px-2 py-2">{item.name}</td>
                 <td className="px-2 py-2">{item.dateLabel}</td>
-                <td className="text-text-strong px-2 py-2">${item.priceValue.toFixed(2)}</td>
-                <td className="text-text-strong px-2 py-2">${item.commissionUsd.toFixed(2)}</td>
+                <td className="text-text-strong px-2 py-2">A${item.priceValue.toFixed(2)}</td>
+                <td className="text-text-strong px-2 py-2">A${item.commissionAud.toFixed(2)}</td>
                 <td className="text-text-strong px-2 py-2">{item.totalDownloads}</td>
                 <td className="px-2 py-2 text-(--color-text-brand-strong)">
-                  ${item.earningsUsd.toFixed(2)}
+                  A${item.earningsAud.toFixed(2)}
                 </td>
               </tr>
             );

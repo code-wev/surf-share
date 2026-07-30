@@ -175,12 +175,12 @@ export default function PhotoCard({ photo, locations, onRemove, onChange }: Phot
           <label className="mb-1 block text-base font-medium text-[#0D1420]">Price</label>
           <div className="relative">
             <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-xs text-gray-400">
-              $
+              A$
             </span>
             <select
               value={photo.price}
               onChange={(e) => onChange(photo.id, "price", e.target.value)}
-              className="w-full appearance-none rounded-md border border-gray-200 bg-[#EFF6FF] py-2 pr-7 pl-6 text-sm text-gray-700 focus:border-[#0a2463] focus:ring-1 focus:ring-[#0a2463] focus:outline-none"
+              className="w-full appearance-none rounded-md border border-gray-200 bg-[#EFF6FF] py-2 pr-7 pl-8 text-sm text-gray-700 focus:border-[#0a2463] focus:ring-1 focus:ring-[#0a2463] focus:outline-none"
             >
               <option value="">Select price</option>
               {PHOTO_PRICES.map((priceOption) => (

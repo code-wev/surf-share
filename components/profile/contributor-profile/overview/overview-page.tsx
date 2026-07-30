@@ -22,7 +22,7 @@ export default function ContributorOverviewPage() {
     ? [
         {
           label: "Total Earnings",
-          value: `$${data.stats.totalEarnings >= 1000 ? (data.stats.totalEarnings / 1000).toFixed(1) + "k" : data.stats.totalEarnings.toFixed(2)}`,
+          value: `A$${data.stats.totalEarnings >= 1000 ? (data.stats.totalEarnings / 1000).toFixed(1) + "k" : data.stats.totalEarnings.toFixed(2)}`,
           Icon: DollarSign,
           trendLabel: data.stats.trends?.earnings || "+ 0%",
           trendTone: (data.stats.trends?.earnings?.includes("+") ? "positive" : "negative") as "positive" | "negative",

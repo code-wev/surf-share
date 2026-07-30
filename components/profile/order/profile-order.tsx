@@ -201,7 +201,7 @@ export default function ProfileOrderPage() {
                 <div>
                   <PageTitle
                     align="start"
-                    title={`$${item.price.toFixed(2)}`}
+                    title={`A$${item.price.toFixed(2)}`}
                     subtitle={`${item.imageQuantity || "0"} Photos`}
                     titleClassName="text-lg sm:text-2xl! text-(--color-text-brand-strong) font-medium!"
                     subtitleClassName="text-xs sm:text-sm! text-(--color-text-weak) -mt-1 sm:-mt-2"
@@ -229,7 +229,7 @@ export default function ProfileOrderPage() {
 
                   <div className="hidden sm:block">
                     <p className="text-sm leading-none font-semibold text-(--color-text-strong)">
-                      ${item.price.toFixed(2)}
+                      A${item.price.toFixed(2)}
                     </p>
                   </div>
                 </div>
@@ -237,7 +237,7 @@ export default function ProfileOrderPage() {
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
                   <div className="sm:hidden">
                     <p className="text-sm leading-none font-semibold text-(--color-text-strong)">
-                      ${item.price.toFixed(2)}
+                      A${item.price.toFixed(2)}
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">

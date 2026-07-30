@@ -181,7 +181,7 @@ export default function DashboardOverviewEarningsChart({
 
             {labels.map((label, index) => (
               <text
-                key={label}
+                key={`${label}-${index}`}
                 x={xCoordinates[index]}
                 y={chartHeight - chartMargin.bottom + 18}
                 textAnchor="middle"
@@ -202,7 +202,7 @@ export default function DashboardOverviewEarningsChart({
             >
               <p className="text-text-weaker text-[11px]">{labels[hoveredIndex ?? 0]}</p>
               <p className="text-text-strong text-sm font-semibold">
-                ${hoveredPoint.value.toLocaleString()}
+                A${hoveredPoint.value.toLocaleString()}
               </p>
             </div>
           ) : null}

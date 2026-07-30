@@ -138,7 +138,7 @@ export default function EditUploadModal({ upload, onClose }: EditUploadModalProp
           <div className="space-y-2">
             <label className="text-text-strong flex items-center gap-2 text-sm font-medium">
               <DollarSign size={16} className="text-text-weaker" />
-              Price ($)
+              Price (A$)
             </label>
             <select
               value={price}

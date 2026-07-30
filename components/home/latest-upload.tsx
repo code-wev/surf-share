@@ -35,7 +35,7 @@ export default function LatestUpload() {
     alt: `Photo by ${p.photographer?.name}`,
     userName: p.photographer?.name || "Unknown",
     location: p.location?.name || "Unknown Location",
-    price: `$${p.price.toFixed(2)}`,
+    price: `A$${p.price.toFixed(2)}`,
     avatarSrc: "/home/logo.png",
   }));
 

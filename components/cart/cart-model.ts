@@ -48,7 +48,7 @@ export function normalizeCartItems(items: CartLineItem[]) {
 }
 
 export function formatPrice(price: number) {
-  return `$${price.toFixed(2)}`;
+  return `A$${price.toFixed(2)}`;
 }
 
 export function parseSelectedItemIds(rawValue: string | null) {
