@@ -256,6 +256,8 @@ export function SignUpForm({
                   I agree to the{" "}
                   <Link
                     href="/terms-conditions"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-brand-default underline-offset-2 hover:underline"
                   >
                     Terms & Conditions
@@ -263,6 +265,8 @@ export function SignUpForm({
                   and{" "}
                   <Link
                     href="/privacy-policy"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-brand-default underline-offset-2 hover:underline"
                   >
                     Privacy Policy
