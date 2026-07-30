@@ -16,9 +16,9 @@ export type SaleHistoryTableRow = {
   resolution: string;
   format: string;
   size: string;
-  commissionUsd: number;
+  commissionAud: number;
   totalDownloads: number;
-  earningsUsd: number;
+  earningsAud: number;
 };
 
 type SaleHistoryTableProps<T extends SaleHistoryTableRow> = {
