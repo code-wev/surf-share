@@ -1,17 +1,17 @@
 "use client";
 
-import { useState, Suspense, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 
 import GalleryContent from "@/components/home/gallery/gallery-content";
 import GalleryPagination from "@/components/home/gallery/gallery-pagination";
 import GalleryTitle from "@/components/home/gallery/gallery-title";
 import { usePublicPhotosQuery } from "@/hooks/api/usePhotos";
-import { Loader2 } from "lucide-react";
-import { getAbsoluteImageUrl } from "@/lib/utils";
 import { queryKeys } from "@/lib/api/query-keys";
 import { photoService } from "@/lib/api/services/photo.service";
+import { getAbsoluteImageUrl } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 
 export type GalleryTab = "all" | "today" | "yesterday" | "last7days" | "last14days";
 export type GallerySort = "latest" | "priceLow" | "priceHigh";
@@ -97,7 +97,7 @@ function GalleryPageContent() {
     const formattedDate = dateToUse.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
-      year: "numeric"
+      year: "numeric",
     });
 
     return {
@@ -107,7 +107,7 @@ function GalleryPageContent() {
       alt: p.title || `Photo by ${p.photographer?.name}`,
       userName: p.photographer?.name || "Unknown",
       location: p.location?.name || "Unknown Location",
-      price: `A$${p.price.toFixed(2)}`,
+      price: `$${p.price.toFixed(2)}`,
       avatarSrc: "/home/logo.png",
       title: p.title || `Photo by ${p.photographer?.name}`,
       captureDate: formattedDate,
@@ -130,7 +130,7 @@ function GalleryPageContent() {
       />
       {isLoading ? (
         <div className="flex h-64 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-brand-default" />
+          <Loader2 className="text-brand-default h-8 w-8 animate-spin" />
         </div>
       ) : (
         <GalleryContent items={mappedPhotos} />
@@ -149,7 +149,7 @@ export default function GalleryPage() {
     <Suspense
       fallback={
         <div className="flex h-screen items-center justify-center">
-          <Loader2 className="h-10 w-10 animate-spin text-brand-default" />
+          <Loader2 className="text-brand-default h-10 w-10 animate-spin" />
         </div>
       }
     >

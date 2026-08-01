@@ -1,7 +1,7 @@
-import Image from "next/image";
-import { X, Camera } from "lucide-react";
-import type { OrderListItem, OrderItemApi } from "./order-types";
 import { getAbsoluteImageUrl } from "@/lib/utils";
+import { Camera, X } from "lucide-react";
+import Image from "next/image";
+import type { OrderItemApi, OrderListItem } from "./order-types";
 
 const statusConfig: Record<string, { color: string; label: string }> = {
   PAID: {
@@ -74,7 +74,7 @@ export default function OrderDetailsModal({
                       <Camera size={12} /> {item.photo.photographer.name}
                     </p>
                   </div>
-                  <div className="text-brand-default font-bold">A${item?.price?.toFixed(2)}</div>
+                  <div className="text-brand-default font-bold">${item?.price?.toFixed(2)}</div>
                 </div>
               ))}
             </div>
@@ -91,7 +91,7 @@ export default function OrderDetailsModal({
             </div>
             <div className="border-line-weaker flex items-center justify-between border-t pt-4 text-lg font-bold">
               <p className="text-text-strong">Total Amount</p>
-              <p className="text-brand-default">A${order.price.toFixed(2)}</p>
+              <p className="text-brand-default">${order.price.toFixed(2)}</p>
             </div>
           </div>
         </div>

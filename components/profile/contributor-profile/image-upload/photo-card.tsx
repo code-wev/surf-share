@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { CalendarDays, ChevronDown, Clock3, FileIcon, HardDriveIcon, XIcon } from "lucide-react";
+import Image from "next/image";
 import { PHOTO_PRICES } from "./image-upload-content";
 
 export interface PhotoItem {
@@ -173,7 +173,7 @@ export default function PhotoCard({ photo, locations, onRemove, onChange }: Phot
           <label className="mb-1 block text-base font-medium text-[#0D1420]">Price</label>
           <div className="relative">
             <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-xs text-gray-400">
-              A$
+              $
             </span>
             <select
               value={photo.price}

@@ -1,11 +1,11 @@
 "use client";
 
+import { usePublicPhotosQuery } from "@/hooks/api/usePhotos";
+import { ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
+import CardView, { type CardViewItem } from "../shared/card-view";
 import { PageTitle } from "../shared/page-title";
 import { Button } from "../ui/button";
-import { ArrowRight, Loader2 } from "lucide-react";
-import CardView, { type CardViewItem } from "../shared/card-view";
-import { usePublicPhotosQuery } from "@/hooks/api/usePhotos";
 
 type PublicPhoto = {
   id: string;
@@ -27,7 +27,7 @@ export default function LatestUpload() {
   });
 
   const photos = data?.data || [];
-  
+
   const latestUploadItems: CardViewItem[] = (photos as PublicPhoto[]).map((p) => ({
     id: p.id,
     slug: p.id,
@@ -35,7 +35,7 @@ export default function LatestUpload() {
     alt: `Photo by ${p.photographer?.name}`,
     userName: p.photographer?.name || "Unknown",
     location: p.location?.name || "Unknown Location",
-    price: `A$${p.price.toFixed(2)}`,
+    price: `$${p.price.toFixed(2)}`,
     avatarSrc: "/home/logo.png",
   }));
 

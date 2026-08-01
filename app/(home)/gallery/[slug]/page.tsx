@@ -203,7 +203,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
     year: "numeric",
     timeZone: "UTC",
   });
-  
+
   const formattedTime = takenDate.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
@@ -276,7 +276,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
         alt: `Photo by ${p.photographer?.name}`,
         userName: p.photographer?.name || "Unknown",
         location: p.location?.name || "Unknown Location",
-        price: `A$${p.price.toFixed(2)}`,
+        price: `$${p.price.toFixed(2)}`,
       }),
     );
 
@@ -360,7 +360,7 @@ export default function GalleryDetailsPage({ params }: GalleryDetailsPageProps) 
             subtitlePosition="top"
             subtitle={`Photo by ${photographerName}`}
             subtitleClassName="text-lg! leading-tight text-(--color-text-weak) sm:text-2xl! lg:text-[28px]!"
-            title={`A$${detailItem.price.toFixed(2)}`}
+            title={`$${detailItem.price.toFixed(2)}`}
             titleClassName="text-(--color-text-brand-strong) text-[34px]! leading-none sm:text-[46px]! lg:text-[58px]!"
           />
 

@@ -202,7 +202,7 @@ export default function DashboardOverviewEarningsChart({
             >
               <p className="text-text-weaker text-[11px]">{labels[hoveredIndex ?? 0]}</p>
               <p className="text-text-strong text-sm font-semibold">
-                A${hoveredPoint.value.toLocaleString()}
+                ${hoveredPoint.value.toLocaleString()}
               </p>
             </div>
           ) : null}

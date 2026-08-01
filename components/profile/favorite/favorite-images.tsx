@@ -2,8 +2,8 @@
 
 import CardView from "@/components/shared/card-view";
 import { useMyFavoritesQuery } from "@/hooks/api/useFavorites";
-import { Loader2 } from "lucide-react";
 import { getAbsoluteImageUrl } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 
 type ApiPhoto = {
   id: string;
@@ -24,7 +24,7 @@ export default function FavoriteImages() {
     alt: `Photo by ${p.photographer?.name}`,
     userName: p.photographer?.name || "Unknown",
     location: p.location?.name || "Unknown Location",
-    price: `A$${p.price.toFixed(2)}`,
+    price: `$${p.price.toFixed(2)}`,
     avatarSrc: "/home/logo.png",
     favoriteActive: true, // They are definitely favorite on this page!
   }));

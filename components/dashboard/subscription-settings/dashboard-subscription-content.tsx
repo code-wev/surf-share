@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { Crown, CheckCircle2, Loader2, Edit3 } from "lucide-react";
 import { useSubscriptionsQuery } from "@/hooks/api/useSubscriptions";
 import type { ISubscriptionConfig } from "@/lib/api/services/subscriptions.service";
+import { CheckCircle2, Crown, Edit3, Loader2 } from "lucide-react";
+import { useState } from "react";
 import EditSubscriptionModal from "./edit-subscription-modal";
 
 export default function DashboardSubscriptionContent() {
@@ -13,14 +13,15 @@ export default function DashboardSubscriptionContent() {
   const configs = response?.data || [];
 
   return (
-    <section className="px-3 pb-5 sm:px-4 sm:pb-6 md:px-6 md:pb-8 lg:px-0 lg:pr-10 lg:pb-10 xl:pr-12.5 xl:pb-12.5 [font-family:var(--font-sf-pro)]">
+    <section className="px-3 pb-5 [font-family:var(--font-sf-pro)] sm:px-4 sm:pb-6 md:px-6 md:pb-8 lg:px-0 lg:pr-10 lg:pb-10 xl:pr-12.5 xl:pb-12.5">
       <div className="mx-auto w-full max-w-6xl">
         <h1 className="inline-flex border-b border-[#0a2463] pb-1 text-base font-medium text-[#0a2463] sm:text-lg">
           Subscription Settings
         </h1>
 
-        <p className="mt-4 text-sm text-gray-500 max-w-2xl leading-relaxed">
-          Manage the economic limits and capabilities of the platform. Changes made here instantly alter the revenue split for new checkouts and control photographer upload boundaries.
+        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-gray-500">
+          Manage the economic limits and capabilities of the platform. Changes made here instantly
+          alter the revenue split for new checkouts and control photographer upload boundaries.
         </p>
 
         {isLoading ? (
@@ -41,21 +42,21 @@ export default function DashboardSubscriptionContent() {
                 <div className="flex items-center justify-between border-b border-gray-100 bg-[#EFF6FF] px-5 py-4">
                   <div className="flex items-center gap-2">
                     <Crown className="h-5 w-5 text-[#0a2463]" />
-                    <h2 className="text-lg font-bold text-gray-900 tracking-tight">
+                    <h2 className="text-lg font-bold tracking-tight text-gray-900">
                       {config.tier}
                     </h2>
                   </div>
                   <button
                     onClick={() => setEditingTier(config)}
-                    className="inline-flex items-center gap-1 rounded-sm bg-white border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
+                    className="inline-flex items-center gap-1 rounded-sm border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
                   >
                     <Edit3 className="h-3 w-3" /> Edit
                   </button>
                 </div>
 
                 <div className="flex flex-1 flex-col p-5">
-                  <div className="mb-6 rounded-lg bg-gray-50 p-4 border border-gray-100">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                  <div className="mb-6 rounded-lg border border-gray-100 bg-gray-50 p-4">
+                    <p className="text-xs font-semibold tracking-wider text-gray-500 uppercase">
                       Revenue Split
                     </p>
                     <div className="mt-2 flex items-baseline gap-1">
@@ -73,19 +74,30 @@ export default function DashboardSubscriptionContent() {
                     <li className="flex items-start gap-3 text-sm">
                       <CheckCircle2 className="h-5 w-5 shrink-0 text-[#2db36e]" />
                       <span className="text-gray-700">
-                        Max Photo Price: <strong>{config.maxPrice === null ? "Unlimited" : `A$${config.maxPrice.toFixed(2)}`}</strong>
+                        Max Photo Price:{" "}
+                        <strong>
+                          {config.maxPrice === null
+                            ? "Unlimited"
+                            : `$${config.maxPrice.toFixed(2)}`}
+                        </strong>
                       </span>
                     </li>
                     <li className="flex items-start gap-3 text-sm">
                       <CheckCircle2 className="h-5 w-5 shrink-0 text-[#2db36e]" />
                       <span className="text-gray-700">
-                        Daily Uploads: <strong>{config.dailyUploadLimit === null ? "Unlimited" : config.dailyUploadLimit}</strong>
+                        Daily Uploads:{" "}
+                        <strong>
+                          {config.dailyUploadLimit === null ? "Unlimited" : config.dailyUploadLimit}
+                        </strong>
                       </span>
                     </li>
                     <li className="flex items-start gap-3 text-sm">
                       <CheckCircle2 className="h-5 w-5 shrink-0 text-[#2db36e]" />
                       <span className="text-gray-700">
-                        Auto-Approval: <strong>{config.requiresApproval ? "No (Moderated)" : "Yes (Instant live)"}</strong>
+                        Auto-Approval:{" "}
+                        <strong>
+                          {config.requiresApproval ? "No (Moderated)" : "Yes (Instant live)"}
+                        </strong>
                       </span>
                     </li>
                   </ul>
@@ -97,10 +109,7 @@ export default function DashboardSubscriptionContent() {
       </div>
 
       {editingTier && (
-        <EditSubscriptionModal
-          config={editingTier}
-          onClose={() => setEditingTier(null)}
-        />
+        <EditSubscriptionModal config={editingTier} onClose={() => setEditingTier(null)} />
       )}
     </section>
   );

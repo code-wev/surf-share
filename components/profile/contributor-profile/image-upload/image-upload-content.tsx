@@ -1,13 +1,13 @@
 "use client";
 
-import Image from "next/image";
-import { useCallback, useRef, useState } from "react";
-import exifr from "exifr";
-import PhotoCard, { PhotoItem } from "./photo-card";
-import { AlertCircle, ChevronDown, Loader2, Plus, Upload, XIcon } from "lucide-react";
 import { useLocationsQuery } from "@/hooks/api/useLocations";
 import { useUploadPhotosMutation } from "@/hooks/api/usePhotos";
+import exifr from "exifr";
+import { AlertCircle, ChevronDown, Loader2, Plus, Upload, XIcon } from "lucide-react";
+import Image from "next/image";
+import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
+import PhotoCard, { PhotoItem } from "./photo-card";
 
 // Accepted MIME types for upload
 const ACCEPTED_MIME = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -17,7 +17,17 @@ function uid() {
   return Math.random().toString(36).slice(2, 10);
 }
 
-export const PHOTO_PRICES = ["0.00", "2.99", "4.99", "9.99", "14.99", "19.99", "29.99", "39.99", "49.99"];
+export const PHOTO_PRICES = [
+  "0.00",
+  "2.99",
+  "4.99",
+  "9.99",
+  "14.99",
+  "19.99",
+  "29.99",
+  "39.99",
+  "49.99",
+];
 
 function toLocalDateInputValue(date: Date): string {
   const offsetMs = date.getTimezoneOffset() * 60_000;
@@ -96,8 +106,8 @@ export default function ImageUploadContentPage() {
   const uploadMutation = useUploadPhotosMutation();
 
   const rawLocations = locationsData?.data || [];
-  const locations = [...rawLocations].sort((a: { name: string }, b: { name: string }) => 
-    a.name.localeCompare(b.name)
+  const locations = [...rawLocations].sort((a: { name: string }, b: { name: string }) =>
+    a.name.localeCompare(b.name),
   );
 
   const [pendingPhotos, setPendingPhotos] = useState<PhotoItem[]>([]); // Upper top strip photos for bulk apply
@@ -220,28 +230,31 @@ export default function ImageUploadContentPage() {
       body.append("titles", title.trim());
     });
 
-    uploadMutation.mutate({
-      payload: body,
-      onUploadProgress: (progressEvent) => {
-        if (progressEvent.total) {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setUploadProgress(percentCompleted);
-        }
-      }
-    }, {
-      onSuccess: () => {
-        photos.forEach((p) => URL.revokeObjectURL(p.preview));
-        pendingPhotos.forEach((p) => URL.revokeObjectURL(p.preview));
-        setPhotos([]);
-        setPendingPhotos([]);
-        setBulkLocationId("");
-        setBulkPrice("");
-        setUploadProgress(0);
+    uploadMutation.mutate(
+      {
+        payload: body,
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(percentCompleted);
+          }
+        },
       },
-      onError: () => {
-        setUploadProgress(0);
-      }
-    });
+      {
+        onSuccess: () => {
+          photos.forEach((p) => URL.revokeObjectURL(p.preview));
+          pendingPhotos.forEach((p) => URL.revokeObjectURL(p.preview));
+          setPhotos([]);
+          setPendingPhotos([]);
+          setBulkLocationId("");
+          setBulkPrice("");
+          setUploadProgress(0);
+        },
+        onError: () => {
+          setUploadProgress(0);
+        },
+      },
+    );
   };
 
   // ── Render ──
@@ -326,7 +339,7 @@ export default function ImageUploadContentPage() {
               <label className="mb-1.5 block text-sm font-medium text-gray-800">Price</label>
               <div className="relative">
                 <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-xs text-gray-400">
-                  A$
+                  $
                 </span>
                 <select
                   value={bulkPrice}
@@ -456,7 +469,7 @@ export default function ImageUploadContentPage() {
                 <div className="flex gap-2">
                   <div className="relative flex-1">
                     <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-xs text-gray-400">
-                      A$
+                      $
                     </span>
                     <select
                       value={bulkPrice}
@@ -526,16 +539,18 @@ export default function ImageUploadContentPage() {
         <div className="mt-6 flex flex-col items-center">
           {uploadMutation.isPending && uploadProgress > 0 && (
             <div className="mb-3 flex w-full max-w-md items-center gap-4 rounded-md border border-gray-200 bg-white p-3 shadow-sm">
-              <span className="text-sm font-medium text-gray-700 w-12 text-right">{uploadProgress}%</span>
+              <span className="w-12 text-right text-sm font-medium text-gray-700">
+                {uploadProgress}%
+              </span>
               <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-100">
-                <div 
-                  className="absolute inset-y-0 left-0 bg-[#0a2463] transition-all duration-300 ease-out" 
-                  style={{ width: `${uploadProgress}%` }} 
+                <div
+                  className="absolute inset-y-0 left-0 bg-[#0a2463] transition-all duration-300 ease-out"
+                  style={{ width: `${uploadProgress}%` }}
                 />
               </div>
             </div>
           )}
-          
+
           <button
             type="button"
             onClick={handleUpload}

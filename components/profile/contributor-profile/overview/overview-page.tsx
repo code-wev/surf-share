@@ -1,18 +1,18 @@
 "use client";
 
-import { Clock3, DollarSign, Download, Images, TrendingUp, Loader2 } from "lucide-react";
+import { Clock3, DollarSign, Download, Images, Loader2, TrendingUp } from "lucide-react";
 import {
-  LineChart,
+  CartesianGrid,
   Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
 } from "recharts";
 
-import { useAuth } from "@/lib/auth";
 import { useMySales } from "@/hooks/api/useSales";
+import { useAuth } from "@/lib/auth";
 
 export default function ContributorOverviewPage() {
   const { session } = useAuth();
@@ -22,24 +22,30 @@ export default function ContributorOverviewPage() {
     ? [
         {
           label: "Total Earnings",
-          value: `A$${data.stats.totalEarnings >= 1000 ? (data.stats.totalEarnings / 1000).toFixed(1) + "k" : data.stats.totalEarnings.toFixed(2)}`,
+          value: `$${data.stats.totalEarnings >= 1000 ? (data.stats.totalEarnings / 1000).toFixed(1) + "k" : data.stats.totalEarnings.toFixed(2)}`,
           Icon: DollarSign,
           trendLabel: data.stats.trends?.earnings || "+ 0%",
-          trendTone: (data.stats.trends?.earnings?.includes("+") ? "positive" : "negative") as "positive" | "negative",
+          trendTone: (data.stats.trends?.earnings?.includes("+") ? "positive" : "negative") as
+            | "positive"
+            | "negative",
         },
         {
           label: "Total Photos",
           value: data.stats.totalPhotos.toString(),
           Icon: Images,
           trendLabel: data.stats.trends?.photos || "+ 0%",
-          trendTone: (data.stats.trends?.photos?.includes("+") ? "positive" : "negative") as "positive" | "negative",
+          trendTone: (data.stats.trends?.photos?.includes("+") ? "positive" : "negative") as
+            | "positive"
+            | "negative",
         },
         {
           label: "Total Selling Photos",
           value: data.stats.totalSoldPhotos.toString(),
           Icon: Download,
           trendLabel: data.stats.trends?.soldPhotos || "+ 0%",
-          trendTone: (data.stats.trends?.soldPhotos?.includes("+") ? "positive" : "negative") as "positive" | "negative",
+          trendTone: (data.stats.trends?.soldPhotos?.includes("+") ? "positive" : "negative") as
+            | "positive"
+            | "negative",
         },
         {
           label: "Pending Photos",

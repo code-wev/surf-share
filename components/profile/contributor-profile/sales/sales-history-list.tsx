@@ -1,6 +1,6 @@
+import { getAbsoluteImageUrl } from "@/lib/utils";
 import Image from "next/image";
 import { UploadStatus } from "../my-uploads/my-upload-data";
-import { getAbsoluteImageUrl } from "@/lib/utils";
 
 export type SaleHistoryTableRow = {
   id: string;
@@ -59,11 +59,11 @@ export default function SaleHistoryTable<T extends SaleHistoryTableRow>({
 
                 <td className="text-text-strong px-2 py-2">{item.name}</td>
                 <td className="px-2 py-2">{item.dateLabel}</td>
-                <td className="text-text-strong px-2 py-2">A${item.priceValue.toFixed(2)}</td>
-                <td className="text-text-strong px-2 py-2">A${item.commissionAud.toFixed(2)}</td>
+                <td className="text-text-strong px-2 py-2">${item.priceValue.toFixed(2)}</td>
+                <td className="text-text-strong px-2 py-2">${item.commissionAud.toFixed(2)}</td>
                 <td className="text-text-strong px-2 py-2">{item.totalDownloads}</td>
                 <td className="px-2 py-2 text-(--color-text-brand-strong)">
-                  A${item.earningsAud.toFixed(2)}
+                  ${item.earningsAud.toFixed(2)}
                 </td>
               </tr>
             );

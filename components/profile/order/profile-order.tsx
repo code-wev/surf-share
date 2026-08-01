@@ -1,18 +1,18 @@
 "use client";
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Check, Clock, Loader2, RotateCcw, Trash2, X } from "lucide-react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import { Clock, Check, X, Loader2, RotateCcw, Trash2 } from "lucide-react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import { PageTitle } from "@/components/shared/page-title";
-import { getMyOrders, deleteOrder } from "@/src/actions/order.action";
+import { Button } from "@/components/ui/button";
 import { checkoutService } from "@/lib/api/services/checkout.service";
+import { getAbsoluteImageUrl } from "@/lib/utils";
+import { deleteOrder, getMyOrders } from "@/src/actions/order.action";
 import OrderDetailsModal from "./order-details-modal";
 import type { OrderApi, OrderListItem } from "./order-types";
-import { getAbsoluteImageUrl } from "@/lib/utils";
 
 type TabType = "All Orders" | "PAID" | "PENDING" | "FAILED";
 
@@ -201,7 +201,7 @@ export default function ProfileOrderPage() {
                 <div>
                   <PageTitle
                     align="start"
-                    title={`A$${item.price.toFixed(2)}`}
+                    title={`$${item.price.toFixed(2)}`}
                     subtitle={`${item.imageQuantity || "0"} Photos`}
                     titleClassName="text-lg sm:text-2xl! text-(--color-text-brand-strong) font-medium!"
                     subtitleClassName="text-xs sm:text-sm! text-(--color-text-weak) -mt-1 sm:-mt-2"
@@ -229,7 +229,7 @@ export default function ProfileOrderPage() {
 
                   <div className="hidden sm:block">
                     <p className="text-sm leading-none font-semibold text-(--color-text-strong)">
-                      A${item.price.toFixed(2)}
+                      ${item.price.toFixed(2)}
                     </p>
                   </div>
                 </div>
@@ -237,7 +237,7 @@ export default function ProfileOrderPage() {
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
                   <div className="sm:hidden">
                     <p className="text-sm leading-none font-semibold text-(--color-text-strong)">
-                      A${item.price.toFixed(2)}
+                      ${item.price.toFixed(2)}
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -247,7 +247,7 @@ export default function ProfileOrderPage() {
                           variant="secondary"
                           onClick={() => handleRepay(item.id)}
                           disabled={repayMutation.isPending}
-                          className="text-brand-default border-line-weaker h-8 px-4 text-xs hover:bg-surface-muted-100 sm:h-8"
+                          className="text-brand-default border-line-weaker hover:bg-surface-muted-100 h-8 px-4 text-xs sm:h-8"
                         >
                           {repayMutation.isPending && repayMutation.variables === item.id ? (
                             <Loader2 className="mr-1 h-3 w-3 animate-spin" />
@@ -260,7 +260,7 @@ export default function ProfileOrderPage() {
                           variant="ghost"
                           onClick={() => handleDelete(item.id)}
                           disabled={deleteMutation.isPending}
-                          className="text-danger-strong h-8 px-4 text-xs hover:bg-danger-weaker sm:h-8"
+                          className="text-danger-strong hover:bg-danger-weaker h-8 px-4 text-xs sm:h-8"
                         >
                           {deleteMutation.isPending && deleteMutation.variables === item.id ? (
                             <Loader2 className="mr-1 h-3 w-3 animate-spin" />
@@ -273,7 +273,7 @@ export default function ProfileOrderPage() {
                     )}
                     <Button
                       onClick={() => setActiveOrder(item)}
-                      className="bg-(--color-fill-brand-strong) text-(--color-text-inverse-strong) h-8 w-auto px-5 text-xs hover:opacity-95 sm:h-8"
+                      className="h-8 w-auto bg-(--color-fill-brand-strong) px-5 text-xs text-(--color-text-inverse-strong) hover:opacity-95 sm:h-8"
                     >
                       View Details
                     </Button>

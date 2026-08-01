@@ -1,8 +1,8 @@
 "use client";
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import PhotoModerationGrid from "@/components/dashboard/photo-moderation/photo-moderation-grid";
 import PhotoModerationHeader from "@/components/dashboard/photo-moderation/photo-moderation-header";
@@ -10,17 +10,17 @@ import type {
   ModerationAction,
   PhotoModerationItem,
 } from "@/components/dashboard/photo-moderation/photo-moderation-types";
-import PhotoModerationDetailsModal from "./photo-moderation/photo-moderation-details-modal";
+import { formatFileSize } from "@/lib/utils";
 import {
+  bulkUpdatePhotoStatus,
   getPhotos,
   updatePhotoStatus,
-  bulkUpdatePhotoStatus,
   type PhotoModerationApiPhoto,
 } from "@/src/actions/photo.action";
 import { Loader2 } from "lucide-react";
-import { formatFileSize } from "@/lib/utils";
-import EditUploadModal from "../profile/contributor-profile/my-uploads/edit-upload-modal";
 import DeleteUploadModal from "../profile/contributor-profile/my-uploads/delete-upload-modal";
+import EditUploadModal from "../profile/contributor-profile/my-uploads/edit-upload-modal";
+import PhotoModerationDetailsModal from "./photo-moderation/photo-moderation-details-modal";
 
 const getApiOrigin = () => {
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -89,7 +89,7 @@ export default function DashboardPhotoModerationContent() {
         imageSrc: toAbsoluteImageUrl(photo.imageUrl),
         images: [toAbsoluteImageUrl(photo.imageUrl)],
         title: photo.title || `${photo.photographer?.name || "Photographer"}'s upload`,
-        priceLabel: `A$${photo.price}`,
+        priceLabel: `$${photo.price}`,
         priceValue: photo.price,
         photographer: photo.photographer?.name || "Unknown",
         location: photo.location?.name || "Unknown Location",

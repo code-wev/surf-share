@@ -1,19 +1,19 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
   ChevronRight as ChevronRightSmall,
+  Loader2,
   MapPin,
   SlidersHorizontal,
-  Loader2,
 } from "lucide-react";
+import { useMemo, useState } from "react";
 
-import SaleHistoryTable, { SaleHistoryTableRow } from "./sales-history-list";
+import { useAllLocationsQuery } from "@/hooks/api/useLocations";
 import { useMySales } from "@/hooks/api/useSales";
 import { useAuth } from "@/lib/auth";
-import { useAllLocationsQuery } from "@/hooks/api/useLocations";
+import SaleHistoryTable, { SaleHistoryTableRow } from "./sales-history-list";
 
 type Location = {
   id: string;
@@ -55,7 +55,7 @@ export default function ContributorSalesHistoryPage() {
           name: item.name,
           location: item.location,
           dateLabel: formatApiDate(item.uploadedAt),
-          priceLabel: `A$${item.priceAud}`,
+          priceLabel: `$${item.priceAud}`,
           status: item.status,
           uploadedAt: item.uploadedAt,
           priceValue: item.priceAud,

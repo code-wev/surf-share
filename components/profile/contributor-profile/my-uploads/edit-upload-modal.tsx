@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { X, Loader2, MapPin, DollarSign, Type, Calendar } from "lucide-react";
-import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
 import { useLocationsQuery } from "@/hooks/api/useLocations";
 import { useUpdatePhotoMutation } from "@/hooks/api/usePhotos";
-import { Input } from "@/components/ui/input";
+import { Calendar, DollarSign, Loader2, MapPin, Type, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { PHOTO_PRICES } from "../image-upload/image-upload-content";
 
 type Location = {
@@ -148,7 +148,7 @@ export default function EditUploadModal({ upload, onClose }: EditUploadModalProp
           <div className="space-y-2">
             <label className="text-text-strong flex items-center gap-2 text-sm font-medium">
               <DollarSign size={16} className="text-text-weaker" />
-              Price (A$)
+              Price ($)
             </label>
             <select
               value={price}

@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -9,15 +8,16 @@ import {
   MapPin,
   SlidersHorizontal,
 } from "lucide-react";
+import { useMemo, useState } from "react";
 
-import ContributorListTable, { type ContributorListTableRow } from "./contributor-list-table";
-import UploadDetailsModal from "./upload-details-modal";
-import EditUploadModal from "./edit-upload-modal";
-import DeleteUploadModal from "./delete-upload-modal";
+import { useLocationsQuery } from "@/hooks/api/useLocations";
 import { useMyPhotosQuery } from "@/hooks/api/usePhotos";
 import type { IPhotoResponse } from "@/lib/api/services/photo.service";
-import { useLocationsQuery } from "@/hooks/api/useLocations";
-import { getAbsoluteImageUrl, formatFileSize } from "@/lib/utils";
+import { formatFileSize, getAbsoluteImageUrl } from "@/lib/utils";
+import ContributorListTable, { type ContributorListTableRow } from "./contributor-list-table";
+import DeleteUploadModal from "./delete-upload-modal";
+import EditUploadModal from "./edit-upload-modal";
+import UploadDetailsModal from "./upload-details-modal";
 
 type Location = {
   id: string;
@@ -84,7 +84,7 @@ function mapApiPhotoToRow(item: IPhotoResponse): EnrichedUploadRow {
     location: `${item.location.name}, ${item.location.state}`,
     dateLabel: formatApiDate(takenAt),
     timeLabel: formatApiTime(takenAt),
-    priceLabel: `A$${item.price.toFixed(2)}`,
+    priceLabel: `$${item.price.toFixed(2)}`,
     status: mapStatus(item.status),
     uploadedAt: takenAt,
     priceValue: item.price,

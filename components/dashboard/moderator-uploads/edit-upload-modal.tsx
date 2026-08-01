@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { X, Loader2, MapPin, DollarSign, Type, Calendar } from "lucide-react";
-import { toast } from "sonner";
+import { PHOTO_PRICES } from "@/components/profile/contributor-profile/image-upload/image-upload-content";
+import { Input } from "@/components/ui/input";
 import { useLocationsQuery } from "@/hooks/api/useLocations";
 import { useUpdatePhotoMutation } from "@/hooks/api/usePhotos";
-import { Input } from "@/components/ui/input";
-import { PHOTO_PRICES } from "@/components/profile/contributor-profile/image-upload/image-upload-content";
+import { Calendar, DollarSign, Loader2, MapPin, Type, X } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 type Location = {
   id: string;
@@ -30,14 +30,14 @@ export default function EditUploadModal({ upload, onClose }: EditUploadModalProp
     if (!upload?.uploadedAt) return "";
     const date = new Date(upload.uploadedAt);
     const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    const hours = String(date.getUTCHours()).padStart(2, '0');
-    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    const hours = String(date.getUTCHours()).padStart(2, "0");
+    const minutes = String(date.getUTCMinutes()).padStart(2, "0");
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
 
-  const [title, setTitle] = useState(upload?.name !== "Photo" ? upload?.name ?? "" : "");
+  const [title, setTitle] = useState(upload?.name !== "Photo" ? (upload?.name ?? "") : "");
   const [price, setPrice] = useState(upload?.priceValue.toString() ?? "");
   const [locationId, setLocationId] = useState(upload?.locationId ?? "");
   const [capturedAt, setCapturedAt] = useState(getInitialCapturedAt());
@@ -138,7 +138,7 @@ export default function EditUploadModal({ upload, onClose }: EditUploadModalProp
           <div className="space-y-2">
             <label className="text-text-strong flex items-center gap-2 text-sm font-medium">
               <DollarSign size={16} className="text-text-weaker" />
-              Price (A$)
+              Price ($)
             </label>
             <select
               value={price}
@@ -188,7 +188,7 @@ export default function EditUploadModal({ upload, onClose }: EditUploadModalProp
             </select>
           </div>
 
-          <div className="flex items-center justify-end gap-3 border-t border-line-weaker pt-4">
+          <div className="border-line-weaker flex items-center justify-end gap-3 border-t pt-4">
             <button
               type="button"
               onClick={onClose}
