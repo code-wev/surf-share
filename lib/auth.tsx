@@ -108,5 +108,7 @@ export function isDashboardRole(role: Role) {
 }
 
 export function getRoleHomePath(role: Role) {
-  return isDashboardRole(role) ? "/dashboard" : "/profile";
+  if (isDashboardRole(role)) return "/dashboard";
+  if (role === "PHOTOGRAPHER") return "/profile";
+  return "/gallery";
 }
