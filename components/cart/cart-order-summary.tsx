@@ -12,7 +12,7 @@ type CartOrderSummaryProps = {
   onProceed?: () => void | Promise<void>;
   proceedDisabled?: boolean;
   createOrder?: () => Promise<string>;
-  onApprove?: (data: any) => Promise<void>;
+  onApprove?: (data: { orderID: string; [key: string]: unknown }) => Promise<void>;
 };
 
 export default function CartOrderSummary({

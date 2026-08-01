@@ -77,7 +77,7 @@ export default function CartContent() {
     return result.data.orderId;
   };
 
-  const handleApprovePayPalOrder = async (data: any) => {
+  const handleApprovePayPalOrder = async (data: { orderID: string; [key: string]: unknown }) => {
     await captureOrderMutation.mutateAsync(data.orderID);
   };
 
