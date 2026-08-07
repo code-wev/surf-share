@@ -6,7 +6,7 @@ import { Menu, ShoppingCart, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 
-import { getRoleHomePath, useAuth } from "@/lib/auth";
+import { isDashboardRole, useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { getUserById } from "@/src/actions/user.action";
 import { useCartStore } from "@/store/cart.store";
@@ -50,7 +50,7 @@ export default function Navbar() {
   const isNavItemActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
   const isProfileActive = pathname === "/profile" || pathname.startsWith("/profile/");
   const isProfileIconActive = isProfileActive || isDashboardRoute;
-  const profileHref = session ? getRoleHomePath(session.role) : "/profile";
+  const profileHref = session ? (isDashboardRole(session.role) ? "/dashboard" : "/profile") : "/profile";
 
   const renderProfileIcon = (sizeClass: string) => (
     <Link
