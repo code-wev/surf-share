@@ -87,9 +87,16 @@ export default function ContributorOverviewPage() {
           Overview
         </div>
 
-        <h1 className="text-text-strong my-5 text-[27px] leading-tight font-bold tracking-tight sm:my-6 sm:text-[34px] md:my-7 md:text-[40px] lg:text-[44px] xl:my-8 2xl:text-[48px]">
-          Welcome Back, {session?.name ?? "Photographer"}
-        </h1>
+        <div className="my-5 flex items-center gap-4 sm:my-6 md:my-7 xl:my-8">
+          <h1 className="text-text-strong text-[27px] leading-tight font-bold tracking-tight sm:text-[34px] md:text-[40px] lg:text-[44px] 2xl:text-[48px]">
+            Welcome Back, {session?.name ?? "Photographer"}
+          </h1>
+          {session?.subscriptionTier && (
+            <span className="bg-brand-default text-text-inverse-strong inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wider shadow-sm">
+              {session.subscriptionTier.replace("_", " ")}
+            </span>
+          )}
+        </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:gap-5 xl:grid-cols-4 xl:gap-6">
           {overviewStats.map((item) => (

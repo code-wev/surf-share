@@ -27,6 +27,7 @@ export interface IPhotoResponse {
     id: string;
     name: string;
     email: string;
+    subscriptionTier?: string;
   };
   createdAt: string;
   updatedAt: string;

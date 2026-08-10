@@ -35,6 +35,7 @@ type ProfileApiUser = {
   paypalEmail?: string | null;
   paypalConnected?: boolean | null;
   manualBankDetails?: string | null;
+  subscriptionTier?: string;
 };
 
 const SOCIAL_ACCOUNT_TYPES: { value: SocialAccountType; label: string }[] = [
@@ -166,6 +167,7 @@ export default function ProfileSettingsContent() {
     promotionEmail: apiProfile?.promotionEmail ?? false,
     manualBankDetails: apiProfile?.manualBankDetails ?? "",
     paypalEmail: apiProfile?.paypalEmail ?? "",
+    subscriptionTier: apiProfile?.subscriptionTier ?? "",
   };
 
   const incoming = apiProfile?.socialAccounts || [];
@@ -218,7 +220,14 @@ export default function ProfileSettingsContent() {
               className="hidden"
             />
           </div>
-          <p className="text-text-strong mt-4 text-lg font-medium">{displayProfile.fullName}</p>
+          <div className="mt-4 flex items-center gap-3">
+            <p className="text-text-strong text-lg font-medium">{displayProfile.fullName}</p>
+            {isContributor && displayProfile.subscriptionTier && (
+              <span className="bg-brand-default text-text-inverse-strong inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wider shadow-sm">
+                {displayProfile.subscriptionTier.replace("_", " ")}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Profile details section... */}
@@ -511,6 +520,10 @@ export default function ProfileSettingsContent() {
                 <p className="text-text-weak mb-4 text-sm">
                   Enter the PayPal email address where you would like to receive your earnings
                   automatically when someone buys your photos.
+                  <br />
+                  <span className="text-xs font-semibold text-brand-default">
+                    Note: We highly recommend using a Business PayPal account to allow for automated payments.
+                  </span>
                 </p>
                 <input
                   type="email"

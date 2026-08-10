@@ -274,6 +274,12 @@ export function SignUpForm({
                   .
                 </span>
               </label>
+
+              <div className="mt-2 rounded-md bg-blue-50 p-3">
+                <p className="text-xs font-semibold text-brand-default">
+                  Note: We highly recommend using a Business PayPal account to allow for automated payments.
+                </p>
+              </div>
             </div>
           )}
         </>

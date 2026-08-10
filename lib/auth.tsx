@@ -25,6 +25,7 @@ export type Session = {
   paypalEmail?: string | null;
   permissions?: string[];
   promotionEmail: boolean;
+  subscriptionTier?: string;
 };
 
 const AUTH_STORAGE_KEY = "surf-share-auth-session";
