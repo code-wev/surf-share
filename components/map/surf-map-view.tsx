@@ -135,11 +135,11 @@ function ActiveMarker({
       <Popup
         autoPan={false}
         closeButton={false}
-        className="custom-map-popup !hidden sm:!block"
+        className="custom-map-popup hidden! sm:block!"
         offset={[0, -12]}
       >
-        <article className="border-line-weaker bg-surface-muted-100 flex w-[280px] overflow-hidden rounded-xl border shadow-[0_14px_30px_rgba(15,23,42,0.14)] sm:w-[320px]">
-          <div className="relative min-h-[100px] w-1/3">
+        <article className="border-line-weaker bg-surface-muted-100 flex w-70 overflow-hidden rounded-xl border shadow-[0_14px_30px_rgba(15,23,42,0.14)] sm:w-[320px]">
+          <div className="relative min-h-25 w-1/3">
             <Image src={spot.imageSrc} alt={spot.name} fill className="object-cover" />
           </div>
           <div className="flex w-2/3 flex-col justify-center p-3">
@@ -192,7 +192,7 @@ export default function SurfMapView({ spots, activeSpotId, onActiveSpotChange }:
         attributionControl={false}
       >
         <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+          url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
           subdomains={["a", "b", "c", "d"]}
         />
 
