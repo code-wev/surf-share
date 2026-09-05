@@ -138,7 +138,12 @@ function GalleryPageContent() {
       <GalleryPagination
         currentPage={currentPage}
         totalPages={meta.totalPages}
-        onPageChange={(page) => setCurrentPage(Math.min(Math.max(page, 1), meta.totalPages))}
+        onPageChange={(page) => {
+          setCurrentPage(Math.min(Math.max(page, 1), meta.totalPages));
+          if (typeof window !== "undefined") {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        }}
       />
     </>
   );
