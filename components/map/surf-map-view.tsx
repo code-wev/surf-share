@@ -183,6 +183,7 @@ export default function SurfMapView({ spots, activeSpotId, onActiveSpotChange }:
         center={defaultCenter}
         zoom={defaultZoom}
         minZoom={4}
+        maxZoom={19}
         maxBounds={australiaBounds}
         maxBoundsViscosity={1.0}
         className="h-full w-full"
@@ -194,6 +195,8 @@ export default function SurfMapView({ spots, activeSpotId, onActiveSpotChange }:
         <TileLayer
           url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
           subdomains={["a", "b", "c", "d"]}
+          maxNativeZoom={16}
+          maxZoom={19}
         />
 
         <ZoomControl position="bottomright" />
