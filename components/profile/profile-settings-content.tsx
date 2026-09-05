@@ -522,7 +522,7 @@ export default function ProfileSettingsContent() {
                   automatically when someone buys your photos.
                   <br />
                   <span className="text-xs font-semibold text-brand-default">
-                    Note: We highly recommend using a Business PayPal account to allow for automated payments.
+                    Note: We highly recommend using a Verified Business PayPal account to allow for automated payments.
                   </span>
                 </p>
                 <input
