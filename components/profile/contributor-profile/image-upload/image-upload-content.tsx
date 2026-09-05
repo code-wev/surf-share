@@ -7,6 +7,7 @@ import { AlertCircle, ChevronDown, Loader2, Plus, Upload, XIcon } from "lucide-r
 import Image from "next/image";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils/error-handler";
 import PhotoCard, { PhotoItem } from "./photo-card";
 
 // Accepted MIME types for upload
@@ -30,22 +31,37 @@ export const PHOTO_PRICES = [
 ];
 
 function toLocalDateInputValue(date: Date): string {
-  const offsetMs = date.getTimezoneOffset() * 60_000;
-  return new Date(date.getTime() - offsetMs).toISOString().slice(0, 10);
+  const pad = (value: number) => String(value).padStart(2, "0");
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+
+  return `${year}-${month}-${day}`;
 }
 
 function toLocalTimeInputValue(date: Date): string {
-  const offsetMs = date.getTimezoneOffset() * 60_000;
-  return new Date(date.getTime() - offsetMs).toISOString().slice(11, 16);
+  const pad = (value: number) => String(value).padStart(2, "0");
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+
+  return `${hours}:${minutes}`;
 }
 
 function combineDateAndTime(dateValue: string, timeValue: string): Date | null {
-  if (!dateValue || !timeValue) {
+  const [year, month, day] = dateValue.split("-").map(Number);
+  const [hours, minutes] = timeValue.split(":").map(Number);
+
+  if (
+    Number.isNaN(year) ||
+    Number.isNaN(month) ||
+    Number.isNaN(day) ||
+    Number.isNaN(hours) ||
+    Number.isNaN(minutes)
+  ) {
     return null;
   }
 
-  const dateTime = new Date(`${dateValue}T${timeValue}:00`);
-  return Number.isNaN(dateTime.getTime()) ? null : dateTime;
+  return new Date(year, month - 1, day, hours, minutes, 0, 0);
 }
 
 function formatDateTimeAsUTC(date: Date): string {
@@ -116,6 +132,7 @@ export default function ImageUploadContentPage() {
   const [bulkLocationId, setBulkLocationId] = useState("");
   const [bulkPrice, setBulkPrice] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   // ── File ingestion ────────────────────────────────────────────────────────
 
@@ -203,15 +220,17 @@ export default function ImageUploadContentPage() {
 
   const handleUpload = () => {
     if (!photos.length) return;
+    setUploadError(null);
 
     // Validation
     const invalidPhotos = photos.filter(
       (p) => !p.locationId || !p.price || !p.capturedDate || !p.capturedTime || !p.title?.trim(),
     );
     if (invalidPhotos.length > 0) {
-      toast.error(
-        "Please ensure all photos have a title, location, date, time, and price before uploading.",
-      );
+      const errorMsg =
+        "Please ensure all photos have a title, location, date, time, and price before uploading.";
+      toast.error(errorMsg, { duration: 10000 });
+      setUploadError(errorMsg);
       return;
     }
 
@@ -249,9 +268,15 @@ export default function ImageUploadContentPage() {
           setBulkLocationId("");
           setBulkPrice("");
           setUploadProgress(0);
+          setUploadError(null);
         },
-        onError: () => {
+        onError: (err: unknown) => {
           setUploadProgress(0);
+          const errorMsg = getErrorMessage(
+            err,
+            "Failed to upload photos. If the upload is unsuccessful, try batches of 20–30 photos at a time.",
+          );
+          setUploadError(errorMsg);
         },
       },
     );
@@ -371,11 +396,12 @@ export default function ImageUploadContentPage() {
             </div>
           </div>
 
-          <p className="mt-4 flex items-center gap-1.5 text-xs text-[#c47a1e]">
-            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+          <p className="mt-4 flex items-start gap-1.5 text-xs text-[#c47a1e]">
+            <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             <span>
               <strong>Note:</strong> Your first 10 uploads require approval. After that, photos go
-              live immediately. Watermarks are added automatically.
+              live immediately. Watermarks are added automatically. If the upload is unsuccessful,
+              try batches of 20–30 photos at a time.
             </span>
           </p>
         </>
@@ -526,10 +552,11 @@ export default function ImageUploadContentPage() {
       {/* Note + Upload button (shown once photos are added */}
       {hasPhotos && (
         <p className="mt-6 flex items-start gap-1.5 text-xs text-[#c47a1e]">
-          <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+          <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span>
             <strong>Note:</strong> Your first 10 uploads require approval. After that, photos go
-            live immediately. Watermarks are added automatically.
+            live immediately. Watermarks are added automatically. If the upload is unsuccessful,
+            try batches of 20–30 photos at a time.
           </span>
         </p>
       )}
@@ -537,6 +564,28 @@ export default function ImageUploadContentPage() {
       {/* ── Upload button ── */}
       {hasPhotos && (
         <div className="mt-6 flex flex-col items-center">
+          {uploadError && (
+            <div className="mb-4 flex w-full max-w-xl items-start justify-between gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-xs text-red-800 shadow-xs sm:text-sm">
+              <div className="flex items-start gap-2.5">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
+                <div>
+                  <p className="font-semibold text-red-900">Upload Issue</p>
+                  <p className="mt-0.5 text-red-700">{uploadError}</p>
+                  <p className="mt-1 text-xs font-medium text-red-600">
+                    Tip: If uploading many high-resolution photos, try uploading in batches of 20–30 photos at a time.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setUploadError(null)}
+                className="cursor-pointer p-1 text-red-400 transition-colors hover:text-red-700"
+                title="Dismiss warning"
+              >
+                <XIcon size={16} />
+              </button>
+            </div>
+          )}
           {uploadMutation.isPending && uploadProgress > 0 && (
             <div className="mb-3 flex w-full max-w-md items-center gap-4 rounded-md border border-gray-200 bg-white p-3 shadow-sm">
               <span className="w-12 text-right text-sm font-medium text-gray-700">

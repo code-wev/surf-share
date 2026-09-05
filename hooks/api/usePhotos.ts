@@ -15,7 +15,15 @@ export const useUploadPhotosMutation = () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.photos.all });
     },
     onError: (error: unknown) => {
-      toast.error(getErrorMessage(error, "Failed to upload photos."));
+      toast.error(
+        getErrorMessage(
+          error,
+          "Failed to upload photos. If the upload is unsuccessful, try batches of 20–30 photos at a time.",
+        ),
+        {
+          duration: 12000,
+        },
+      );
     },
   });
 };
