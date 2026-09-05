@@ -1,5 +1,7 @@
 import Image from "next/image";
-import { ChevronsRight, Loader2 } from "lucide-react";
+import { Check, ChevronsRight, Copy, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { getUserById, getUserPhotos } from "@/src/actions/user.action";
 import {
@@ -22,7 +24,7 @@ type UserDetailRowProps = {
 
 function UserDetailRow({ label, value }: UserDetailRowProps) {
   return (
-    <div className="grid grid-cols-[92px_minmax(0,1fr)] gap-x-12 gap-y-1 py-1 [font-family:var(--font-sf-pro)] text-xs leading-tight sm:grid-cols-[104px_minmax(0,1fr)] sm:text-sm">
+    <div className="grid grid-cols-[100px_minmax(0,1fr)] gap-x-6 gap-y-1 py-1 [font-family:var(--font-sf-pro)] text-xs leading-tight sm:grid-cols-[125px_minmax(0,1fr)] sm:gap-x-8 sm:text-sm">
       <span className="text-text-strong font-medium">{label}</span>
       <div className="text-text-weak min-w-0">{value}</div>
     </div>
@@ -71,7 +73,17 @@ export default function UserDetailsModal({ userId, onClose }: UserDetailsModalPr
     });
   };
 
+  const [copiedBankDetails, setCopiedBankDetails] = useState(false);
+
+  const handleCopyBankDetails = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedBankDetails(true);
+    toast.success("Manual payment details copied!");
+    setTimeout(() => setCopiedBankDetails(false), 2000);
+  };
+
   const user = userResponse?.data;
+  const isPhotographer = user?.role === "PHOTOGRAPHER" || user?.role === "Photographer";
   const photos = photosData?.data ?? [];
   const displayPhotos = photos.slice(0, 4);
   const remainingPhotos = Math.max(0, photos.length - 4);
@@ -174,40 +186,85 @@ export default function UserDetailsModal({ userId, onClose }: UserDetailsModalPr
                   }
                 />
 
-                {user.role === "PHOTOGRAPHER" && (
-                  <UserDetailRow
-                    label="Subscription"
-                    value={
-                      <div className="flex items-center gap-2">
-                        {session?.role === "MODERATOR" ? (
-                          <span className="text-sm font-medium text-text-strong">
-                            {((user as Record<string, unknown>).subscriptionTier as string) ||
-                              "BRONZE"}
-                          </span>
+                {isPhotographer && (
+                  <>
+                    <UserDetailRow
+                      label="Subscription"
+                      value={
+                        <div className="flex items-center gap-2">
+                          {session?.role === "MODERATOR" ? (
+                            <span className="text-sm font-medium text-text-strong">
+                              {user.subscriptionTier || "BRONZE"}
+                            </span>
+                          ) : (
+                            <>
+                              <select
+                                className="border-line-weaker text-text-strong focus:ring-brand-default h-8 rounded-sm border bg-white px-2 text-sm focus:ring-1 focus:outline-none"
+                                value={user.subscriptionTier || "BRONZE"}
+                                onChange={handleSubscriptionChange}
+                                disabled={updateSubscriptionMutation.isPending}
+                              >
+                                <option value="BRONZE">BRONZE</option>
+                                <option value="SILVER">SILVER</option>
+                                <option value="GOLD">GOLD</option>
+                                <option value="GOLD_PLUS">GOLD PLUS</option>
+                              </select>
+                              {updateSubscriptionMutation.isPending && (
+                                <Loader2 className="text-brand-default h-4 w-4 animate-spin" />
+                              )}
+                            </>
+                          )}
+                        </div>
+                      }
+                    />
+
+                    <UserDetailRow
+                      label="PayPal Email"
+                      value={
+                        user.paypalEmail ? (
+                          <div className="flex items-center gap-2">
+                            <span className="text-text-strong">{user.paypalEmail}</span>
+                            {user.paypalConnected ? (
+                              <span className="rounded border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700">
+                                Connected
+                              </span>
+                            ) : null}
+                          </div>
                         ) : (
-                          <>
-                            <select
-                              className="border-line-weaker text-text-strong focus:ring-brand-default h-8 rounded-sm border bg-white px-2 text-sm focus:ring-1 focus:outline-none"
-                              value={
-                                ((user as Record<string, unknown>).subscriptionTier as string) ||
-                                "BRONZE"
-                              }
-                              onChange={handleSubscriptionChange}
-                              disabled={updateSubscriptionMutation.isPending}
-                            >
-                              <option value="BRONZE">BRONZE</option>
-                              <option value="SILVER">SILVER</option>
-                              <option value="GOLD">GOLD</option>
-                              <option value="GOLD_PLUS">GOLD PLUS</option>
-                            </select>
-                            {updateSubscriptionMutation.isPending && (
-                              <Loader2 className="text-brand-default h-4 w-4 animate-spin" />
-                            )}
-                          </>
-                        )}
-                      </div>
-                    }
-                  />
+                          <span className="text-text-weaker italic">Not connected</span>
+                        )
+                      }
+                    />
+
+                    <UserDetailRow
+                      label="Manual Payment Details"
+                      value={
+                        user.manualBankDetails ? (
+                          <div className="border-line-weaker bg-surface-muted-100 relative rounded-md border p-2.5">
+                            <div className="flex items-start justify-between gap-2">
+                              <pre className="text-text-strong font-mono text-xs whitespace-pre-wrap break-all leading-relaxed">
+                                {user.manualBankDetails}
+                              </pre>
+                              <button
+                                type="button"
+                                onClick={() => handleCopyBankDetails(user.manualBankDetails || "")}
+                                title="Copy manual payment details"
+                                className="text-text-weak hover:text-text-strong inline-flex shrink-0 cursor-pointer items-center justify-center rounded p-1 transition-colors hover:bg-fill-hover"
+                              >
+                                {copiedBankDetails ? (
+                                  <Check size={14} className="text-emerald-600" />
+                                ) : (
+                                  <Copy size={14} />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-text-weaker italic">No manual payment details provided</span>
+                        )
+                      }
+                    />
+                  </>
                 )}
 
                 <UserDetailRow label="Phone Number" value={user.phoneNumber ?? "--"} />

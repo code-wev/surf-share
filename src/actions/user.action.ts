@@ -26,6 +26,9 @@ interface UserGetResponse {
     countryName?: string | null;
     address?: string | null;
     promotionEmail: boolean;
+    paypalEmail?: string | null;
+    paypalConnected?: boolean | null;
+    manualBankDetails?: string | null;
   }>;
 }
 
@@ -44,6 +47,10 @@ interface UserGetByIdResponse {
     countryName?: string | null;
     address?: string | null;
     promotionEmail: boolean;
+    subscriptionTier?: string | null;
+    paypalEmail?: string | null;
+    paypalConnected?: boolean | null;
+    manualBankDetails?: string | null;
   };
 }
 

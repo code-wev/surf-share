@@ -42,6 +42,9 @@ type ApiUser = {
   countryName?: string | null;
   address?: string | null;
   promotionEmail: boolean;
+  manualBankDetails?: string | null;
+  paypalEmail?: string | null;
+  paypalConnected?: boolean | null;
 };
 
 export default function DashboardUserManagementContent() {
