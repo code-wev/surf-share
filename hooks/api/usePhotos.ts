@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query";
+import { useMutation, useQuery, useInfiniteQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { photoService } from "../../lib/api/services/photo.service";
 import { photoService as moderatorPhotoService } from "../../lib/api/services/photo-moderator.service";
@@ -33,6 +33,25 @@ export const usePublicPhotosQuery = (filters: Record<string, unknown>) => {
     queryKey: [...queryKeys.photos.all, filters],
     queryFn: () => photoService.getAllPublic(filters),
     placeholderData: keepPreviousData,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+export const usePublicPhotosInfiniteQuery = (filters: Record<string, unknown>, limit = 32) => {
+  return useInfiniteQuery({
+    queryKey: [...queryKeys.photos.all, "infinite", filters, limit],
+    queryFn: ({ pageParam = 1 }) =>
+      photoService.getAllPublic({
+        ...filters,
+        page: pageParam,
+        limit,
+      }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const page = lastPage?.meta?.page ?? 1;
+      const totalPages = lastPage?.meta?.totalPages ?? 1;
+      return page < totalPages ? page + 1 : undefined;
+    },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };

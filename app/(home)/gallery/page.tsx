@@ -2,21 +2,20 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { ArrowUp, Loader2 } from "lucide-react";
 
 import GalleryContent from "@/components/home/gallery/gallery-content";
-import GalleryPagination from "@/components/home/gallery/gallery-pagination";
 import GalleryTitle from "@/components/home/gallery/gallery-title";
-import { usePublicPhotosQuery } from "@/hooks/api/usePhotos";
+import { usePublicPhotosInfiniteQuery } from "@/hooks/api/usePhotos";
 import { queryKeys } from "@/lib/api/query-keys";
 import { photoService } from "@/lib/api/services/photo.service";
 import { getAbsoluteImageUrl } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
 
 export type GalleryTab = "all" | "today" | "yesterday" | "last7days" | "last14days";
 export type GallerySort = "latest" | "priceLow" | "priceHigh";
 
-const PAGE_SIZE = 16;
+const BATCH_SIZE = 32;
 
 type ApiPhoto = {
   id: string;
@@ -33,26 +32,70 @@ function GalleryPageContent() {
   const searchParams = useSearchParams();
   const locationQuery = searchParams.get("locationId");
   const queryClient = useQueryClient();
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   const [activeTab, setActiveTab] = useState<GalleryTab>("all");
   const [selectedLocation, setSelectedLocation] = useState<string>(locationQuery || "all");
   const [selectedTime, setSelectedTime] = useState<string>("all");
   const [selectedSort, setSelectedSort] = useState<GallerySort>("latest");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
-  const { data: photosData, isLoading } = usePublicPhotosQuery({
-    tab: activeTab,
-    locationId: selectedLocation === "all" ? undefined : selectedLocation,
-    timeKey: selectedTime === "all" ? undefined : selectedTime,
-    sort: selectedSort,
-    page: currentPage,
-    limit: PAGE_SIZE,
-  });
+  // Infinite Query with batch size 32
+  const {
+    data: photosData,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = usePublicPhotosInfiniteQuery(
+    {
+      tab: activeTab,
+      locationId: selectedLocation === "all" ? undefined : selectedLocation,
+      timeKey: selectedTime === "all" ? undefined : selectedTime,
+      sort: selectedSort,
+    },
+    BATCH_SIZE,
+  );
 
-  // Pre-fetch details for all photos on the current page when data arrives
+  // IntersectionObserver for infinite scrolling sentinel
   useEffect(() => {
-    if (photosData?.data) {
-      photosData.data.forEach((photo: ApiPhoto) => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      {
+        root: null,
+        rootMargin: "300px",
+        threshold: 0,
+      },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  // Track window scroll for Back to Top button
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 500);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Pre-fetch details for newly loaded batch of photos
+  useEffect(() => {
+    if (!photosData?.pages?.length) return;
+    const lastPage = photosData.pages[photosData.pages.length - 1];
+    if (lastPage?.data) {
+      lastPage.data.forEach((photo: ApiPhoto) => {
         queryClient.prefetchQuery({
           queryKey: queryKeys.photos.detail(photo.id),
           queryFn: () => photoService.getById(photo.id),
@@ -60,26 +103,22 @@ function GalleryPageContent() {
         });
       });
     }
-  }, [photosData, queryClient]);
+  }, [photosData?.pages, queryClient]);
 
   const handleTabChange = (tab: GalleryTab) => {
     setActiveTab(tab);
-    setCurrentPage(1);
   };
 
   const handleLocationChange = (locationId: string) => {
     setSelectedLocation(locationId);
-    setCurrentPage(1);
   };
 
   const handleTimeChange = (time: string) => {
     setSelectedTime(time);
-    setCurrentPage(1);
   };
 
   const handleSortChange = (sort: GallerySort) => {
     setSelectedSort(sort);
-    setCurrentPage(1);
   };
 
   const handleResetFilters = () => {
@@ -87,12 +126,13 @@ function GalleryPageContent() {
     setSelectedLocation("all");
     setSelectedTime("all");
     setSelectedSort("latest");
-    setCurrentPage(1);
   };
 
-  const photos = photosData?.data || [];
-  const meta = photosData?.meta || { total: 0, totalPages: 1 };
-  const mappedPhotos = photos.map((p: ApiPhoto) => {
+  const allPhotos: ApiPhoto[] =
+    photosData?.pages?.flatMap((page) => page.data || []) || [];
+  const totalCount = photosData?.pages?.[0]?.meta?.total ?? 0;
+
+  const mappedPhotos = allPhotos.map((p: ApiPhoto) => {
     const dateToUse = new Date(p.capturedAt || p.createdAt);
     const formattedDate = dateToUse.toLocaleDateString("en-US", {
       month: "short",
@@ -125,26 +165,70 @@ function GalleryPageContent() {
         onTimeChange={handleTimeChange}
         selectedSort={selectedSort}
         onSortChange={handleSortChange}
-        totalCount={meta.total}
+        totalCount={totalCount}
         onResetFilters={handleResetFilters}
       />
+
       {isLoading ? (
         <div className="flex h-64 items-center justify-center">
           <Loader2 className="text-brand-default h-8 w-8 animate-spin" />
         </div>
+      ) : mappedPhotos.length > 0 ? (
+        <>
+          <GalleryContent items={mappedPhotos} />
+
+          {/* Sentinel for triggering next page load */}
+          <div ref={sentinelRef} className="h-6 w-full" />
+
+          {/* Bottom loader while fetching next batch */}
+          {isFetchingNextPage && (
+            <div className="flex items-center justify-center py-8">
+              <div className="inline-flex items-center gap-2 rounded-full border border-line-weaker bg-surface-muted-100 px-4 py-2 text-sm font-medium text-text-weak shadow-xs">
+                <Loader2 className="text-brand-default h-4 w-4 animate-spin" />
+                <span>Loading more photos...</span>
+              </div>
+            </div>
+          )}
+
+          {/* End of Gallery badge */}
+          {!hasNextPage && (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="bg-line-weaker mb-4 h-px w-24" />
+              <p className="text-text-weak text-sm font-medium">
+                You&apos;ve reached the end of the gallery ({totalCount}{" "}
+                {totalCount === 1 ? "photo" : "photos"})
+              </p>
+            </div>
+          )}
+        </>
       ) : (
-        <GalleryContent items={mappedPhotos} />
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <p className="text-text-strong text-lg font-medium">No photos found</p>
+          <p className="text-text-weak mt-1 text-sm">
+            Try adjusting your filters or date range.
+          </p>
+          <button
+            type="button"
+            onClick={handleResetFilters}
+            className="bg-brand-default text-text-inverse-strong hover:bg-brand-hover mt-4 inline-flex h-9 items-center rounded-sm px-4 text-sm font-medium transition-colors cursor-pointer"
+          >
+            Reset Filters
+          </button>
+        </div>
       )}
-      <GalleryPagination
-        currentPage={currentPage}
-        totalPages={meta.totalPages}
-        onPageChange={(page) => {
-          setCurrentPage(Math.min(Math.max(page, 1), meta.totalPages));
-          if (typeof window !== "undefined") {
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          }
-        }}
-      />
+
+      {/* Floating Back to Top button */}
+      {showBackToTop && (
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          aria-label="Back to top"
+          className="bg-brand-default text-text-inverse-strong hover:bg-brand-hover fixed right-6 bottom-6 z-40 flex h-11 w-11 items-center justify-center rounded-full shadow-lg transition-all duration-200 hover:scale-105 cursor-pointer"
+          title="Back to top"
+        >
+          <ArrowUp className="h-5 w-5" />
+        </button>
+      )}
     </>
   );
 }

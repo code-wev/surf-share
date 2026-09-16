@@ -1,13 +1,12 @@
-import CardView from "@/components/shared/card-view";
+import CardView, { type CardViewItem } from "@/components/shared/card-view";
 
 import {
   galleryDetailItems,
   gallerySeedImages,
-  type GallerySeedImage,
 } from "@/components/home/gallery/gallery-images";
 
 type GalleryContentProps = {
-  items?: GallerySeedImage[];
+  items?: CardViewItem[];
 };
 
 const gallerySlugById = new Map(galleryDetailItems.map((item) => [String(item.id), item.slug]));
