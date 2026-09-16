@@ -14,6 +14,7 @@ import {
   Shield,
   UsersRound,
   Banknote,
+  Receipt,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -52,6 +53,11 @@ const moderatorDashboardNavItems: ReadonlyArray<DashboardNavItem> = [
     permission: "APPROVE_PHOTO",
   },
   {
+    label: "Purchase Logs",
+    Icon: Receipt,
+    href: "/dashboard/purchase-logs",
+  },
+  {
     label: "Locations Moderation",
     Icon: MapPin,
     href: "/dashboard/locations-moderation",
@@ -62,6 +68,7 @@ const moderatorDashboardNavItems: ReadonlyArray<DashboardNavItem> = [
 const adminDashboardNavItems: ReadonlyArray<DashboardNavItem> = [
   { label: "User Management", Icon: UsersRound, href: "/dashboard/user-management" },
   { label: "Moderator Management", Icon: Shield, href: "/dashboard/moderator-management" },
+  { label: "Purchase Logs", Icon: Receipt, href: "/dashboard/purchase-logs" },
   { label: "Manual Payouts", Icon: Banknote, href: "/dashboard/payouts" },
   {
     label: "Advertisement Settings",
