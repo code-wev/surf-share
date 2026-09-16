@@ -63,11 +63,16 @@ export default function PurchaseLogsContent() {
   const [selectedStatus, setSelectedStatus] = useState<FilterStatus>("ALL");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(20);
+  const [pageSize] = useState(10);
 
   const [activePurchase, setActivePurchase] = useState<PurchaseLogItem | null>(null);
   const [downloadingPhotoId, setDownloadingPhotoId] = useState<string | null>(null);
   const filterDropdownRef = useRef<HTMLDivElement | null>(null);
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   // Debounce search
   useEffect(() => {
@@ -426,38 +431,54 @@ export default function PurchaseLogsContent() {
         </table>
       </div>
 
-      {/* Pagination: Exactly matching UserManagementPagination */}
-      {meta.totalPages > 1 ? (
+      {/* Pagination: Exactly matching UserManagementPagination & visible when records exist */}
+      {meta.total > 0 ? (
         <div className="mt-5 flex flex-wrap items-center justify-center gap-1.5 text-xs text-text-weak sm:mt-6 sm:gap-2">
           <button
             type="button"
-            onClick={() => setCurrentPage((previous) => Math.max(1, previous - 1))}
-            disabled={currentPage === 1}
+            onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+            disabled={currentPage <= 1}
             className="inline-flex h-8 items-center gap-1 rounded-sm px-2 py-1 disabled:opacity-45 cursor-pointer"
           >
             <ChevronLeft size={12} />
             <span className="hidden sm:inline">Previous</span>
           </button>
 
-          {Array.from({ length: meta.totalPages }, (_, index) => index + 1).map((page) => (
-            <button
-              key={page}
-              type="button"
-              onClick={() => setCurrentPage(page)}
-              className={`inline-flex h-8 w-8 items-center justify-center rounded-sm cursor-pointer ${
-                currentPage === page
-                  ? "bg-[#EEF2F7] text-text-strong font-medium"
-                  : "text-text-weak hover:bg-fill-hover"
-              }`}
-            >
-              {page}
-            </button>
-          ))}
+          {Array.from({ length: meta.totalPages || 1 }, (_, index) => index + 1)
+            .filter((p) => {
+              if (meta.totalPages <= 7) return true;
+              return (
+                p === 1 ||
+                p === meta.totalPages ||
+                (p >= currentPage - 2 && p <= currentPage + 2)
+              );
+            })
+            .map((page, idx, array) => {
+              const prev = array[idx - 1];
+              const showEllipsis = prev && page - prev > 1;
+
+              return (
+                <div key={page} className="flex items-center gap-1">
+                  {showEllipsis ? <span className="px-1 text-text-weak">...</span> : null}
+                  <button
+                    type="button"
+                    onClick={() => handlePageChange(page)}
+                    className={`inline-flex h-8 w-8 items-center justify-center rounded-sm cursor-pointer ${
+                      currentPage === page
+                        ? "bg-[#EEF2F7] text-text-strong font-medium"
+                        : "text-text-weak hover:bg-fill-hover"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                </div>
+              );
+            })}
 
           <button
             type="button"
-            onClick={() => setCurrentPage((previous) => Math.min(meta.totalPages, previous + 1))}
-            disabled={currentPage === meta.totalPages}
+            onClick={() => handlePageChange(Math.min(meta.totalPages || 1, currentPage + 1))}
+            disabled={currentPage >= (meta.totalPages || 1)}
             className="inline-flex h-8 items-center gap-1 rounded-sm px-2 py-1 disabled:opacity-45 cursor-pointer"
           >
             <span className="hidden sm:inline">Next</span>
