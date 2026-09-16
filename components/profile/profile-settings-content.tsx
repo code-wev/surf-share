@@ -571,7 +571,7 @@ function ProfileSettingsForm({ initialProfile, session }: ProfileSettingsFormPro
                   automatically when someone buys your photos.
                   <br />
                   <span className="text-xs font-semibold text-brand-default">
-                    Note: We highly recommend using a Verified Business PayPal account to allow for automated payments.
+                    Note: You can use a verified personal or business PayPal account, but we recommend using a business account for automated payments.
                   </span>
                 </p>
                 <input
