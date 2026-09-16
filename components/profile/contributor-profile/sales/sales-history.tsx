@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  ChevronLeft,
-  ChevronRight,
   ChevronRight as ChevronRightSmall,
   Loader2,
   MapPin,
@@ -14,6 +12,7 @@ import { useAllLocationsQuery } from "@/hooks/api/useLocations";
 import { useMySales } from "@/hooks/api/useSales";
 import { useAuth } from "@/lib/auth";
 import SaleHistoryTable, { SaleHistoryTableRow } from "./sales-history-list";
+import Pagination from "@/components/shared/pagination";
 
 type Location = {
   id: string;
@@ -191,49 +190,12 @@ export default function ContributorSalesHistoryPage() {
         <SaleHistoryTable rows={pagedUploads} />
       )}
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="text-text-weak mt-6 flex items-center justify-center gap-1.5 text-sm sm:gap-2">
-          <button
-            type="button"
-            disabled={safeCurrentPage === 1}
-            onClick={() => setCurrentPage((previous) => Math.max(1, previous - 1))}
-            className="inline-flex h-9 items-center gap-1 rounded-sm px-2 disabled:opacity-45"
-          >
-            <ChevronLeft size={14} />
-            Previous
-          </button>
-
-          {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
-            <button
-              key={page}
-              type="button"
-              onClick={() => setCurrentPage(page)}
-              className={`inline-flex h-9 w-9 items-center justify-center rounded-sm ${
-                page === safeCurrentPage
-                  ? "text-text-strong bg-[#EEF2F7] font-semibold"
-                  : "text-text-weak hover:bg-fill-hover"
-              }`}
-            >
-              {page}
-            </button>
-          ))}
-
-          {totalPages > 4 && safeCurrentPage < totalPages - 2 ? (
-            <span className="px-1">...</span>
-          ) : null}
-
-          <button
-            type="button"
-            disabled={safeCurrentPage === totalPages}
-            onClick={() => setCurrentPage((previous) => Math.min(totalPages, previous + 1))}
-            className="inline-flex h-9 items-center gap-1 rounded-sm px-2 disabled:opacity-45"
-          >
-            Next
-            <ChevronRight size={14} />
-          </button>
-        </div>
-      )}
+      {/* Pagination with smart ellipsis & scroll-to-top */}
+      <Pagination
+        currentPage={safeCurrentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
     </section>
   );
 }

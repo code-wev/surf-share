@@ -3,8 +3,6 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   Check,
-  ChevronLeft,
-  ChevronRight,
   Clock3,
   DollarSign,
   Download,
@@ -29,6 +27,7 @@ import {
 import { photoService } from "@/lib/api/services/photo.service";
 import { getAbsoluteImageUrl } from "@/lib/utils";
 import PurchaseDetailsModal from "./purchase-details-modal";
+import Pagination from "@/components/shared/pagination";
 
 type FilterStatus = "ALL" | "PAID" | "PENDING" | "FAILED";
 
@@ -430,61 +429,13 @@ export default function PurchaseLogsContent() {
         </table>
       </div>
 
-      {/* Pagination: Exactly matching UserManagementPagination & visible when records exist */}
-      {meta.total > 0 ? (
-        <div className="mt-6 mb-10 flex flex-wrap items-center justify-center gap-1.5 text-xs text-text-weak sm:mt-7 sm:mb-14 sm:gap-2">
-          <button
-            type="button"
-            onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-            disabled={currentPage <= 1}
-            className="inline-flex h-8 items-center gap-1 rounded-sm px-2 py-1 disabled:opacity-45 cursor-pointer"
-          >
-            <ChevronLeft size={12} />
-            <span className="hidden sm:inline">Previous</span>
-          </button>
-
-          {Array.from({ length: meta.totalPages || 1 }, (_, index) => index + 1)
-            .filter((p) => {
-              if (meta.totalPages <= 7) return true;
-              return (
-                p === 1 ||
-                p === meta.totalPages ||
-                (p >= currentPage - 2 && p <= currentPage + 2)
-              );
-            })
-            .map((page, idx, array) => {
-              const prev = array[idx - 1];
-              const showEllipsis = prev && page - prev > 1;
-
-              return (
-                <div key={page} className="flex items-center gap-1">
-                  {showEllipsis ? <span className="px-1 text-text-weak">...</span> : null}
-                  <button
-                    type="button"
-                    onClick={() => handlePageChange(page)}
-                    className={`inline-flex h-8 w-8 items-center justify-center rounded-sm cursor-pointer ${
-                      currentPage === page
-                        ? "bg-[#EEF2F7] text-text-strong font-medium"
-                        : "text-text-weak hover:bg-fill-hover"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                </div>
-              );
-            })}
-
-          <button
-            type="button"
-            onClick={() => handlePageChange(Math.min(meta.totalPages || 1, currentPage + 1))}
-            disabled={currentPage >= (meta.totalPages || 1)}
-            className="inline-flex h-8 items-center gap-1 rounded-sm px-2 py-1 disabled:opacity-45 cursor-pointer"
-          >
-            <span className="hidden sm:inline">Next</span>
-            <ChevronRight size={12} />
-          </button>
-        </div>
-      ) : null}
+      {/* Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={meta.totalPages}
+        onPageChange={handlePageChange}
+        className="mt-6 mb-10 sm:mt-7 sm:mb-14"
+      />
 
       {/* Purchase Details Modal */}
       <PurchaseDetailsModal
