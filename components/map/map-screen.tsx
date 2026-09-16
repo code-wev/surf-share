@@ -30,7 +30,8 @@ export default function MapScreen() {
     const spots = (mapDataResponse?.data || []) as SurfSpot[];
     return spots.map((spot) => ({
       ...spot,
-      imageSrc: getAbsoluteImageUrl(spot.imageSrc),
+      imageSrc: spot.imageSrc ? getAbsoluteImageUrl(spot.imageSrc) : "/home/latest/latest7.jpg",
+      photoCount: spot.photoCount ?? 0,
     }));
   }, [mapDataResponse?.data]);
 
@@ -62,17 +63,21 @@ export default function MapScreen() {
       // const matchesTime = selectedTime === "all" || spot.timeWindows.includes(selectedTime);
 
       let inDateRange = true;
-      if (selectedFromDate && spot.availableTo) {
-        if (selectedFromDate > spot.availableTo) inDateRange = false;
-      }
-      if (selectedToDate && spot.availableFrom) {
-        if (selectedToDate < spot.availableFrom) inDateRange = false;
+      if (selectedFromDate || selectedToDate) {
+        if (!spot.availableFrom || !spot.availableTo) {
+          inDateRange = false;
+        } else {
+          if (selectedFromDate && spot.availableTo && selectedFromDate > spot.availableTo) {
+            inDateRange = false;
+          }
+          if (selectedToDate && spot.availableFrom && selectedToDate < spot.availableFrom) {
+            inDateRange = false;
+          }
+        }
       }
 
-      // return matchesState && matchesRegion && matchesTime && inDateRange;
       return matchesState && matchesRegion && inDateRange;
     });
-    // }, [liveSurfSpots, selectedRegion, selectedState, selectedTime, selectedFromDate, selectedToDate]);
   }, [liveSurfSpots, selectedRegion, selectedState, selectedFromDate, selectedToDate]);
 
   const resolvedActiveSpotId = filteredSpots.some((spot) => spot.id === activeSpotId)

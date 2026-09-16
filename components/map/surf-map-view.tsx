@@ -140,7 +140,7 @@ function ActiveMarker({
       >
         <article className="border-line-weaker bg-surface-muted-100 flex w-70 overflow-hidden rounded-xl border shadow-[0_14px_30px_rgba(15,23,42,0.14)] sm:w-[320px]">
           <div className="relative min-h-25 w-1/3">
-            <Image src={spot.imageSrc} alt={spot.name} fill className="object-cover" />
+            <Image src={spot.imageSrc || "/home/latest/latest7.jpg"} alt={spot.name} fill className="object-cover" />
           </div>
           <div className="flex w-2/3 flex-col justify-center p-3">
             <h3 className="text-text-strong line-clamp-1 text-sm leading-tight font-semibold">
