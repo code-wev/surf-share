@@ -78,4 +78,28 @@ export const photoService = {
     const response = await apiClient.delete(`/photos/${id}`);
     return response.data;
   },
+
+  downloadOriginal: async (photoId: string, customFileName?: string) => {
+    const response = await apiClient.get(`/photos/${photoId}/download`, {
+      responseType: "blob",
+    });
+
+    let filename = customFileName || `SurfShare-Original-${photoId}.jpg`;
+    const contentDisposition = response.headers?.["content-disposition"];
+    if (contentDisposition) {
+      const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      if (match && match[1]) {
+        filename = match[1].replace(/['"]/g, "");
+      }
+    }
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
 };

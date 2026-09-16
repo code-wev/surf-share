@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Check, Clock3, Eye, Pencil, Trash2, X, Loader2 } from "lucide-react";
+import { Check, Clock3, Eye, Pencil, Trash2, X, Loader2, Download } from "lucide-react";
 
 import { type UploadStatus } from "../../profile/contributor-profile/my-uploads/my-upload-data";
 
@@ -25,6 +25,8 @@ type ModeratorListTableProps<T extends ModeratorListTableRow> = {
   onViewDetails: (row: T) => void;
   onEdit: (row: T) => void;
   onDelete: (row: T) => void;
+  onDownload?: (row: T) => void;
+  downloadingId?: string | null;
 };
 
 export default function ModeratorListTable<T extends ModeratorListTableRow>({
@@ -32,6 +34,8 @@ export default function ModeratorListTable<T extends ModeratorListTableRow>({
   onViewDetails,
   onEdit,
   onDelete,
+  onDownload,
+  downloadingId,
 }: ModeratorListTableProps<T>) {
   const statusStyleMap: Record<UploadStatus, string> = {
     approved: "bg-[#EAF9EF] text-[#22C55E]",
@@ -72,6 +76,7 @@ export default function ModeratorListTable<T extends ModeratorListTableRow>({
         <tbody>
           {rows.map((item) => {
             const StatusIcon = statusIconMap[item.status];
+            const isDownloadingThis = downloadingId === item.id;
 
             return (
               <tr key={item.id} className="border-line-weaker border-b last:border-b-0">
@@ -109,8 +114,22 @@ export default function ModeratorListTable<T extends ModeratorListTableRow>({
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
+                      onClick={() => onDownload?.(item)}
+                      disabled={isDownloadingThis}
+                      className="text-text-strong hover:text-brand-default inline-flex cursor-pointer items-center gap-1 text-sm hover:underline disabled:opacity-50"
+                      title="Download Original Photo"
+                    >
+                      {isDownloadingThis ? (
+                        <Loader2 size={14} className="animate-spin text-brand-default" />
+                      ) : (
+                        <Download size={14} />
+                      )}
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => onViewDetails(item)}
                       className="inline-flex cursor-pointer items-center gap-1 text-sm text-[#0EA5E9] hover:underline"
+                      title="View Details"
                     >
                       <Eye size={14} />
                     </button>
@@ -118,6 +137,7 @@ export default function ModeratorListTable<T extends ModeratorListTableRow>({
                       type="button"
                       onClick={() => onEdit(item)}
                       className="text-brand-default inline-flex cursor-pointer items-center gap-1 text-sm hover:underline"
+                      title="Edit"
                     >
                       <Pencil size={14} />
                     </button>
@@ -125,6 +145,7 @@ export default function ModeratorListTable<T extends ModeratorListTableRow>({
                       type="button"
                       onClick={() => onDelete(item)}
                       className="text-danger-strong inline-flex cursor-pointer items-center gap-1 text-sm hover:underline"
+                      title="Delete"
                     >
                       <Trash2 size={14} />
                     </button>

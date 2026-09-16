@@ -13,8 +13,9 @@ import { useMemo, useState } from "react";
 
 import { useLocationsQuery } from "@/hooks/api/useLocations";
 import { useModeratorPhotosQuery } from "@/hooks/api/usePhotos";
-import type { IPhotoResponse } from "@/lib/api/services/photo.service";
+import { photoService, type IPhotoResponse } from "@/lib/api/services/photo.service";
 import { formatFileSize, getAbsoluteImageUrl } from "@/lib/utils";
+import { toast } from "sonner";
 import DeleteUploadModal from "./delete-upload-modal";
 import EditUploadModal from "./edit-upload-modal";
 import ModeratorListTable, { type ModeratorListTableRow } from "./moderator-list-table";
@@ -109,6 +110,21 @@ export default function ModeratorUploadedPhotosPage() {
   const [selectedUpload, setSelectedUpload] = useState<EnrichedUploadRow | null>(null);
   const [editingUpload, setEditingUpload] = useState<EnrichedUploadRow | null>(null);
   const [deletingUpload, setDeletingUpload] = useState<EnrichedUploadRow | null>(null);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
+  const handleDownloadOriginal = async (row: { id: string; name?: string }) => {
+    setDownloadingId(row.id);
+    try {
+      toast.info("Preparing secure original download...");
+      await photoService.downloadOriginal(row.id, `${row.name || "Photo"}.jpg`);
+      toast.success("Download started!");
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error("Failed to download original photo. Please check permissions.");
+    } finally {
+      setDownloadingId(null);
+    }
+  };
 
   // Dynamic Location Data for Filter
   const { data: locationsData } = useLocationsQuery({ page: 1, limit: 100 });
@@ -313,6 +329,8 @@ export default function ModeratorUploadedPhotosPage() {
         onViewDetails={setSelectedUpload}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onDownload={handleDownloadOriginal}
+        downloadingId={downloadingId}
       />
 
       {/* Pagination - Only shown if needed */}
@@ -361,7 +379,12 @@ export default function ModeratorUploadedPhotosPage() {
 
       {/* View Details Modal */}
       {selectedUpload && (
-        <UploadDetailsModal upload={selectedUpload} onClose={() => setSelectedUpload(null)} />
+        <UploadDetailsModal
+          upload={selectedUpload}
+          onClose={() => setSelectedUpload(null)}
+          onDownload={handleDownloadOriginal}
+          isDownloading={downloadingId === selectedUpload.id}
+        />
       )}
 
       {/* Edit Details Modal */}
