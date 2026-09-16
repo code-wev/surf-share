@@ -3,64 +3,96 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   Check,
-  Copy,
+  ChevronLeft,
+  ChevronRight,
+  Clock3,
   DollarSign,
   Download,
   Eye,
   Loader2,
-  RefreshCw,
   Search,
   ShoppingBag,
+  SlidersHorizontal,
   TrendingUp,
   Users,
+  X,
 } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import {
   orderService,
   type PurchaseLogItem,
+  type PurchaseStatus,
 } from "@/lib/api/services/order.service";
 import { photoService } from "@/lib/api/services/photo.service";
 import { getAbsoluteImageUrl } from "@/lib/utils";
 import PurchaseDetailsModal from "./purchase-details-modal";
 
-type StatusTab = "ALL" | "PAID" | "PENDING" | "FAILED";
+type FilterStatus = "ALL" | "PAID" | "PENDING" | "FAILED";
 
-const STATUS_TABS: { label: string; value: StatusTab }[] = [
-  { label: "All Purchases", value: "ALL" },
-  { label: "Completed (Paid)", value: "PAID" },
+const FILTER_OPTIONS: { label: string; value: FilterStatus }[] = [
+  { label: "All Statuses", value: "ALL" },
+  { label: "Paid", value: "PAID" },
   { label: "Pending", value: "PENDING" },
   { label: "Failed", value: "FAILED" },
 ];
 
+const statusStyleMap: Record<PurchaseStatus, string> = {
+  PAID: "bg-[#EAF9EF] text-[#22C55E]",
+  FAILED: "bg-[#FCEBEC] text-[#F87171]",
+  PENDING: "bg-[#FFF7E9] text-[#F59E0B]",
+};
+
+const statusIconMap: Record<PurchaseStatus, React.ElementType> = {
+  PAID: Check,
+  FAILED: X,
+  PENDING: Clock3,
+};
+
+const statusLabelMap: Record<PurchaseStatus, string> = {
+  PAID: "Paid",
+  FAILED: "Failed",
+  PENDING: "Pending",
+};
+
 export default function PurchaseLogsContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState<StatusTab>("ALL");
+  const [selectedStatus, setSelectedStatus] = useState<FilterStatus>("ALL");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(20);
 
   const [activePurchase, setActivePurchase] = useState<PurchaseLogItem | null>(null);
   const [downloadingPhotoId, setDownloadingPhotoId] = useState<string | null>(null);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const filterDropdownRef = useRef<HTMLDivElement | null>(null);
 
-  // Debounce search input
+  // Debounce search
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(searchQuery);
       setCurrentPage(1);
-    }, 350);
+    }, 300);
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
-  const {
-    data: response,
-    isLoading,
-    isFetching,
-    refetch,
-  } = useQuery({
+  // Click outside filter dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        filterDropdownRef.current &&
+        !filterDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsFilterOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const { data: response, isLoading } = useQuery({
     queryKey: ["admin-purchases", debouncedSearch, selectedStatus, currentPage, pageSize],
     queryFn: async () => {
       return await orderService.getAdminPurchases({
@@ -88,23 +120,16 @@ export default function PurchaseLogsContent() {
     totalPages: 1,
   };
 
-  const handleCopy = (text: string, id: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedId(id);
-    toast.success("Transaction ID copied!");
-    setTimeout(() => setCopiedId(null), 2000);
-  };
-
   const handleDownloadOriginal = async (photoId: string, title?: string) => {
     setDownloadingPhotoId(photoId);
     try {
       toast.info("Preparing secure original download...");
       const safeTitle = (title || "Photo").replace(/[^a-zA-Z0-9-_]/g, "_");
       await photoService.downloadOriginal(photoId, `${safeTitle}.jpg`);
-      toast.success("Download initiated!");
+      toast.success("Download started!");
     } catch (error) {
       console.error("Download failed:", error);
-      toast.error("Failed to download original photo. You may lack permission.");
+      toast.error("Failed to download original photo. Please check permissions.");
     } finally {
       setDownloadingPhotoId(null);
     }
@@ -115,422 +140,331 @@ export default function PurchaseLogsContent() {
       month: "short",
       day: "numeric",
       year: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
     });
   };
 
   return (
-    <div className="space-y-6 [font-family:var(--font-sf-pro)]">
-      {/* Page Header */}
+    <section className="pt-10 [font-family:var(--font-sf-pro)] md:pt-0">
+      {/* Top Header: Matching Platform Uploads & User Management Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-text-strong text-2xl font-bold tracking-tight">Purchase Logs</h1>
-          <p className="text-text-weak text-sm mt-1">
-            Complete transaction history tracking purchased photos, buyers, photographers, and earnings.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => refetch()}
-            disabled={isFetching}
-            className="border-line-weaker bg-surface-muted-100 text-text-strong hover:bg-fill-hover inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-sm font-medium transition-colors cursor-pointer"
-          >
-            <RefreshCw size={14} className={isFetching ? "animate-spin" : ""} />
-            <span>Refresh</span>
-          </button>
-        </div>
-      </div>
+        <h1 className="border-brand-default text-brand-default inline-flex border-b pb-1 text-base font-medium sm:text-lg">
+          Purchase Logs
+        </h1>
 
-      {/* KPI Cards Grid */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        {/* Total Sold */}
-        <div className="border-line-weaker bg-surface-muted-100 rounded-xl border p-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-text-weak text-xs font-medium uppercase tracking-wider">
-              Photos Sold
-            </span>
-            <div className="bg-brand-default/10 text-brand-default flex h-8 w-8 items-center justify-center rounded-lg">
-              <ShoppingBag size={16} />
-            </div>
-          </div>
-          <p className="text-text-strong mt-2 text-2xl font-bold">
-            {stats.totalCompletedPurchases.toLocaleString()}
-          </p>
-          <p className="text-text-weak text-xs mt-1">Completed purchases</p>
-        </div>
+        <div className="relative flex flex-wrap items-center gap-3 text-sm">
+          <p className="text-text-weak">{meta.total} Purchases</p>
 
-        {/* Gross Revenue */}
-        <div className="border-line-weaker bg-surface-muted-100 rounded-xl border p-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-text-weak text-xs font-medium uppercase tracking-wider">
-              Gross Volume
-            </span>
-            <div className="bg-emerald-500/10 text-emerald-400 flex h-8 w-8 items-center justify-center rounded-lg">
-              <DollarSign size={16} />
-            </div>
-          </div>
-          <p className="text-text-strong mt-2 text-2xl font-bold">
-            ${stats.totalGrossVolume.toFixed(2)}
-          </p>
-          <p className="text-text-weak text-xs mt-1">Total revenue collected</p>
-        </div>
-
-        {/* Platform Fees */}
-        <div className="border-line-weaker bg-surface-muted-100 rounded-xl border p-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-text-weak text-xs font-medium uppercase tracking-wider">
-              Platform Fees
-            </span>
-            <div className="bg-sky-500/10 text-sky-400 flex h-8 w-8 items-center justify-center rounded-lg">
-              <TrendingUp size={16} />
-            </div>
-          </div>
-          <p className="text-text-strong mt-2 text-2xl font-bold">
-            ${stats.totalPlatformFees.toFixed(2)}
-          </p>
-          <p className="text-text-weak text-xs mt-1">Platform commissions</p>
-        </div>
-
-        {/* Photographer Earnings */}
-        <div className="border-line-weaker bg-surface-muted-100 rounded-xl border p-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-text-weak text-xs font-medium uppercase tracking-wider">
-              Photographer Earnings
-            </span>
-            <div className="bg-amber-500/10 text-amber-400 flex h-8 w-8 items-center justify-center rounded-lg">
-              <Users size={16} />
-            </div>
-          </div>
-          <p className="text-text-strong mt-2 text-2xl font-bold">
-            ${stats.totalPhotographerEarnings.toFixed(2)}
-          </p>
-          <p className="text-text-weak text-xs mt-1">Creator payouts allocated</p>
-        </div>
-      </div>
-
-      {/* Filter & Search Bar */}
-      <div className="border-line-weaker bg-surface-muted-100 flex flex-col gap-3 rounded-xl border p-3.5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-        {/* Status Tabs */}
-        <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
-          {STATUS_TABS.map((tab) => {
-            const isActive = selectedStatus === tab.value;
-            return (
-              <button
-                key={tab.value}
-                type="button"
-                onClick={() => {
-                  setSelectedStatus(tab.value);
-                  setCurrentPage(1);
-                }}
-                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
-                  isActive
-                    ? "bg-brand-default text-background font-semibold"
-                    : "text-text-weak hover:text-text-strong hover:bg-surface-muted-200"
-                }`}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Search Input */}
-        <div className="relative sm:w-80">
-          <Search size={15} className="text-text-weak absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search buyer, photographer, photo, or ID..."
-            className="border-line-weaker bg-surface-muted-200 text-text-strong placeholder:text-text-disabled w-full rounded-lg border py-1.5 pl-9 pr-3 text-xs outline-none focus:border-brand-default transition-colors"
-          />
-        </div>
-      </div>
-
-      {/* Table Container */}
-      <div className="border-line-weaker bg-surface-muted-100 rounded-xl border shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="border-line-weaker bg-surface-muted-200/50 border-b uppercase tracking-wider text-text-weak font-semibold">
-              <tr>
-                <th className="px-4 py-3.5">Photo</th>
-                <th className="px-4 py-3.5">Buyer</th>
-                <th className="px-4 py-3.5">Photographer</th>
-                <th className="px-4 py-3.5 text-right">Price</th>
-                <th className="px-4 py-3.5 text-right">Earnings / Fee</th>
-                <th className="px-4 py-3.5">Transaction Ref</th>
-                <th className="px-4 py-3.5">Date</th>
-                <th className="px-4 py-3.5 text-center">Status</th>
-                <th className="px-4 py-3.5 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-line-weaker">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={9} className="py-16 text-center text-text-weak">
-                    <div className="flex flex-col items-center justify-center gap-2">
-                      <Loader2 size={24} className="animate-spin text-brand-default" />
-                      <p>Loading purchase logs...</p>
-                    </div>
-                  </td>
-                </tr>
-              ) : purchases.length === 0 ? (
-                <tr>
-                  <td colSpan={9} className="py-16 text-center text-text-weak">
-                    <div className="flex flex-col items-center justify-center gap-2">
-                      <ShoppingBag size={28} className="text-text-disabled" />
-                      <p className="text-text-strong font-medium">No purchase records found</p>
-                      <p className="text-xs max-w-sm">
-                        {debouncedSearch
-                          ? `No purchases matched "${debouncedSearch}". Try a different search.`
-                          : "No photo purchases have been recorded yet."}
-                      </p>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                purchases.map((purchase) => {
-                  const isDownloadingThis = downloadingPhotoId === purchase.photo.id;
-                  const displayTransactionId =
-                    purchase.paypalOrderId || purchase.orderId.slice(0, 8);
-
-                  return (
-                    <tr
-                      key={purchase.id}
-                      className="hover:bg-surface-muted-200/40 transition-colors"
-                    >
-                      {/* Photo Thumbnail & Info */}
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3 min-w-50">
-                          <div
-                            onClick={() => setActivePurchase(purchase)}
-                            className="border-line-weaker relative h-12 w-12 shrink-0 cursor-pointer overflow-hidden rounded-lg border bg-surface-muted-200"
-                          >
-                            <Image
-                              src={getAbsoluteImageUrl(purchase.photo.imageUrl)}
-                              alt={purchase.photo.title || "Photo"}
-                              fill
-                              sizes="48px"
-                              className="object-cover"
-                            />
-                          </div>
-                          <div className="min-w-0">
-                            <p
-                              onClick={() => setActivePurchase(purchase)}
-                              className="text-text-strong font-medium hover:text-brand-default truncate max-w-40 cursor-pointer"
-                              title={purchase.photo.title}
-                            >
-                              {purchase.photo.title}
-                            </p>
-                            <p className="text-text-weak text-[11px] truncate max-w-40">
-                              {purchase.photo.location
-                                ? `${purchase.photo.location.name}`
-                                : "Location N/A"}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Buyer */}
-                      <td className="px-4 py-3 min-w-45">
-                        <div className="flex items-center gap-2">
-                          <div className="bg-brand-default/10 text-brand-default flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
-                            {purchase.buyer.name?.[0]?.toUpperCase() || "B"}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-text-strong font-medium truncate">
-                              {purchase.buyer.name}
-                            </p>
-                            <p className="text-text-weak text-[11px] truncate">
-                              {purchase.buyer.email}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Photographer */}
-                      <td className="px-4 py-3 min-w-42.5">
-                        <div className="min-w-0">
-                          <p className="text-text-strong font-medium truncate">
-                            {purchase.photo.photographer.name}
-                          </p>
-                          <p className="text-text-weak text-[11px] truncate">
-                            {purchase.photo.photographer.email}
-                          </p>
-                        </div>
-                      </td>
-
-                      {/* Price */}
-                      <td className="px-4 py-3 text-right font-semibold text-text-strong whitespace-nowrap">
-                        ${purchase.price.toFixed(2)}
-                      </td>
-
-                      {/* Split: Photographer / Platform */}
-                      <td className="px-4 py-3 text-right whitespace-nowrap">
-                        <span className="text-emerald-400 font-medium">
-                          ${purchase.photographerEarnings.toFixed(2)}
-                        </span>
-                        <span className="text-text-disabled mx-1">/</span>
-                        <span className="text-brand-default font-medium">
-                          ${purchase.platformFee.toFixed(2)}
-                        </span>
-                      </td>
-
-                      {/* Transaction ID */}
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <div className="inline-flex items-center gap-1 font-mono text-[11px] text-text-weak bg-surface-muted-200/80 px-2 py-0.5 rounded border border-line-weaker">
-                          <span className="truncate max-w-30">{displayTransactionId}</span>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              handleCopy(purchase.paypalOrderId || purchase.orderId, purchase.id)
-                            }
-                            className="text-text-weak hover:text-text-strong ml-0.5 transition-colors"
-                            title="Copy Transaction ID"
-                          >
-                            {copiedId === purchase.id ? (
-                              <Check size={12} className="text-emerald-400" />
-                            ) : (
-                              <Copy size={12} />
-                            )}
-                          </button>
-                        </div>
-                      </td>
-
-                      {/* Date */}
-                      <td className="px-4 py-3 text-text-weak whitespace-nowrap">
-                        {formatDate(purchase.purchaseDate)}
-                      </td>
-
-                      {/* Order Status */}
-                      <td className="px-4 py-3 text-center whitespace-nowrap">
-                        <span
-                          className={`inline-block rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
-                            purchase.orderStatus === "PAID"
-                              ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
-                              : purchase.orderStatus === "PENDING"
-                              ? "bg-amber-500/15 text-amber-400 border border-amber-500/20"
-                              : "bg-rose-500/15 text-rose-400 border border-rose-500/20"
-                          }`}
-                        >
-                          {purchase.orderStatus}
-                        </span>
-                      </td>
-
-                      {/* Action Buttons */}
-                      <td className="px-4 py-3 text-center whitespace-nowrap">
-                        <div className="flex items-center justify-center gap-1.5">
-                          {/* View Details */}
-                          <button
-                            type="button"
-                            onClick={() => setActivePurchase(purchase)}
-                            title="View Purchase Details"
-                            className="border-line-weaker text-text-weak hover:text-text-strong hover:bg-fill-hover inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors cursor-pointer"
-                          >
-                            <Eye size={14} />
-                          </button>
-
-                          {/* Download Original Photo */}
-                          <button
-                            type="button"
-                            disabled={isDownloadingThis}
-                            onClick={() =>
-                              handleDownloadOriginal(
-                                purchase.photo.id,
-                                purchase.photo.title || "Photo"
-                              )
-                            }
-                            title="Download Original Photo"
-                            className="border-line-weaker text-text-weak hover:text-brand-default hover:bg-fill-hover inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors disabled:opacity-50 cursor-pointer"
-                          >
-                            {isDownloadingThis ? (
-                              <Loader2 size={14} className="animate-spin text-brand-default" />
-                            ) : (
-                              <Download size={14} />
-                            )}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination Footer */}
-        {meta.totalPages > 1 ? (
-          <div className="border-line-weaker bg-surface-muted-200/30 flex flex-col items-center justify-between gap-3 border-t px-4 py-3 sm:flex-row">
-            <p className="text-text-weak text-xs">
-              Showing{" "}
-              <span className="text-text-strong font-medium">
-                {(currentPage - 1) * pageSize + 1}
-              </span>{" "}
-              to{" "}
-              <span className="text-text-strong font-medium">
-                {Math.min(currentPage * pageSize, meta.total)}
-              </span>{" "}
-              of <span className="text-text-strong font-medium">{meta.total}</span> purchases
-            </p>
-
-            <div className="flex items-center gap-1">
+          {/* Search Box */}
+          <div className="relative w-full sm:w-60">
+            <Search
+              size={14}
+              className="text-text-weak pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
+            />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search buyer, photo, ID..."
+              className="border-line-weaker bg-surface-muted-100 text-text-strong placeholder:text-text-weaker focus:border-brand-default h-9 w-full rounded-sm border pl-9 pr-8 text-xs focus:outline-none"
+            />
+            {searchQuery ? (
               <button
                 type="button"
-                disabled={currentPage <= 1}
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                className="border-line-weaker bg-surface-muted-100 text-text-weak hover:text-text-strong hover:bg-surface-muted-200 rounded-lg border px-2.5 py-1 text-xs font-medium disabled:opacity-40 cursor-pointer transition-colors"
+                onClick={() => setSearchQuery("")}
+                className="text-text-weak hover:text-text-strong absolute top-1/2 right-2.5 -translate-y-1/2 cursor-pointer"
               >
-                Previous
+                <X size={14} />
               </button>
+            ) : null}
+          </div>
 
-              {Array.from({ length: meta.totalPages }, (_, i) => i + 1)
-                .filter((p) => {
-                  return (
-                    p === 1 ||
-                    p === meta.totalPages ||
-                    (p >= currentPage - 2 && p <= currentPage + 2)
-                  );
-                })
-                .map((page, index, array) => {
-                  const prev = array[index - 1];
-                  const showEllipsis = prev && page - prev > 1;
+          {/* Filter & Sort Dropdown */}
+          <div className="relative" ref={filterDropdownRef}>
+            <button
+              type="button"
+              onClick={() => setIsFilterOpen((prev) => !prev)}
+              className="border-line-weaker bg-surface-muted-100 text-brand-default inline-flex h-9 items-center gap-2 rounded-sm border px-3 text-sm font-medium cursor-pointer"
+            >
+              Filter &amp; Sort
+              <SlidersHorizontal size={14} />
+            </button>
 
-                  return (
-                    <div key={page} className="flex items-center gap-1">
-                      {showEllipsis ? (
-                        <span className="text-text-disabled px-1 text-xs">...</span>
-                      ) : null}
+            {isFilterOpen ? (
+              <div className="border-line-weaker bg-surface-muted-100 absolute top-11 right-0 z-20 w-48 overflow-hidden rounded-sm border shadow-lg">
+                <p className="text-text-weak px-3 pt-2.5 pb-1 text-[11px] font-semibold tracking-wide uppercase">
+                  Order Status
+                </p>
+                <ul className="py-1">
+                  {FILTER_OPTIONS.map((opt) => (
+                    <li key={opt.value}>
                       <button
                         type="button"
-                        onClick={() => setCurrentPage(page)}
-                        className={`min-w-7 rounded-lg px-2 py-1 text-xs font-medium transition-colors cursor-pointer ${
-                          currentPage === page
-                            ? "bg-brand-default text-background font-semibold"
-                            : "border border-line-weaker bg-surface-muted-100 text-text-weak hover:text-text-strong hover:bg-surface-muted-200"
+                        onClick={() => {
+                          setSelectedStatus(opt.value);
+                          setCurrentPage(1);
+                          setIsFilterOpen(false);
+                        }}
+                        className={`hover:bg-fill-hover flex w-full items-center justify-between px-3 py-2 text-left text-xs transition-colors cursor-pointer ${
+                          selectedStatus === opt.value
+                            ? "bg-fill-disable font-medium text-brand-default"
+                            : "text-text-weak"
                         }`}
                       >
-                        {page}
+                        <span>{opt.label}</span>
+                        {selectedStatus === opt.value ? (
+                          <Check size={12} className="text-brand-default" />
+                        ) : null}
                       </button>
-                    </div>
-                  );
-                })}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </div>
 
-              <button
-                type="button"
-                disabled={currentPage >= meta.totalPages}
-                onClick={() => setCurrentPage((p) => Math.min(meta.totalPages, p + 1))}
-                className="border-line-weaker bg-surface-muted-100 text-text-weak hover:text-text-strong hover:bg-surface-muted-200 rounded-lg border px-2.5 py-1 text-xs font-medium disabled:opacity-40 cursor-pointer transition-colors"
-              >
-                Next
-              </button>
+      {/* KPI Cards: Exactly matching DashboardOverviewStatsGrid */}
+      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:gap-5 xl:grid-cols-4 xl:gap-6">
+        <article className="border-line-weaker bg-surface-muted-100 rounded-sm border p-3 sm:p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="bg-brand-disabled text-brand-default inline-flex h-8 w-8 items-center justify-center rounded-md sm:h-9 sm:w-9">
+              <ShoppingBag size={14} />
             </div>
           </div>
-        ) : null}
+          <p className="text-text-strong mt-5 text-[22px] leading-none sm:mt-6 sm:text-[24px]">
+            {stats.totalCompletedPurchases.toLocaleString()}
+          </p>
+          <p className="text-text-weak mt-1 text-[11px] sm:text-xs">Completed Purchases</p>
+        </article>
+
+        <article className="border-line-weaker bg-surface-muted-100 rounded-sm border p-3 sm:p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="bg-brand-disabled text-brand-default inline-flex h-8 w-8 items-center justify-center rounded-md sm:h-9 sm:w-9">
+              <DollarSign size={14} />
+            </div>
+          </div>
+          <p className="text-text-strong mt-5 text-[22px] leading-none sm:mt-6 sm:text-[24px]">
+            ${stats.totalGrossVolume.toFixed(2)}
+          </p>
+          <p className="text-text-weak mt-1 text-[11px] sm:text-xs">Gross Revenue Collected</p>
+        </article>
+
+        <article className="border-line-weaker bg-surface-muted-100 rounded-sm border p-3 sm:p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="bg-brand-disabled text-brand-default inline-flex h-8 w-8 items-center justify-center rounded-md sm:h-9 sm:w-9">
+              <TrendingUp size={14} />
+            </div>
+          </div>
+          <p className="text-text-strong mt-5 text-[22px] leading-none sm:mt-6 sm:text-[24px]">
+            ${stats.totalPlatformFees.toFixed(2)}
+          </p>
+          <p className="text-text-weak mt-1 text-[11px] sm:text-xs">Platform Fees</p>
+        </article>
+
+        <article className="border-line-weaker bg-surface-muted-100 rounded-sm border p-3 sm:p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="bg-brand-disabled text-brand-default inline-flex h-8 w-8 items-center justify-center rounded-md sm:h-9 sm:w-9">
+              <Users size={14} />
+            </div>
+          </div>
+          <p className="text-text-strong mt-5 text-[22px] leading-none sm:mt-6 sm:text-[24px]">
+            ${stats.totalPhotographerEarnings.toFixed(2)}
+          </p>
+          <p className="text-text-weak mt-1 text-[11px] sm:text-xs">Photographer Payouts</p>
+        </article>
       </div>
+
+      {/* Table: Exactly matching ModeratorListTable & UserManagementTable */}
+      <div className="border-line-weaker bg-surface-muted-100 mt-5 overflow-x-auto border">
+        <table className="text-text-weak w-full min-w-280 border-collapse text-left text-sm xl:min-w-0">
+          <thead>
+            <tr className="border-line-weaker text-text-strong border-b bg-[#F8FAFC] text-xs font-semibold">
+              <th className="px-2 py-2.5">Photo</th>
+              <th className="px-2 py-2.5">Name</th>
+              <th className="px-2 py-2.5">Buyer</th>
+              <th className="px-2 py-2.5">Photographer</th>
+              <th className="px-2 py-2.5">Price</th>
+              <th className="px-2 py-2.5">Earnings / Fee</th>
+              <th className="px-2 py-2.5">Date</th>
+              <th className="px-2 py-2.5">Status</th>
+              <th className="px-2 py-2.5">Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {isLoading ? (
+              <tr>
+                <td colSpan={9} className="py-16 text-center text-text-weak">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <Loader2 size={20} className="animate-spin text-brand-default" />
+                    <span className="text-xs">Loading purchase logs...</span>
+                  </div>
+                </td>
+              </tr>
+            ) : purchases.length === 0 ? (
+              <tr>
+                <td colSpan={9} className="py-16 text-center text-text-weak">
+                  <p className="text-sm">No purchases found.</p>
+                </td>
+              </tr>
+            ) : (
+              purchases.map((purchase) => {
+                const StatusIcon = statusIconMap[purchase.orderStatus];
+                const isDownloadingThis = downloadingPhotoId === purchase.photo.id;
+
+                return (
+                  <tr
+                    key={purchase.id}
+                    className="border-line-weaker border-b last:border-b-0 text-xs"
+                  >
+                    {/* Photo Thumbnail */}
+                    <td className="px-2 py-2">
+                      <Image
+                        src={getAbsoluteImageUrl(purchase.photo.imageUrl)}
+                        alt={purchase.photo.title || "Photo"}
+                        width={56}
+                        height={36}
+                        className="h-9 w-14 rounded-xs object-cover"
+                      />
+                    </td>
+
+                    {/* Photo Title & Spot */}
+                    <td className="text-text-strong px-2 py-2 max-w-42.5">
+                      <p className="truncate font-medium" title={purchase.photo.title}>
+                        {purchase.photo.title}
+                      </p>
+                      <p className="text-text-weak text-[11px] truncate">
+                        {purchase.photo.location ? purchase.photo.location.name : "N/A"}
+                      </p>
+                    </td>
+
+                    {/* Buyer */}
+                    <td className="px-2 py-2 max-w-42.5">
+                      <p className="text-text-strong font-medium truncate">
+                        {purchase.buyer.name}
+                      </p>
+                      <p className="text-text-weak text-[11px] truncate">{purchase.buyer.email}</p>
+                    </td>
+
+                    {/* Photographer */}
+                    <td className="px-2 py-2 max-w-42.5">
+                      <p className="text-text-strong font-medium truncate">
+                        {purchase.photo.photographer.name}
+                      </p>
+                      <p className="text-text-weak text-[11px] truncate">
+                        {purchase.photo.photographer.email}
+                      </p>
+                    </td>
+
+                    {/* Price */}
+                    <td className="text-text-strong px-2 py-2 font-semibold whitespace-nowrap">
+                      ${purchase.price.toFixed(2)}
+                    </td>
+
+                    {/* Earnings / Platform Fee */}
+                    <td className="px-2 py-2 whitespace-nowrap text-text-weak text-[11px]">
+                      <span className="text-emerald-600 font-medium">
+                        ${purchase.photographerEarnings.toFixed(2)}
+                      </span>
+                      <span className="mx-1">/</span>
+                      <span className="text-text-strong">
+                        ${purchase.platformFee.toFixed(2)}
+                      </span>
+                    </td>
+
+                    {/* Date */}
+                    <td className="px-2 py-2 text-text-weak whitespace-nowrap">
+                      {formatDate(purchase.purchaseDate)}
+                    </td>
+
+                    {/* Status Badge: Exact ModeratorListTable styling */}
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium ${
+                          statusStyleMap[purchase.orderStatus]
+                        }`}
+                      >
+                        <StatusIcon size={12} />
+                        {statusLabelMap[purchase.orderStatus]}
+                      </span>
+                    </td>
+
+                    {/* Action Buttons: Exact ModeratorListTable styling */}
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleDownloadOriginal(purchase.photo.id, purchase.photo.title)
+                          }
+                          disabled={isDownloadingThis}
+                          className="text-text-strong hover:text-brand-default inline-flex cursor-pointer items-center gap-1 text-sm hover:underline disabled:opacity-50"
+                          title="Download Original Photo"
+                        >
+                          {isDownloadingThis ? (
+                            <Loader2 size={14} className="animate-spin text-brand-default" />
+                          ) : (
+                            <Download size={14} />
+                          )}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setActivePurchase(purchase)}
+                          className="inline-flex cursor-pointer items-center gap-1 text-sm text-[#0EA5E9] hover:underline"
+                          title="View Details"
+                        >
+                          <Eye size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination: Exactly matching UserManagementPagination */}
+      {meta.totalPages > 1 ? (
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-1.5 text-xs text-text-weak sm:mt-6 sm:gap-2">
+          <button
+            type="button"
+            onClick={() => setCurrentPage((previous) => Math.max(1, previous - 1))}
+            disabled={currentPage === 1}
+            className="inline-flex h-8 items-center gap-1 rounded-sm px-2 py-1 disabled:opacity-45 cursor-pointer"
+          >
+            <ChevronLeft size={12} />
+            <span className="hidden sm:inline">Previous</span>
+          </button>
+
+          {Array.from({ length: meta.totalPages }, (_, index) => index + 1).map((page) => (
+            <button
+              key={page}
+              type="button"
+              onClick={() => setCurrentPage(page)}
+              className={`inline-flex h-8 w-8 items-center justify-center rounded-sm cursor-pointer ${
+                currentPage === page
+                  ? "bg-[#EEF2F7] text-text-strong font-medium"
+                  : "text-text-weak hover:bg-fill-hover"
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+
+          <button
+            type="button"
+            onClick={() => setCurrentPage((previous) => Math.min(meta.totalPages, previous + 1))}
+            disabled={currentPage === meta.totalPages}
+            className="inline-flex h-8 items-center gap-1 rounded-sm px-2 py-1 disabled:opacity-45 cursor-pointer"
+          >
+            <span className="hidden sm:inline">Next</span>
+            <ChevronRight size={12} />
+          </button>
+        </div>
+      ) : null}
 
       {/* Purchase Details Modal */}
       <PurchaseDetailsModal
@@ -539,6 +473,6 @@ export default function PurchaseLogsContent() {
         onDownloadOriginal={handleDownloadOriginal}
         isDownloading={downloadingPhotoId === activePurchase?.photo.id}
       />
-    </div>
+    </section>
   );
 }
