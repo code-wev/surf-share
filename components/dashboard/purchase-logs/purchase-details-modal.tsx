@@ -58,14 +58,9 @@ export default function PurchaseDetailsModal({
     ? `${purchase.photo.location.name}${purchase.photo.location.state ? `, ${purchase.photo.location.state}` : ""}`
     : "Unknown location";
 
-  const resolutionLabel =
-    purchase.photo.width && purchase.photo.height
-      ? `${purchase.photo.width} × ${purchase.photo.height}`
-      : "Standard Web";
-
   return (
     <div
-      className="fixed inset-0 z-100 flex items-center justify-center bg-black/45 p-6 sm:p-4"
+      className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 p-4 sm:p-6"
       onClick={onClose}
     >
       <div
@@ -73,7 +68,7 @@ export default function PurchaseDetailsModal({
         aria-modal="true"
         aria-label="Purchase details"
         onClick={(event) => event.stopPropagation()}
-        className="border-line-weaker bg-surface-muted-100 max-h-[92vh] w-full max-w-260 overflow-y-auto rounded-lg border shadow-[0_20px_50px_rgba(15,23,42,0.25)]"
+        className="border-line-weaker bg-surface-muted-100 max-h-[90vh] w-full max-w-260 overflow-y-auto rounded-lg border shadow-[0_20px_50px_rgba(15,23,42,0.35)]"
       >
         {/* Sticky Header */}
         <div className="border-line-weaker flex items-center justify-between border-b px-4 py-3 sticky top-0 bg-surface-muted-100 z-10">
@@ -166,7 +161,6 @@ export default function PurchaseDetailsModal({
             <div className="mt-8">
               <h4 className="text-text-strong text-lg font-semibold">Transaction Breakdown</h4>
               <div className="mt-3 space-y-2">
-                <DetailItem label="Buyer Role" value={purchase.buyer.role} />
                 <DetailItem label="Photo Price" value={`$${purchase.price.toFixed(2)}`} />
                 <DetailItem
                   label="Photographer Earnings"
@@ -185,10 +179,6 @@ export default function PurchaseDetailsModal({
                   label="Transaction Reference"
                   value={purchase.paypalOrderId || purchase.orderId}
                 />
-                <DetailItem label="Resolution" value={resolutionLabel} />
-                {purchase.photo.format ? (
-                  <DetailItem label="Format" value={purchase.photo.format.toUpperCase()} />
-                ) : null}
               </div>
             </div>
 

@@ -149,136 +149,135 @@ export default function PurchaseLogsContent() {
   };
 
   return (
-    <section className="pt-10 [font-family:var(--font-sf-pro)] md:pt-0">
-      {/* Top Header: Matching Platform Uploads & User Management Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="border-brand-default text-brand-default inline-flex border-b pb-1 text-base font-medium sm:text-lg">
-          Purchase Logs
-        </h1>
+    <section className="px-3 pt-6 pb-12 [font-family:var(--font-sf-pro)] sm:px-4 sm:pt-4 sm:pb-14 md:px-6 lg:px-0 lg:pr-10 lg:pb-16 xl:pr-12.5 xl:pb-16">
+      <div className="mx-auto flex w-full max-w-400 flex-col">
+        {/* Top Header: Matching Platform Uploads & User Management Header */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="border-brand-default text-brand-default inline-flex self-start border-b pb-1 text-base font-medium sm:text-lg">
+            Purchase Logs
+          </h1>
 
-        <div className="relative flex flex-wrap items-center gap-3 text-sm">
-          <p className="text-text-weak">{meta.total} Purchases</p>
+          <div className="flex w-full items-center gap-2 sm:w-auto">
+            {/* Search Box */}
+            <div className="relative min-w-0 flex-1 sm:w-60 sm:flex-none">
+              <Search
+                size={14}
+                className="text-text-weak pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
+              />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search buyer, photo..."
+                className="border-line-weaker bg-surface-muted-100 text-text-strong placeholder:text-text-weaker focus:border-brand-default h-9 w-full rounded-sm border pl-8 pr-7 text-xs focus:outline-none"
+              />
+              {searchQuery ? (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="text-text-weak hover:text-text-strong absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer"
+                >
+                  <X size={13} />
+                </button>
+              ) : null}
+            </div>
 
-          {/* Search Box */}
-          <div className="relative w-full sm:w-60">
-            <Search
-              size={14}
-              className="text-text-weak pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
-            />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search buyer, photo, ID..."
-              className="border-line-weaker bg-surface-muted-100 text-text-strong placeholder:text-text-weaker focus:border-brand-default h-9 w-full rounded-sm border pl-9 pr-8 text-xs focus:outline-none"
-            />
-            {searchQuery ? (
+            {/* Filter & Sort Dropdown */}
+            <div className="relative shrink-0" ref={filterDropdownRef}>
               <button
                 type="button"
-                onClick={() => setSearchQuery("")}
-                className="text-text-weak hover:text-text-strong absolute top-1/2 right-2.5 -translate-y-1/2 cursor-pointer"
+                onClick={() => setIsFilterOpen((prev) => !prev)}
+                className="border-line-weaker bg-surface-muted-100 text-brand-default inline-flex h-9 items-center gap-1.5 rounded-sm border px-2.5 text-xs font-medium cursor-pointer whitespace-nowrap sm:px-3 sm:text-sm"
               >
-                <X size={14} />
+                <span>Filter &amp; Sort</span>
+                <SlidersHorizontal size={14} />
               </button>
-            ) : null}
-          </div>
 
-          {/* Filter & Sort Dropdown */}
-          <div className="relative" ref={filterDropdownRef}>
-            <button
-              type="button"
-              onClick={() => setIsFilterOpen((prev) => !prev)}
-              className="border-line-weaker bg-surface-muted-100 text-brand-default inline-flex h-9 items-center gap-2 rounded-sm border px-3 text-sm font-medium cursor-pointer"
-            >
-              Filter &amp; Sort
-              <SlidersHorizontal size={14} />
-            </button>
-
-            {isFilterOpen ? (
-              <div className="border-line-weaker bg-surface-muted-100 absolute top-11 right-0 z-20 w-48 overflow-hidden rounded-sm border shadow-lg">
-                <p className="text-text-weak px-3 pt-2.5 pb-1 text-[11px] font-semibold tracking-wide uppercase">
-                  Order Status
-                </p>
-                <ul className="py-1">
-                  {FILTER_OPTIONS.map((opt) => (
-                    <li key={opt.value}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedStatus(opt.value);
-                          setCurrentPage(1);
-                          setIsFilterOpen(false);
-                        }}
-                        className={`hover:bg-fill-hover flex w-full items-center justify-between px-3 py-2 text-left text-xs transition-colors cursor-pointer ${
-                          selectedStatus === opt.value
-                            ? "bg-fill-disable font-medium text-brand-default"
-                            : "text-text-weak"
-                        }`}
-                      >
-                        <span>{opt.label}</span>
-                        {selectedStatus === opt.value ? (
-                          <Check size={12} className="text-brand-default" />
-                        ) : null}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
+              {isFilterOpen ? (
+                <div className="border-line-weaker bg-surface-muted-100 absolute top-11 right-0 z-20 w-44 overflow-hidden rounded-sm border shadow-lg sm:w-48">
+                  <p className="text-text-weak px-3 pt-2.5 pb-1 text-[11px] font-semibold tracking-wide uppercase">
+                    Order Status
+                  </p>
+                  <ul className="py-1">
+                    {FILTER_OPTIONS.map((opt) => (
+                      <li key={opt.value}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedStatus(opt.value);
+                            setCurrentPage(1);
+                            setIsFilterOpen(false);
+                          }}
+                          className={`hover:bg-fill-hover flex w-full items-center justify-between px-3 py-2 text-left text-xs transition-colors cursor-pointer ${
+                            selectedStatus === opt.value
+                              ? "bg-fill-disable font-medium text-brand-default"
+                              : "text-text-weak"
+                          }`}
+                        >
+                          <span>{opt.label}</span>
+                          {selectedStatus === opt.value ? (
+                            <Check size={12} className="text-brand-default" />
+                          ) : null}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* KPI Cards: Exactly matching DashboardOverviewStatsGrid */}
-      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:gap-5 xl:grid-cols-4 xl:gap-6">
-        <article className="border-line-weaker bg-surface-muted-100 rounded-sm border p-3 sm:p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="bg-brand-disabled text-brand-default inline-flex h-8 w-8 items-center justify-center rounded-md sm:h-9 sm:w-9">
-              <ShoppingBag size={14} />
+        {/* KPI Cards: 2 cards per row on mobile, 4 on desktop */}
+        <div className="mt-5 grid grid-cols-2 gap-2.5 sm:gap-4 lg:gap-5 xl:grid-cols-4 xl:gap-6">
+          <article className="border-line-weaker bg-surface-muted-100 rounded-sm border p-3 sm:p-4">
+            <div className="flex items-start justify-between gap-2">
+              <div className="bg-brand-disabled text-brand-default inline-flex h-8 w-8 items-center justify-center rounded-md sm:h-9 sm:w-9">
+                <ShoppingBag size={14} />
+              </div>
             </div>
-          </div>
-          <p className="text-text-strong mt-5 text-[22px] leading-none sm:mt-6 sm:text-[24px]">
-            {stats.totalCompletedPurchases.toLocaleString()}
-          </p>
-          <p className="text-text-weak mt-1 text-[11px] sm:text-xs">Completed Purchases</p>
-        </article>
+            <p className="text-text-strong mt-3 text-[18px] leading-none sm:mt-5 sm:text-[22px] lg:text-[24px]">
+              {stats.totalCompletedPurchases.toLocaleString()}
+            </p>
+            <p className="text-text-weak mt-1 text-[11px] sm:text-xs">Completed Purchases</p>
+          </article>
 
-        <article className="border-line-weaker bg-surface-muted-100 rounded-sm border p-3 sm:p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="bg-brand-disabled text-brand-default inline-flex h-8 w-8 items-center justify-center rounded-md sm:h-9 sm:w-9">
-              <DollarSign size={14} />
+          <article className="border-line-weaker bg-surface-muted-100 rounded-sm border p-3 sm:p-4">
+            <div className="flex items-start justify-between gap-2">
+              <div className="bg-brand-disabled text-brand-default inline-flex h-8 w-8 items-center justify-center rounded-md sm:h-9 sm:w-9">
+                <DollarSign size={14} />
+              </div>
             </div>
-          </div>
-          <p className="text-text-strong mt-5 text-[22px] leading-none sm:mt-6 sm:text-[24px]">
-            ${stats.totalGrossVolume.toFixed(2)}
-          </p>
-          <p className="text-text-weak mt-1 text-[11px] sm:text-xs">Gross Revenue Collected</p>
-        </article>
+            <p className="text-text-strong mt-3 text-[18px] leading-none sm:mt-5 sm:text-[22px] lg:text-[24px]">
+              ${stats.totalGrossVolume.toFixed(2)}
+            </p>
+            <p className="text-text-weak mt-1 text-[11px] sm:text-xs">Gross Revenue</p>
+          </article>
 
-        <article className="border-line-weaker bg-surface-muted-100 rounded-sm border p-3 sm:p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="bg-brand-disabled text-brand-default inline-flex h-8 w-8 items-center justify-center rounded-md sm:h-9 sm:w-9">
-              <TrendingUp size={14} />
+          <article className="border-line-weaker bg-surface-muted-100 rounded-sm border p-3 sm:p-4">
+            <div className="flex items-start justify-between gap-2">
+              <div className="bg-brand-disabled text-brand-default inline-flex h-8 w-8 items-center justify-center rounded-md sm:h-9 sm:w-9">
+                <TrendingUp size={14} />
+              </div>
             </div>
-          </div>
-          <p className="text-text-strong mt-5 text-[22px] leading-none sm:mt-6 sm:text-[24px]">
-            ${stats.totalPlatformFees.toFixed(2)}
-          </p>
-          <p className="text-text-weak mt-1 text-[11px] sm:text-xs">Platform Fees</p>
-        </article>
+            <p className="text-text-strong mt-3 text-[18px] leading-none sm:mt-5 sm:text-[22px] lg:text-[24px]">
+              ${stats.totalPlatformFees.toFixed(2)}
+            </p>
+            <p className="text-text-weak mt-1 text-[11px] sm:text-xs">Platform Fees</p>
+          </article>
 
-        <article className="border-line-weaker bg-surface-muted-100 rounded-sm border p-3 sm:p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="bg-brand-disabled text-brand-default inline-flex h-8 w-8 items-center justify-center rounded-md sm:h-9 sm:w-9">
-              <Users size={14} />
+          <article className="border-line-weaker bg-surface-muted-100 rounded-sm border p-3 sm:p-4">
+            <div className="flex items-start justify-between gap-2">
+              <div className="bg-brand-disabled text-brand-default inline-flex h-8 w-8 items-center justify-center rounded-md sm:h-9 sm:w-9">
+                <Users size={14} />
+              </div>
             </div>
-          </div>
-          <p className="text-text-strong mt-5 text-[22px] leading-none sm:mt-6 sm:text-[24px]">
-            ${stats.totalPhotographerEarnings.toFixed(2)}
-          </p>
-          <p className="text-text-weak mt-1 text-[11px] sm:text-xs">Photographer Payouts</p>
-        </article>
-      </div>
+            <p className="text-text-strong mt-3 text-[18px] leading-none sm:mt-5 sm:text-[22px] lg:text-[24px]">
+              ${stats.totalPhotographerEarnings.toFixed(2)}
+            </p>
+            <p className="text-text-weak mt-1 text-[11px] sm:text-xs">Photographer Payouts</p>
+          </article>
+        </div>
 
       {/* Table: Exactly matching ModeratorListTable & UserManagementTable */}
       <div className="border-line-weaker bg-surface-muted-100 mt-5 overflow-x-auto border">
@@ -433,7 +432,7 @@ export default function PurchaseLogsContent() {
 
       {/* Pagination: Exactly matching UserManagementPagination & visible when records exist */}
       {meta.total > 0 ? (
-        <div className="mt-5 flex flex-wrap items-center justify-center gap-1.5 text-xs text-text-weak sm:mt-6 sm:gap-2">
+        <div className="mt-6 mb-10 flex flex-wrap items-center justify-center gap-1.5 text-xs text-text-weak sm:mt-7 sm:mb-14 sm:gap-2">
           <button
             type="button"
             onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
@@ -494,6 +493,7 @@ export default function PurchaseLogsContent() {
         onDownloadOriginal={handleDownloadOriginal}
         isDownloading={downloadingPhotoId === activePurchase?.photo.id}
       />
+      </div>
     </section>
   );
 }
